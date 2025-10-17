@@ -10,13 +10,50 @@ FederalRunner is the execution component of the Multi-Agent Federal Form Automat
 - ✅ Atomic execution (launch → fill all pages → extract results → close)
 - ✅ Universal design (works with ANY wizard conforming to schema)
 - ✅ Two-phase browser support (Chromium non-headless, WebKit headless)
+- ✅ Contract-first pattern (schema validation before execution)
 - ✅ Cloud Run ready (stateless, serverless)
-- ✅ OAuth 2.1 authentication
 - ✅ Audit trail screenshots
 
-## Configuration
+## Quick Start
 
-### Environment Variable Loading
+### 1. Run Setup Script
+
+The setup script will configure your complete development environment:
+
+```bash
+cd mcp-servers/federalrunner-mcp
+./scripts/setup.sh
+```
+
+**What the setup script does:**
+- ✅ Finds Python 3.10+ (tries 3.13, 3.12, 3.11, 3.10)
+- ✅ Creates virtual environment
+- ✅ Installs all dependencies (production + test)
+- ✅ Installs Playwright browsers (WebKit + Chromium)
+- ✅ Creates `.env` file from `.env.example`
+- ✅ Ready to run tests!
+
+### 2. Run Tests
+
+```bash
+# Activate virtual environment (if not already active)
+source venv/bin/activate
+
+# Run all tests with automated test runner
+./run_tests.sh
+
+# Or run specific tests
+pytest tests/test_execution_local.py -v
+```
+
+### 3. Detailed Testing Instructions
+
+For comprehensive testing instructions, see:
+**[docs/execution/TEST_INSTRUCTIONS.md](../../docs/execution/TEST_INSTRUCTIONS.md)**
+
+---
+
+## Configuration
 
 FederalRunner uses `pydantic-settings` for flexible configuration loading with the following **priority order** (highest to lowest):
 
@@ -25,54 +62,9 @@ FederalRunner uses `pydantic-settings` for flexible configuration loading with t
 3. **.env file** - `FEDERALRUNNER_HEADLESS=false`
 4. **Default values** - `headless=False`
 
-This works seamlessly across all deployment scenarios:
-
-#### Local pytest Tests
-```bash
-# Loads from .env file + test overrides
-pytest tests/test_execution_local.py -v
-```
-
-The test uses `get_test_config()` which **overrides** .env settings:
-```python
-# Phase 1: Non-headless (debugging)
-config = get_test_config(headless=False, browser_type="chromium")
-
-# Phase 2: Headless (production validation)
-config = get_test_config(headless=True, browser_type="webkit")
-```
-
-#### Local MCP with Claude Desktop
-```bash
-# Loads .env from working directory
-uvicorn src.server:app --reload
-```
-
-Claude Desktop MCP configuration:
-```json
-{
-  "mcpServers": {
-    "federalrunner": {
-      "url": "http://localhost:8080/mcp"
-    }
-  }
-}
-```
-
-Settings in `.env` are automatically loaded when server starts.
-
-#### Cloud Run Deployment
-```bash
-# Uses environment variables from Cloud Run configuration
-gcloud run deploy federalrunner-mcp \
-  --set-env-vars FEDERALRUNNER_HEADLESS=true,FEDERALRUNNER_BROWSER_TYPE=webkit
-```
-
-No .env file needed - environment variables set in Cloud Run take precedence.
-
 ### Configuration Options
 
-All configuration options can be set via environment variables with the `FEDERALRUNNER_` prefix:
+Edit `.env` file or set environment variables with `FEDERALRUNNER_` prefix:
 
 ```bash
 # Browser Settings
@@ -92,14 +84,8 @@ FEDERALRUNNER_SAVE_SCREENSHOTS=true     # Save to disk for debugging
 FEDERALRUNNER_VIEWPORT_WIDTH=1280
 FEDERALRUNNER_VIEWPORT_HEIGHT=1024
 
-# Paths (optional - auto-detected)
-FEDERALRUNNER_WORKSPACE_ROOT=/path/to/workspace
-FEDERALRUNNER_WIZARDS_DIR=/path/to/wizards
-FEDERALRUNNER_LOG_DIR=/path/to/logs
-FEDERALRUNNER_SCREENSHOT_DIR=/path/to/screenshots
-
 # Logging
-LOG_LEVEL=INFO                      # DEBUG, INFO, WARNING, ERROR
+LOG_LEVEL=INFO                          # DEBUG, INFO, WARNING, ERROR
 ```
 
 ### Browser Strategy
@@ -113,133 +99,67 @@ LOG_LEVEL=INFO                      # DEBUG, INFO, WARNING, ERROR
 | **Local MCP Server** | Chromium | ❌ False | Visual validation with Claude Desktop |
 | **Cloud Run Production** | WebKit | ✅ True | Production (FSA compatible) |
 
-## Quick Start
-
-### 1. Install Dependencies
-
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install Playwright browsers
-playwright install webkit chromium
-```
-
-### 2. Configure Environment
-
-```bash
-# Copy example configuration
-cp .env.example .env
-
-# Edit .env for your local setup
-# Default settings work for local development
-```
-
-### 3. Verify Configuration Loading
-
-```bash
-# Run configuration test
-python tests/test_config_loading.py
-```
-
-Expected output:
-```
-============================================================
-FederalRunner Configuration Loading Tests
-============================================================
-
-✓ Config loaded from .env file
-✓ Environment variables override .env file
-✓ Constructor arguments have highest priority
-✓ Phase 1 config: Non-headless Chromium
-✓ Phase 2 config: Headless WebKit
-✓ Production config: Headless WebKit for Cloud Run
-
-============================================================
-All configuration tests passed! ✓
-============================================================
-```
+---
 
 ## Project Structure
 
 ```
 federalrunner-mcp/
+├── scripts/
+│   └── setup.sh                 # Development environment setup ✅
 ├── src/
-│   ├── __init__.py
-│   ├── models.py              # Shared wizard structure models
-│   ├── config.py              # Configuration management
-│   ├── logging_config.py      # Cloud Run compatible logging
-│   ├── playwright_client.py   # Atomic execution client ✅
-│   ├── schema_validator.py    # Schema validation (replaces field_mapper) ✅
-│   ├── execution_tools.py     # MCP tools ✅
-│   ├── server.py              # FastAPI MCP server (TODO)
-│   └── auth.py                # OAuth 2.1 (TODO)
+│   ├── models.py                # Shared wizard structure models ✅
+│   ├── config.py                # Configuration management ✅
+│   ├── logging_config.py        # Cloud Run compatible logging ✅
+│   ├── playwright_client.py     # Atomic execution client ✅
+│   ├── schema_validator.py      # Schema validation (replaces field_mapper) ✅
+│   ├── execution_tools.py       # MCP tools ✅
+│   ├── server.py                # FastAPI MCP server (TODO)
+│   └── auth.py                  # OAuth 2.1 (TODO)
 ├── tests/
-│   ├── test_config_loading.py          # Config verification ✅
-│   ├── test_execution_local.py         # Execution tests ✅
-│   └── run_tests.sh                    # Test runner script ✅
-├── .env                       # Local configuration (git-ignored)
-├── .env.example               # Configuration template
-├── .gitignore                 # Git ignore rules
-├── requirements.txt           # Python dependencies
-├── pytest.ini                 # Pytest configuration
-└── README.md                  # This file
+│   ├── test_execution_local.py  # Execution tests ✅
+│   └── run_tests.sh             # Test runner script ✅
+├── .env.example                 # Configuration template
+├── requirements.txt             # Production dependencies
+├── requirements-test.txt        # Test dependencies
+├── pytest.ini                   # Pytest configuration
+└── README.md                    # This file
 ```
+
+---
 
 ## Development Status
 
 - ✅ **Step 1: Core Infrastructure** - COMPLETE
-  - ✅ Project structure
-  - ✅ Configuration management
-  - ✅ Logging setup
-  - ✅ Shared models (WizardStructure)
-
 - ✅ **Step 2: Playwright Execution Client** - COMPLETE
-  - ✅ Atomic execution pattern (launch → fill → extract → close)
-  - ✅ Browser launch (Chromium/WebKit)
-  - ✅ Field interaction logic (all interaction types)
-  - ✅ Screenshot capture and optimization
-  - ✅ Result extraction framework
-
 - ✅ **Step 3: Schema Validator** - COMPLETE
-  - ✅ Replaces field_mapper.py (no hardcoded mappings!)
-  - ✅ JSON Schema validation
-  - ✅ Claude-friendly error messages
-  - ✅ Schema enhancement for Claude
-
 - ✅ **Step 4: Execution Tools (MCP)** - COMPLETE
-  - ✅ federalrunner_list_wizards()
-  - ✅ federalrunner_get_wizard_info() (returns schema)
-  - ✅ federalrunner_execute_wizard() (validates + executes)
-  - ✅ Contract-first pattern implementation
-
-- ✅ **Step 5: Local Testing** - COMPLETE
-  - ✅ 14 comprehensive tests
-  - ✅ Unit tests (schema, validation, mapping)
-  - ✅ Integration tests (Playwright execution)
-  - ✅ End-to-end tests (complete MCP workflow)
-  - ✅ Error handling tests
-
+- ✅ **Step 5: Local Testing** - COMPLETE (14 tests)
 - ⬜ **Step 6: FastAPI MCP Server** - PENDING
 - ⬜ **Step 7: Claude Desktop Integration** - PENDING
 - ⬜ **Step 8: Cloud Run Deployment** - PENDING
 
+---
+
 ## Testing
 
-FederalRunner includes comprehensive tests covering unit tests, integration tests, and end-to-end execution tests.
-
-### Quick Start
+### Quick Test Commands
 
 ```bash
-# Run all tests with automated test runner
+# Run all tests (automated test runner)
 ./run_tests.sh
 
-# Or run manually
+# Run all tests manually
 pytest tests/test_execution_local.py -v
+
+# Run fast unit tests only (no browser)
+pytest tests/test_execution_local.py -k "not slow and not e2e" -v
+
+# Run Phase 1 only (visible browser - debugging)
+pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_non_headless -v -s
+
+# Run Phase 2 only (headless - production validation)
+pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_headless -v -s
 ```
 
 ### Test Coverage
@@ -254,21 +174,16 @@ pytest tests/test_execution_local.py -v
 ### Two-Phase Testing Approach
 
 **Phase 1: Non-Headless Chromium (Visual Debugging)**
-```bash
-# Watch the browser execute the FSA wizard!
-pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_non_headless -v -s
-```
+- Watch the browser execute the FSA wizard in real-time
+- Perfect for debugging and verifying field interactions
 
 **Phase 2: Headless WebKit (Production Validation)**
-```bash
-# Headless execution with FSA-compatible browser
-pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_headless -v -s
-```
+- Tests production configuration
+- WebKit headless mode works with FSA (Chromium doesn't)
 
-### Detailed Test Documentation
+**Detailed instructions:** [docs/execution/TEST_INSTRUCTIONS.md](../../docs/execution/TEST_INSTRUCTIONS.md)
 
-For comprehensive testing instructions, troubleshooting, and test details, see:
-**[docs/execution/TEST_INSTRUCTIONS.md](../../docs/execution/TEST_INSTRUCTIONS.md)**
+---
 
 ## License
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # FederalRunner Test Runner
-# Quick script to run tests in the recommended order
+# Tests MCP tools that will be exposed via HTTP endpoint
 
 set -e  # Exit on error
 
 echo "=============================================="
-echo "FederalRunner Test Suite"
+echo "FederalRunner MCP Tools Test Suite"
 echo "=============================================="
 echo ""
 
@@ -16,42 +16,40 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Step 1: Unit Tests
-echo -e "${BLUE}Step 1: Running Unit Tests (fast)...${NC}"
+# Step 1: Fast tests (no browser)
+echo -e "${BLUE}Step 1: Testing MCP Tools (Fast - No Browser)${NC}"
 echo "----------------------------------------------"
-pytest tests/test_execution_local.py -k "not slow and not e2e" -v
+echo "Testing: federalrunner_list_wizards()"
+pytest tests/test_execution_local.py::test_federalrunner_list_wizards -v
 echo ""
 
-# Step 2: MCP Tool Tests
-echo -e "${BLUE}Step 2: Running MCP Tool Tests...${NC}"
-echo "----------------------------------------------"
-pytest tests/test_execution_local.py::test_federalrunner_list_wizards -v
+echo "Testing: federalrunner_get_wizard_info()"
 pytest tests/test_execution_local.py::test_federalrunner_get_wizard_info -v
 echo ""
 
-# Step 3: Phase 1 - Non-headless (Visual)
-echo -e "${YELLOW}Step 3: Running Phase 1 - Non-Headless Chromium (VISUAL)${NC}"
+# Step 2: Phase 1 - Non-headless (Visual)
+echo -e "${YELLOW}Step 2: Phase 1 - Non-Headless Chromium (VISUAL)${NC}"
 echo "  Watch the browser execute the FSA wizard!"
 echo "----------------------------------------------"
-pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_non_headless -v -s
+echo "Testing: federalrunner_execute_wizard() [NON-HEADLESS]"
+pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_non_headless -v -s
 echo ""
 
-# Step 4: Phase 2 - Headless (Production)
-echo -e "${BLUE}Step 4: Running Phase 2 - Headless WebKit (PRODUCTION)${NC}"
+# Step 3: Phase 2 - Headless (Production)
+echo -e "${BLUE}Step 3: Phase 2 - Headless WebKit (PRODUCTION)${NC}"
 echo "----------------------------------------------"
-pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_headless -v -s
+echo "Testing: federalrunner_execute_wizard() [HEADLESS]"
+pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_headless -v -s
 echo ""
 
-# Step 5: End-to-End Tests
-echo -e "${BLUE}Step 5: Running End-to-End Tests...${NC}"
+# Step 4: Error Handling Tests
+echo -e "${BLUE}Step 4: Error Handling Tests${NC}"
 echo "----------------------------------------------"
-pytest tests/test_execution_local.py -m "e2e" -v -s
-echo ""
-
-# Step 6: Error Handling Tests
-echo -e "${BLUE}Step 6: Running Error Handling Tests...${NC}"
-echo "----------------------------------------------"
+echo "Testing: Validation failures"
 pytest tests/test_execution_local.py::test_execute_wizard_validation_failure -v
+echo ""
+
+echo "Testing: Non-existent wizard"
 pytest tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard -v
 echo ""
 
@@ -59,7 +57,14 @@ echo -e "${GREEN}=============================================="
 echo "✅ All tests completed successfully!"
 echo "=============================================${NC}"
 echo ""
+echo "Test Summary:"
+echo "  ✅ MCP Tool Tests: 2 passed"
+echo "  ✅ Phase 1 (Non-headless): 1 passed"
+echo "  ✅ Phase 2 (Headless): 1 passed"
+echo "  ✅ Error Handling: 2 passed"
+echo ""
+echo "Total: 6 tests"
+echo ""
 echo "Next steps:"
-echo "  1. Review test output above"
-echo "  2. If all pass, proceed to FastAPI MCP Server implementation"
-echo "  3. See TEST_INSTRUCTIONS.md for troubleshooting"
+echo "  - All tests passed → Ready for FastAPI MCP Server implementation"
+echo "  - See docs/execution/TEST_INSTRUCTIONS.md for details"

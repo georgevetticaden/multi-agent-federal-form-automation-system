@@ -19,3 +19,6 @@ python-dateutil==2.9.0
 
 # Optional: Fuzzy matching for field mapper
 rapidfuzz==3.10.0
+
+# JSON Schema validation
+jsonschema==4.23.0
