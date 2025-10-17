@@ -136,8 +136,13 @@ class FederalRunnerConfig(BaseSettings):
             self.workspace_root = Path.cwd()
 
         if self.wizards_dir is None:
-            # SHARED LOCATION: Use root multi-agent-federal-form-automation-system/wizards/ directory
-            # Navigate up from mcp-servers/federalrunner-mcp/ to multi-agent-federal-form-automation-system/
+            # Two modes:
+            # 1. Local: SHARED LOCATION at multi-agent-federal-form-automation-system/wizards/
+            #    - FederalScout WRITES wizard-structures and data-schemas
+            #    - FederalRunner READS them
+            # 2. Cloud Run: Wizards copied into Docker image at /app/wizards/
+            #    - Set via FEDERALRUNNER_WIZARDS_DIR=/app/wizards
+            #    - Deployment script copies ../../wizards/ → src/wizards/ before build
             project_root = Path(__file__).parent.parent.parent.parent
             self.wizards_dir = project_root / "wizards"
 
@@ -313,33 +318,79 @@ def get_dev_config() -> FederalRunnerConfig:
     )
 
 
-def get_test_config(temp_dir: Optional[Path] = None, headless: bool = False, browser_type: str = "chromium") -> FederalRunnerConfig:
+def get_test_config(temp_dir: Optional[Path] = None) -> FederalRunnerConfig:
     """
     Get test configuration.
 
+    Loads settings from .env file first, then allows environment variable overrides.
+
     CRITICAL: Two-phase testing approach:
-    1. Non-headless first: browser_type="chromium", headless=False (debugging)
-    2. Headless second: browser_type="webkit", headless=True (production validation)
+    - Phase 1: browser_type=chromium, headless=False (visual debugging)
+    - Phase 2: browser_type=webkit, headless=True (production validation)
+
+    Configure via .env file or environment variables:
+      - FEDERALRUNNER_BROWSER_TYPE=chromium|firefox|webkit
+      - FEDERALRUNNER_HEADLESS=true|false
+      - FEDERALRUNNER_SLOW_MO=500 (milliseconds)
+      - FEDERALRUNNER_EXECUTION_TIMEOUT=60 (seconds)
+
+    Defaults (if not specified):
+      - browser_type=chromium
+      - headless=False
+      - slow_mo=500 (non-headless) or 0 (headless)
+      - execution_timeout=60
 
     Args:
-        temp_dir: Temporary directory for test files
-        headless: Run in headless mode (False for debugging, True for production test)
-        browser_type: Browser engine (chromium for non-headless, webkit for headless)
+        temp_dir: Temporary directory for test files (optional, uses shared wizards/ if None)
 
     Returns:
-        FederalRunnerConfig configured for testing
+        FederalRunnerConfig configured for testing with .env + environment overrides
+
+    Example .env for Phase 1 (visual debugging):
+        FEDERALRUNNER_BROWSER_TYPE=chromium
+        FEDERALRUNNER_HEADLESS=false
+        FEDERALRUNNER_SLOW_MO=500
+
+    Example .env for Phase 2 (headless production):
+        FEDERALRUNNER_BROWSER_TYPE=webkit
+        FEDERALRUNNER_HEADLESS=true
+        FEDERALRUNNER_SLOW_MO=0
     """
+    # Load .env file if it exists
+    from dotenv import load_dotenv
+    env_file = Path.cwd() / '.env'
+    if env_file.exists():
+        load_dotenv(env_file)
+
+    # Check environment variables (from .env or actual environment)
+    # These can be overridden at runtime for different test phases
+    browser_type = os.getenv('FEDERALRUNNER_BROWSER_TYPE', 'chromium')
+    headless_env = os.getenv('FEDERALRUNNER_HEADLESS', 'false').lower()
+    headless = headless_env in ('true', '1', 'yes')
+    slow_mo = int(os.getenv('FEDERALRUNNER_SLOW_MO', '500' if not headless else '0'))
+    execution_timeout = int(os.getenv('FEDERALRUNNER_EXECUTION_TIMEOUT', '60'))
+
+    # Use shared wizards directory if temp_dir not specified
+    # This allows tests to use actual wizard data
     if temp_dir is None:
-        temp_dir = Path.cwd() / "test_output"
+        # Use actual shared wizards directory (same as default config)
+        project_root = Path(__file__).parent.parent.parent.parent
+        wizards_dir = project_root / "wizards"
+        log_dir = Path.cwd() / "logs"
+        screenshot_dir = Path.cwd() / "screenshots"
+    else:
+        wizards_dir = temp_dir / "wizards"
+        log_dir = temp_dir / "logs"
+        screenshot_dir = temp_dir / "screenshots"
 
     return FederalRunnerConfig(
         browser_type=browser_type,
         headless=headless,
-        slow_mo=500 if not headless else 0,  # Slow down for visible browser
-        execution_timeout=60,
-        wizards_dir=temp_dir / "wizards",
-        log_dir=temp_dir / "logs",
-        screenshot_dir=temp_dir / "screenshots",
+        slow_mo=slow_mo,
+        execution_timeout=execution_timeout,
+        wizards_dir=wizards_dir,
+        log_dir=log_dir,
+        screenshot_dir=screenshot_dir,
         save_screenshots=True
     )
 

@@ -3,7 +3,7 @@ FederalRunner MCP tools - Contract-First Execution.
 
 These tools implement the schema-first pattern where Claude:
 1. Lists available wizards (federalrunner_list_wizards)
-2. Gets the schema for a wizard (federalrunner_get_wizard_info) ê THE CONTRACT
+2. Gets the schema for a wizard (federalrunner_get_wizard_info) ÔøΩ THE CONTRACT
 3. Constructs user_data dict by reading the schema
 4. Executes wizard with validated data (federalrunner_execute_wizard)
 
@@ -14,10 +14,10 @@ from typing import Dict, Any
 import json
 from pathlib import Path
 
-from .config import get_config, FederalRunnerConfig
-from .models import WizardStructure
-from .schema_validator import SchemaValidator
-from .playwright_client import PlaywrightClient
+from config import get_config, FederalRunnerConfig
+from models import WizardStructure
+from schema_validator import SchemaValidator
+from playwright_client import PlaywrightClient
 
 import logging
 logger = logging.getLogger(__name__)
@@ -122,8 +122,8 @@ async def federalrunner_get_wizard_info(wizard_id: str) -> Dict[str, Any]:
                     },
                     ...
                 },
-                '_claude_hints': {...},  ê Helper hints for Claude
-                '_example_user_data': {...}  ê Example structure
+                '_claude_hints': {...},  ÔøΩ Helper hints for Claude
+                '_example_user_data': {...}  ÔøΩ Example structure
             }
         }
     """
@@ -168,7 +168,7 @@ async def federalrunner_get_wizard_info(wizard_id: str) -> Dict[str, Any]:
             'name': wizard.name,
             'url': wizard.url,
             'total_pages': wizard.total_pages,
-            'schema': enhanced_schema  # ê Claude reads THIS to collect user data
+            'schema': enhanced_schema  # ÔøΩ Claude reads THIS to collect user data
         }
 
     except Exception as e:
@@ -191,7 +191,7 @@ async def federalrunner_execute_wizard(
     1. Load User Data Schema
     2. Validate user_data against schema (catch errors before execution)
     3. Load Wizard Structure
-    4. P Map user_data (field_id) í field_values (selector) ê THE CRITICAL MAPPING
+    4. P Map user_data (field_id) ÔøΩ field_values (selector) ÔøΩ THE CRITICAL MAPPING
     5. Execute atomically with Playwright
 
     Args:
@@ -224,7 +224,7 @@ async def federalrunner_execute_wizard(
         config = get_config()
         validator = SchemaValidator(config)
 
-        logger.info(f"=Ä Executing wizard: {wizard_id}")
+        logger.info(f"=ÔøΩ Executing wizard: {wizard_id}")
         logger.debug(f"User data fields: {list(user_data.keys())}")
 
         # 1. Load User Data Schema
@@ -263,9 +263,9 @@ async def federalrunner_execute_wizard(
 
         wizard = WizardStructure.from_json_file(wizard_path)
 
-        # 4. P MAP user_data (field_id) í field_values (selector)
+        # 4. P MAP user_data (field_id) ÔøΩ field_values (selector)
         # This is THE CRITICAL STEP from REQ-CONTRACT-006
-        field_values = {}  # selector í value
+        field_values = {}  # selector ÔøΩ value
 
         for page in wizard.pages:
             for field in page.fields:
@@ -273,11 +273,11 @@ async def federalrunner_execute_wizard(
 
                 # Look up value by field_id in user_data
                 if field_id in user_data:
-                    # Map: field_id í selector
+                    # Map: field_id ÔøΩ selector
                     field_values[field.selector] = user_data[field_id]
-                    logger.debug(f"  Mapped: {field_id} í {field.selector} = {user_data[field_id]}")
+                    logger.debug(f"  Mapped: {field_id} ÔøΩ {field.selector} = {user_data[field_id]}")
 
-        logger.info(f" Mapped {len(field_values)} fields (field_id í selector)")
+        logger.info(f" Mapped {len(field_values)} fields (field_id ÔøΩ selector)")
 
         # 5. Execute atomically with Playwright
         client = PlaywrightClient(config)

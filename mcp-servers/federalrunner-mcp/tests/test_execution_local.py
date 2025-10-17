@@ -22,7 +22,7 @@ import sys
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.execution_tools import (
+from execution_tools import (
     federalrunner_list_wizards,
     federalrunner_get_wizard_info,
     federalrunner_execute_wizard
@@ -140,14 +140,18 @@ async def test_federalrunner_get_wizard_info():
 @pytest.mark.slow
 async def test_federalrunner_execute_wizard_non_headless():
     """
-    Test MCP Tool: federalrunner_execute_wizard() [PHASE 1: NON-HEADLESS]
+    Test MCP Tool: federalrunner_execute_wizard() [NON-HEADLESS MODE]
 
     This is THE MAIN TOOL - what Claude actually calls to execute wizards.
 
-    PHASE 1: Non-headless Chromium execution (VISUAL DEBUGGING)
+    Non-headless Chromium execution (VISUAL DEBUGGING)
     - Watch the browser fill out the FSA form step by step
     - Perfect for debugging and verifying field interactions
-    - Run this FIRST before headless test
+
+    This test uses configuration from .env file:
+      FEDERALRUNNER_BROWSER_TYPE=chromium (recommended for visual debugging)
+      FEDERALRUNNER_HEADLESS=false (shows browser window)
+      FEDERALRUNNER_SLOW_MO=500 (slows down actions to watch)
 
     Tests the complete contract-first workflow:
     1. Load User Data Schema from wizards/data-schemas/
@@ -157,17 +161,13 @@ async def test_federalrunner_execute_wizard_non_headless():
     5. Execute atomically with Playwright
     """
     print("\n" + "="*70)
-    print("🔵 PHASE 1: Non-Headless Chromium Execution")
+    print("🔵 Non-Headless Chromium Execution (Visual Debugging)")
     print("   Watch the browser execute the FSA wizard visually")
+    print("   Configuration loaded from .env file")
     print("="*70 + "\n")
 
-    # Override config for visual debugging
-    import os
-    os.environ['FEDERALRUNNER_HEADLESS'] = 'false'
-    os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'chromium'
-    os.environ['FEDERALRUNNER_SLOW_MO'] = '500'
-
     # Execute wizard using the MCP tool (what Claude calls!)
+    # Config loads from .env file automatically
     result = await federalrunner_execute_wizard(
         wizard_id="fsa-estimator",
         user_data=FSA_TEST_DATA
@@ -193,31 +193,62 @@ async def test_federalrunner_execute_wizard_non_headless():
 @pytest.mark.slow
 async def test_federalrunner_execute_wizard_headless():
     """
-    Test MCP Tool: federalrunner_execute_wizard() [PHASE 2: HEADLESS]
+    Test MCP Tool: federalrunner_execute_wizard() [HEADLESS MODE]
 
-    PHASE 2: Headless WebKit execution (PRODUCTION MODE)
+    Headless WebKit execution (PRODUCTION MODE)
     - No visible browser window
     - WebKit browser (FSA-compatible in headless mode)
     - Validates production configuration
-    - Run this AFTER Phase 1 passes
 
-    This validates the configuration that will be used in Cloud Run deployment.
+    This test explicitly overrides configuration to run in headless mode,
+    regardless of .env settings. This validates the configuration that will
+    be used in Cloud Run deployment.
     """
     print("\n" + "="*70)
-    print("🌐 PHASE 2: Headless WebKit Execution (Production)")
+    print("🌐 Headless WebKit Execution (Production)")
     print("   Testing production-ready headless execution")
     print("="*70 + "\n")
 
-    # Override config for headless
+    # Override configuration for headless execution
     import os
-    os.environ['FEDERALRUNNER_HEADLESS'] = 'true'
-    os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'webkit'
+    original_browser = os.environ.get('FEDERALRUNNER_BROWSER_TYPE')
+    original_headless = os.environ.get('FEDERALRUNNER_HEADLESS')
+    original_slow_mo = os.environ.get('FEDERALRUNNER_SLOW_MO')
 
-    # Execute wizard
-    result = await federalrunner_execute_wizard(
-        wizard_id="fsa-estimator",
-        user_data=FSA_TEST_DATA
-    )
+    try:
+        # Set headless configuration
+        os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'webkit'
+        os.environ['FEDERALRUNNER_HEADLESS'] = 'true'
+        os.environ['FEDERALRUNNER_SLOW_MO'] = '0'
+
+        # Reload config to pick up new environment variables
+        from config import reload_config
+        reload_config()
+
+        # Execute wizard
+        result = await federalrunner_execute_wizard(
+            wizard_id="fsa-estimator",
+            user_data=FSA_TEST_DATA
+        )
+    finally:
+        # Restore original environment variables
+        if original_browser is not None:
+            os.environ['FEDERALRUNNER_BROWSER_TYPE'] = original_browser
+        elif 'FEDERALRUNNER_BROWSER_TYPE' in os.environ:
+            del os.environ['FEDERALRUNNER_BROWSER_TYPE']
+
+        if original_headless is not None:
+            os.environ['FEDERALRUNNER_HEADLESS'] = original_headless
+        elif 'FEDERALRUNNER_HEADLESS' in os.environ:
+            del os.environ['FEDERALRUNNER_HEADLESS']
+
+        if original_slow_mo is not None:
+            os.environ['FEDERALRUNNER_SLOW_MO'] = original_slow_mo
+        elif 'FEDERALRUNNER_SLOW_MO' in os.environ:
+            del os.environ['FEDERALRUNNER_SLOW_MO']
+
+        # Reload config to restore original settings
+        reload_config()
 
     # Validate response
     assert result['success'] is True, f"Execution failed: {result.get('error')}"

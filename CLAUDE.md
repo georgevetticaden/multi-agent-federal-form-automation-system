@@ -567,6 +567,7 @@ Will be detailed AFTER Phase 3.5 complete.
 Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
 
 **Reference:**
+- **`requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md`** ← Primary deployment spec
 - `requirements/execution/EXECUTION_REQUIREMENTS.md` REQ-EXEC-011 through REQ-EXEC-015
 - `requirements/shared/AUTHENTICATION_REQUIREMENTS.md`
 - MDCalc reference: `requirements/reference/mdcalc/`
@@ -577,24 +578,40 @@ Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
 - Auth0 API resource configuration
 - JWT token validation (JWKS-based)
 - Scope-based permissions (`federalrunner:read`, `federalrunner:execute`)
+- Reference: `requirements/shared/AUTHENTICATION_REQUIREMENTS.md`
 
-**5.2 Dockerfile**
+**5.2 Dockerfile** (REQ-DEPLOY-002)
 - Multi-stage build
-- Playwright + WebKit dependencies (NOT Chromium)
-- Copy wizard files (both wizard-data and wizard-schemas)
-- Environment: `FEDERALRUNNER_HEADLESS=true`, `BROWSER_TYPE=webkit`
+- Playwright + WebKit dependencies (NOT Chromium - FSA compatibility)
+- Copy wizard files from shared location to `/app/wizards/`
+- Verify wizard-structures/ and data-schemas/ directories present
+- Set environment: `FEDERALRUNNER_WIZARDS_DIR=/app/wizards`, `BROWSER_TYPE=webkit`, `HEADLESS=true`
+- Reference: `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-002
 
-**5.3 Cloud Run Deployment**
+**5.3 Deployment Script** (REQ-DEPLOY-003)
+- Copy `../../wizards/` to build context before Docker build
+- Deploy to Cloud Run with environment variables
+- Clean up copied wizards after deployment
+- Reference: `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-003
+
+**5.4 Cloud Run Configuration** (REQ-DEPLOY-005)
 - 2 CPU, 2Gi memory, 60s timeout
-- Environment variables configuration
+- Environment variables for production
 - Health check endpoint
+- Reference: `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-005
 
-**5.4 Claude.ai Integration**
+**5.5 Update Deployment Guide**
+- Update `docs/deployment/DEPLOYMENT_GUIDE.md` with FederalRunner-specific steps
+- Remove MDCalc-specific content
+- Add FederalRunner deployment workflow
+- Document dual-mode path configuration
+
+**5.6 Claude.ai Integration**
 - Remote MCP server configuration
 - Production testing from Claude.ai web
 - Mobile app testing (Android/iOS)
 
-**5.5 Voice Demo (Samsung Galaxy Fold 7)**
+**5.7 Voice Demo (Samsung Galaxy Fold 7)**
 - "Three Moments" demo script
 - Rich context upfront pattern
 - Record video for blog
@@ -638,9 +655,13 @@ Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
 - [ ] Claude Desktop integration
 
 ### ⬜ Phase 5: Cloud Deployment (NOT STARTED)
-- [ ] OAuth 2.1 authentication
-- [ ] Dockerfile (WebKit for headless)
-- [ ] Cloud Run deployment
+- [ ] Create Dockerfile (REQ-DEPLOY-002)
+- [ ] Create deployment script (REQ-DEPLOY-003)
+- [ ] Configure Auth0 OAuth 2.1 (REQ-DEPLOY-006)
+- [ ] Implement FastAPI server with OAuth
+- [ ] Deploy to Cloud Run (REQ-DEPLOY-005)
+- [ ] Update `docs/deployment/DEPLOYMENT_GUIDE.md` (remove MDCalc-specific content, add FederalRunner workflow)
+- [ ] Test Cloud Run deployment (REQ-DEPLOY-007)
 - [ ] Claude.ai integration
 - [ ] Voice demo recording
 
