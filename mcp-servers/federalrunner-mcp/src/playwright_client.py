@@ -96,13 +96,17 @@ class PlaywrightClient:
         pages_completed = 0
 
         try:
-            logger.info(f"=� Starting atomic execution: {wizard_structure.wizard_id}")
+            logger.info("─" * 70)
+            logger.info(f"🎭 Starting atomic execution: {wizard_structure.wizard_id}")
+            logger.info(f"   URL: {wizard_structure.url}")
+            logger.info(f"   Total pages: {wizard_structure.total_pages}")
+            logger.info("─" * 70)
 
             # 1. Launch browser
             await self._launch_browser()
 
             # 2. Navigate to wizard URL
-            logger.info(f"=� Navigating to: {wizard_structure.url}")
+            logger.info(f"🌐 Navigating to: {wizard_structure.url}")
             await self.page.goto(wizard_structure.url, wait_until='networkidle')
             await self.page.wait_for_timeout(1000)  # Let page settle
             screenshots.append(await self._take_screenshot("initial_page"))

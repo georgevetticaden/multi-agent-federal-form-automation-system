@@ -12,10 +12,13 @@ Two-phase testing strategy for execute_wizard:
 
 These tests validate LOCAL execution. Remote (Cloud Run) tests will be added
 after server.py is implemented with OAuth 2.1 authentication.
+
+Uses proper logging instead of print statements (matches FederalScout pattern).
 """
 
 import pytest
 import asyncio
+import logging
 from pathlib import Path
 import sys
 
@@ -27,6 +30,9 @@ from execution_tools import (
     federalrunner_get_wizard_info,
     federalrunner_execute_wizard
 )
+
+# Test logger
+logger = logging.getLogger('federalrunner.test')
 
 
 # ============================================================================
@@ -94,8 +100,8 @@ async def test_federalrunner_list_wizards():
     assert fsa_wizard['total_pages'] == 7
     assert 'discovered_at' in fsa_wizard
 
-    print(f"\n✅ PASSED: list_wizards found {result['count']} wizard(s)")
-    print(f"   FSA Wizard: {fsa_wizard['name']} ({fsa_wizard['total_pages']} pages)")
+    logger.info(f"✅ PASSED: list_wizards found {result['count']} wizard(s)")
+    logger.info(f"   FSA Wizard: {fsa_wizard['name']} ({fsa_wizard['total_pages']} pages)")
 
 
 @pytest.mark.asyncio
@@ -131,9 +137,9 @@ async def test_federalrunner_get_wizard_info():
     assert 'marital_status' in schema['properties']
     assert 'state' in schema['properties']
 
-    print(f"\n✅ PASSED: get_wizard_info returned schema for {result['wizard_id']}")
-    print(f"   Schema properties: {len(schema['properties'])}")
-    print(f"   Required fields: {len(schema['required'])}")
+    logger.info(f"✅ PASSED: get_wizard_info returned schema for {result['wizard_id']}")
+    logger.info(f"   Schema properties: {len(schema['properties'])}")
+    logger.info(f"   Required fields: {len(schema['required'])}")
 
 
 @pytest.mark.asyncio
@@ -160,11 +166,11 @@ async def test_federalrunner_execute_wizard_non_headless():
     4. Map field_id → selector (THE CRITICAL MAPPING)
     5. Execute atomically with Playwright
     """
-    print("\n" + "="*70)
-    print("🔵 Non-Headless Chromium Execution (Visual Debugging)")
-    print("   Watch the browser execute the FSA wizard visually")
-    print("   Configuration loaded from .env file")
-    print("="*70 + "\n")
+    logger.info("\n" + "="*70)
+    logger.info("🔵 Non-Headless Chromium Execution (Visual Debugging)")
+    logger.info("   Watch the browser execute the FSA wizard visually")
+    logger.info("   Configuration loaded from .env file")
+    logger.info("="*70 + "\n")
 
     # Execute wizard using the MCP tool (what Claude calls!)
     # Config loads from .env file automatically
@@ -180,13 +186,13 @@ async def test_federalrunner_execute_wizard_non_headless():
     assert len(result['screenshots']) > 0, "No screenshots captured"
     assert result['execution_time_ms'] > 0
 
-    print("\n" + "="*70)
-    print(f"✅ PHASE 1 PASSED")
-    print(f"   Wizard: {result['wizard_id']}")
-    print(f"   Execution time: {result['execution_time_ms']}ms")
-    print(f"   Pages completed: {result['pages_completed']}/7")
-    print(f"   Screenshots: {len(result['screenshots'])}")
-    print("="*70 + "\n")
+    logger.info("\n" + "="*70)
+    logger.info(f"✅ NON-HEADLESS TEST PASSED")
+    logger.info(f"   Wizard: {result['wizard_id']}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info(f"   Pages completed: {result['pages_completed']}/7")
+    logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info("="*70 + "\n")
 
 
 @pytest.mark.asyncio
@@ -204,10 +210,10 @@ async def test_federalrunner_execute_wizard_headless():
     regardless of .env settings. This validates the configuration that will
     be used in Cloud Run deployment.
     """
-    print("\n" + "="*70)
-    print("🌐 Headless WebKit Execution (Production)")
-    print("   Testing production-ready headless execution")
-    print("="*70 + "\n")
+    logger.info("\n" + "="*70)
+    logger.info("🌐 Headless WebKit Execution (Production)")
+    logger.info("   Testing production-ready headless execution")
+    logger.info("="*70 + "\n")
 
     # Override configuration for headless execution
     import os
@@ -255,13 +261,13 @@ async def test_federalrunner_execute_wizard_headless():
     assert result['wizard_id'] == 'fsa-estimator'
     assert result['pages_completed'] == 7, f"Expected 7 pages, got {result['pages_completed']}"
 
-    print("\n" + "="*70)
-    print(f"✅ PHASE 2 PASSED")
-    print(f"   Wizard: {result['wizard_id']}")
-    print(f"   Execution time: {result['execution_time_ms']}ms")
-    print(f"   Pages completed: {result['pages_completed']}/7")
-    print(f"   Screenshots: {len(result['screenshots'])}")
-    print("="*70 + "\n")
+    logger.info("\n" + "="*70)
+    logger.info(f"✅ HEADLESS TEST PASSED")
+    logger.info(f"   Wizard: {result['wizard_id']}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info(f"   Pages completed: {result['pages_completed']}/7")
+    logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info("="*70 + "\n")
 
 
 # ============================================================================
@@ -292,8 +298,8 @@ async def test_execute_wizard_validation_failure():
     assert 'validation_errors' in result
     assert result['error'] == 'User data validation failed'
 
-    print("\n✅ PASSED: Validation failure caught before execution")
-    print(f"   Error: {result['error']}")
+    logger.info("✅ PASSED: Validation failure caught before execution")
+    logger.info(f"   Error: {result['error']}")
 
 
 @pytest.mark.asyncio
@@ -313,5 +319,5 @@ async def test_execute_wizard_nonexistent_wizard():
     assert 'error' in result
     assert 'nonexistent-wizard' in result['error'].lower() or 'not found' in result['error'].lower()
 
-    print("\n✅ PASSED: Non-existent wizard error handled gracefully")
-    print(f"   Error: {result['error']}")
+    logger.info("✅ PASSED: Non-existent wizard error handled gracefully")
+    logger.info(f"   Error: {result['error']}")
