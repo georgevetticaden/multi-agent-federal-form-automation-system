@@ -1,0 +1,166 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FSA Student Aid Estimator - User Data",
+  "description": "User data required to execute the FSA Student Aid Estimator wizard and calculate federal student aid eligibility",
+  "type": "object",
+  "required": [
+    "birth_month",
+    "birth_day",
+    "birth_year",
+    "marital_status",
+    "state_residence",
+    "college_grade_level",
+    "has_dependents",
+    "parents_married",
+    "parent_marital_status",
+    "parent_state_residence",
+    "family_size",
+    "parent_filed_taxes",
+    "student_filed_taxes"
+  ],
+  "properties": {
+    "birth_month": {
+      "type": "string",
+      "description": "Student's birth month (2 digits: 01-12)",
+      "pattern": "^(0[1-9]|1[0-2])$"
+    },
+    "birth_day": {
+      "type": "string",
+      "description": "Student's birth day (2 digits: 01-31)",
+      "pattern": "^(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "birth_year": {
+      "type": "string",
+      "description": "Student's birth year (4 digits)",
+      "pattern": "^[0-9]{4}$"
+    },
+    "marital_status": {
+      "type": "string",
+      "description": "Student's marital status",
+      "enum": [
+        "unmarried",
+        "married_remarried",
+        "separated"
+      ]
+    },
+    "state_residence": {
+      "type": "string",
+      "description": "Student's state of legal residence (full name, e.g., 'Illinois')"
+    },
+    "college_grade_level": {
+      "type": "string",
+      "description": "Student's grade level for 2026-27 school year",
+      "enum": [
+        "freshman",
+        "sophomore",
+        "other_undergraduate",
+        "graduate"
+      ]
+    },
+    "has_dependents": {
+      "type": "string",
+      "description": "Does the student have children or other dependents they support?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "circumstance_active_duty": {
+      "type": "boolean",
+      "description": "Student is currently serving on active duty or is a veteran (optional, appears when has_dependents is 'no')",
+      "default": false
+    },
+    "circumstance_orphan": {
+      "type": "boolean",
+      "description": "Student was an orphan since turning 13 (optional, appears when has_dependents is 'no')",
+      "default": false
+    },
+    "circumstance_foster_care": {
+      "type": "boolean",
+      "description": "Student was in foster care or ward of court since turning 13 (optional, appears when has_dependents is 'no')",
+      "default": false
+    },
+    "circumstance_emancipated": {
+      "type": "boolean",
+      "description": "Student is/was a legally emancipated minor or in legal guardianship (optional, appears when has_dependents is 'no')",
+      "default": false
+    },
+    "circumstance_homeless": {
+      "type": "boolean",
+      "description": "Student is unaccompanied and homeless (optional, appears when has_dependents is 'no')",
+      "default": false
+    },
+    "circumstance_none": {
+      "type": "boolean",
+      "description": "None of the special circumstances apply (optional, appears when has_dependents is 'no')",
+      "default": true
+    },
+    "parents_married": {
+      "type": "string",
+      "description": "Are the student's parents married?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "parent_marital_status": {
+      "type": "string",
+      "description": "Parent's marital status (may be pre-selected based on parents_married)",
+      "enum": [
+        "married",
+        "unmarried",
+        "unmarried_together"
+      ]
+    },
+    "parent_state_residence": {
+      "type": "string",
+      "description": "Parent's state of legal residence (full name, e.g., 'Illinois')"
+    },
+    "family_size": {
+      "type": "number",
+      "description": "Total number of people in student's family, including the student",
+      "minimum": 1
+    },
+    "parent_filed_taxes": {
+      "type": "string",
+      "description": "Did the student's parent file taxes in 2024?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "parent_adjusted_gross_income": {
+      "type": "number",
+      "description": "Parent's adjusted gross income in dollars (conditional - required if parent_filed_taxes is 'yes')",
+      "minimum": 0
+    },
+    "parent_total_assets": {
+      "type": "number",
+      "description": "Parent's total assets in dollars, including cash, savings, investments, real estate (not home) (conditional - required if parent_filed_taxes is 'yes')",
+      "minimum": 0
+    },
+    "parent_child_support_received": {
+      "type": "number",
+      "description": "Annual child support received by parent in dollars (conditional - required if parent_filed_taxes is 'yes', enter 0 if none)",
+      "minimum": 0
+    },
+    "student_filed_taxes": {
+      "type": "string",
+      "description": "Did the student file taxes in 2024?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "student_adjusted_gross_income": {
+      "type": "number",
+      "description": "Student's adjusted gross income in dollars (conditional - only if student_filed_taxes is 'yes')",
+      "minimum": 0
+    },
+    "student_total_assets": {
+      "type": "number",
+      "description": "Student's total assets in dollars (conditional - only if student_filed_taxes is 'yes')",
+      "minimum": 0
+    }
+  }
+}
