@@ -124,7 +124,8 @@ class FederalRunnerConfig(BaseSettings):
         env_prefix="FEDERALRUNNER_",
         case_sensitive=False,
         env_file=".env",
-        env_file_encoding="utf-8"
+        env_file_encoding="utf-8",
+        extra="ignore"  # Ignore extra fields like LOG_LEVEL (used for Python logging, not Pydantic)
     )
 
     def __init__(self, **kwargs):
