@@ -173,16 +173,15 @@ federalrunner-mcp/
 │   ├── models.py              # Shared wizard structure models
 │   ├── config.py              # Configuration management
 │   ├── logging_config.py      # Cloud Run compatible logging
-│   ├── playwright_client.py   # Atomic execution client (TODO)
-│   ├── field_mapper.py        # User data → wizard fields (TODO)
-│   ├── execution_tools.py     # MCP tools (TODO)
+│   ├── playwright_client.py   # Atomic execution client ✅
+│   ├── schema_validator.py    # Schema validation (replaces field_mapper) ✅
+│   ├── execution_tools.py     # MCP tools ✅
 │   ├── server.py              # FastAPI MCP server (TODO)
 │   └── auth.py                # OAuth 2.1 (TODO)
-├── wizards/
-│   └── fsa-student-aid-estimator.json  # Discovered wizard
 ├── tests/
-│   ├── test_config_loading.py          # Config verification
-│   └── test_execution_local.py         # Execution tests (TODO)
+│   ├── test_config_loading.py          # Config verification ✅
+│   ├── test_execution_local.py         # Execution tests ✅
+│   └── run_tests.sh                    # Test runner script ✅
 ├── .env                       # Local configuration (git-ignored)
 ├── .env.example               # Configuration template
 ├── .gitignore                 # Git ignore rules
@@ -197,36 +196,79 @@ federalrunner-mcp/
   - ✅ Project structure
   - ✅ Configuration management
   - ✅ Logging setup
-  - ✅ FSA wizard JSON copied
-  
-- 🚧 **Step 2: Playwright Execution Client** - IN PROGRESS
-  - ⬜ Atomic execution pattern
-  - ⬜ Browser launch (Chromium/WebKit)
-  - ⬜ Field interaction logic
-  - ⬜ Screenshot capture
-  - ⬜ Result extraction
+  - ✅ Shared models (WizardStructure)
 
-- ⬜ **Step 3: Field Mapper** - PENDING
-- ⬜ **Step 4: Local Testing** - PENDING
-- ⬜ **Step 5: Execution Tools** - PENDING
-- ⬜ **Step 6: FastAPI Server** - PENDING
+- ✅ **Step 2: Playwright Execution Client** - COMPLETE
+  - ✅ Atomic execution pattern (launch → fill → extract → close)
+  - ✅ Browser launch (Chromium/WebKit)
+  - ✅ Field interaction logic (all interaction types)
+  - ✅ Screenshot capture and optimization
+  - ✅ Result extraction framework
+
+- ✅ **Step 3: Schema Validator** - COMPLETE
+  - ✅ Replaces field_mapper.py (no hardcoded mappings!)
+  - ✅ JSON Schema validation
+  - ✅ Claude-friendly error messages
+  - ✅ Schema enhancement for Claude
+
+- ✅ **Step 4: Execution Tools (MCP)** - COMPLETE
+  - ✅ federalrunner_list_wizards()
+  - ✅ federalrunner_get_wizard_info() (returns schema)
+  - ✅ federalrunner_execute_wizard() (validates + executes)
+  - ✅ Contract-first pattern implementation
+
+- ✅ **Step 5: Local Testing** - COMPLETE
+  - ✅ 14 comprehensive tests
+  - ✅ Unit tests (schema, validation, mapping)
+  - ✅ Integration tests (Playwright execution)
+  - ✅ End-to-end tests (complete MCP workflow)
+  - ✅ Error handling tests
+
+- ⬜ **Step 6: FastAPI MCP Server** - PENDING
 - ⬜ **Step 7: Claude Desktop Integration** - PENDING
+- ⬜ **Step 8: Cloud Run Deployment** - PENDING
 
 ## Testing
 
+FederalRunner includes comprehensive tests covering unit tests, integration tests, and end-to-end execution tests.
+
+### Quick Start
+
+```bash
+# Run all tests with automated test runner
+./run_tests.sh
+
+# Or run manually
+pytest tests/test_execution_local.py -v
+```
+
+### Test Coverage
+
+- ✅ **14 Tests Total**
+  - 6 Unit tests (schema loading, validation, mapping)
+  - 2 MCP tool tests (list_wizards, get_wizard_info)
+  - 2 Integration tests (Playwright execution: Phase 1 & 2)
+  - 2 End-to-end tests (complete contract-first workflow)
+  - 2 Error handling tests
+
 ### Two-Phase Testing Approach
 
-**Phase 1: Non-Headless (Get this working first)**
+**Phase 1: Non-Headless Chromium (Visual Debugging)**
 ```bash
-# Visible browser for debugging
-pytest tests/test_execution_local.py::test_atomic_execution_fsa_non_headless -v -s
+# Watch the browser execute the FSA wizard!
+pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_non_headless -v -s
 ```
 
-**Phase 2: Headless (After Phase 1 passes)**
+**Phase 2: Headless WebKit (Production Validation)**
 ```bash
-# Headless WebKit for production validation
-pytest tests/test_execution_local.py::test_atomic_execution_fsa_headless -v -s
+# Headless execution with FSA-compatible browser
+pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_headless -v -s
 ```
+
+### Detailed Test Documentation
+
+For comprehensive testing instructions, troubleshooting, and test details, see:
+**[docs/execution/TEST_INSTRUCTIONS.md](../../docs/execution/TEST_INSTRUCTIONS.md)**
 
 ## License
 

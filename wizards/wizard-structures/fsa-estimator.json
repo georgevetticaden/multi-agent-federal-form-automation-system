@@ -2,7 +2,7 @@
   "wizard_id": "fsa-estimator",
   "name": "FSA Student Aid Estimator",
   "url": "https://studentaid.gov/aid-estimator/estimate/results",
-  "discovered_at": "2025-10-17T01:25:26.500359",
+  "discovered_at": "2025-10-17T17:16:19.438421",
   "discovery_version": "1.0.0",
   "total_pages": 7,
   "start_action": {
@@ -54,17 +54,17 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "unmarried",
-          "notes": "Options: unmarried (#fsa_Radio_MaritalStatusUnmarried), married (#fsa_Radio_MaritalStatusMarriedReMarried), separated (#fsa_Radio_MaritalStatusSeparated)"
+          "notes": "Options: Unmarried (single, divorced, or widowed), Married or remarried, Separated. Radio buttons are hidden behind labels."
         },
         {
           "label": "State of residence",
-          "field_id": "state_of_residence",
+          "field_id": "state",
           "selector": "#fsa_Typeahead_StateOfResidence",
           "field_type": "typeahead",
           "interaction": "fill_enter",
           "required": true,
           "example_value": "Illinois",
-          "notes": "Typeahead field - type state name and press Enter"
+          "notes": "Typeahead field - type state name and press Enter to select"
         },
         {
           "label": "Grade level for 2026-27 school year",
@@ -74,7 +74,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "freshman",
-          "notes": "Options: freshman (#fsa_Radio_CollegeLevelFreshman), sophomore (#fsa_Radio_CollegeLevelSophomore), other_undergrad (#fsa_Radio_CollegeLevelOther), graduate (#fsa_Radio_CollegeLevelGraduate)"
+          "notes": "Options: First year (freshman), Second year (sophomore), Other undergraduate (junior year and beyond), Master's or doctorate program. Radio buttons are hidden behind labels."
         }
       ],
       "continue_button": {
@@ -96,17 +96,67 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "no",
-          "notes": "Options: yes (#fsa_Radio_HaveDependentsYes), no (#fsa_Radio_HaveDependentsNo)"
+          "notes": "Options: Yes, No. If 'No' is selected, additional personal circumstances questions appear."
         },
         {
-          "label": "What are the student's personal circumstances?",
-          "field_id": "personal_circumstances",
+          "label": "Personal circumstances - Active duty or veteran",
+          "field_id": "circumstance_active_duty",
+          "selector": "#fsa_Checkbox_ActiveDuty",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "false",
+          "notes": "Conditional field: appears when has_dependents=no. Multi-select checkbox option."
+        },
+        {
+          "label": "Personal circumstances - Was orphan",
+          "field_id": "circumstance_orphan",
+          "selector": "#fsa_Checkbox_ParentsDeceased",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "false",
+          "notes": "Conditional field: appears when has_dependents=no. Multi-select checkbox option."
+        },
+        {
+          "label": "Personal circumstances - Was in foster care",
+          "field_id": "circumstance_foster_care",
+          "selector": "#fsa_Checkbox_WasInFosterCare",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "false",
+          "notes": "Conditional field: appears when has_dependents=no. Multi-select checkbox option."
+        },
+        {
+          "label": "Personal circumstances - Emancipated minor",
+          "field_id": "circumstance_emancipated",
+          "selector": "#fsa_Checkbox_EmancipatedMinor",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "false",
+          "notes": "Conditional field: appears when has_dependents=no. Multi-select checkbox option."
+        },
+        {
+          "label": "Personal circumstances - Homeless",
+          "field_id": "circumstance_homeless",
+          "selector": "#fsa_Checkbox_Homeless",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "false",
+          "notes": "Conditional field: appears when has_dependents=no. Multi-select checkbox option."
+        },
+        {
+          "label": "Personal circumstances - None apply",
+          "field_id": "circumstance_none",
           "selector": "#fsa_Checkbox_none",
           "field_type": "checkbox",
           "interaction": "javascript_click",
-          "required": true,
-          "example_value": "none",
-          "notes": "Multi-select checkboxes. Options: active_duty (#fsa_Checkbox_ActiveDuty), parents_deceased (#fsa_Checkbox_ParentsDeceased), foster_care (#fsa_Checkbox_WasInFosterCare), emancipated_minor (#fsa_Checkbox_EmancipatedMinor), homeless (#fsa_Checkbox_Homeless), none (#fsa_Checkbox_none). This field appears conditionally after selecting has_dependents."
+          "required": false,
+          "example_value": "true",
+          "notes": "Conditional field: appears when has_dependents=no. Multi-select checkbox option. Selecting this likely deselects others."
         }
       ],
       "continue_button": {
@@ -128,7 +178,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "yes",
-          "notes": "Options: yes (#fsa_Radio_parentMaritalInformation-question1-yes), no (#fsa_Radio_parentMaritalInformation-question1-no). If 'yes' is selected, wizard will ask for both parents' financial information on subsequent pages."
+          "notes": "Options: Yes, No. If 'Yes' is selected, an informational message appears indicating both parents' information will be needed. Radio buttons are hidden behind labels."
         }
       ],
       "continue_button": {
@@ -150,17 +200,17 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "married",
-          "notes": "Options: married (#fsa_Radio_ParenFamilyInfoMarried), unmarried (#fsa_Radio_ParenFamilyInfoUnmarried), unmarried_together (#fsa_Radio_ParenFamilyInfoUnmarriedTogether). This field is pre-populated based on previous answer about whether parents are married."
+          "notes": "Options: Married or remarried, Unmarried (single, divorced, or widowed), Unmarried and both legal parents living together. This field is auto-populated based on previous answer about parents being married. Radio buttons are hidden behind labels."
         },
         {
           "label": "What is the parent's state of residence?",
-          "field_id": "parent_state_of_residence",
+          "field_id": "parent_state",
           "selector": "#fsa_Typeahead_States",
           "field_type": "typeahead",
           "interaction": "fill_enter",
           "required": true,
           "example_value": "Illinois",
-          "notes": "Typeahead field - type state name and press Enter"
+          "notes": "Typeahead field - type state name and press Enter to select"
         }
       ],
       "continue_button": {
@@ -182,7 +232,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "4",
-          "notes": "Number input for family size (including student)"
+          "notes": "Number input - total household size including student"
         }
       ],
       "continue_button": {
@@ -204,7 +254,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "yes",
-          "notes": "Options: yes (#fsa_Radio_FamilySizeChangeYes), no (#fsa_Radio_FamilySizeChangeNo). If 'yes', additional financial fields appear."
+          "notes": "Options: Yes, No. If 'Yes' is selected, additional financial fields appear. Radio buttons are hidden behind labels."
         },
         {
           "label": "Parent's Adjusted Gross Income",
@@ -214,7 +264,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "85000",
-          "notes": "Dollar amount. Conditional field - appears only if parent_filed_taxes = yes. Includes wages, alimony, Social Security, business income."
+          "notes": "Conditional field: appears when parent_filed_taxes=yes. Dollar amount input. Includes wages, alimony, Social Security, business income."
         },
         {
           "label": "Parent's Total Assets",
@@ -224,7 +274,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "12000",
-          "notes": "Dollar amount. Conditional field - appears only if parent_filed_taxes = yes. Includes cash, savings, checking accounts, net worth of businesses/farms, investments, real estate (not home)."
+          "notes": "Conditional field: appears when parent_filed_taxes=yes. Dollar amount input. Includes cash, savings, checking accounts, investments, real estate (not primary home)."
         },
         {
           "label": "Annual Child Support Received",
@@ -232,9 +282,9 @@
           "selector": "#fsa_Input_ParentChildSupport",
           "field_type": "text",
           "interaction": "fill",
-          "required": false,
+          "required": true,
           "example_value": "0",
-          "notes": "Dollar amount. Conditional field - appears only if parent_filed_taxes = yes. Total child support received for last complete calendar year. Enter 0 if none."
+          "notes": "Conditional field: appears when parent_filed_taxes=yes. Dollar amount input. Enter 0 if no child support received."
         }
       ],
       "continue_button": {
@@ -256,7 +306,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "no",
-          "notes": "Options: yes (#fsa_Radio_StudentFiledYes), no (#fsa_Radio_StudentFiledNo). If 'yes' is selected, additional student financial fields would appear (similar to parent income page)."
+          "notes": "Options: Yes, No. If 'No' is selected, no additional fields appear (typical for high school students). Radio buttons are hidden behind labels."
         }
       ],
       "continue_button": {

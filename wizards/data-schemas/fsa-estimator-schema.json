@@ -1,20 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "FSA Student Aid Estimator - User Data",
-  "description": "User data required to execute the FSA Student Aid Estimator wizard",
+  "description": "User data required to execute the FSA Student Aid Estimator wizard for calculating federal student aid eligibility",
   "type": "object",
   "required": [
     "birth_month",
     "birth_day",
     "birth_year",
     "marital_status",
-    "state_of_residence",
+    "state",
     "grade_level",
     "has_dependents",
-    "personal_circumstances",
     "parents_married",
     "parent_marital_status",
-    "parent_state_of_residence",
+    "parent_state",
     "family_size",
     "parent_filed_taxes",
     "student_filed_taxes"
@@ -44,7 +43,7 @@
         "separated"
       ]
     },
-    "state_of_residence": {
+    "state": {
       "type": "string",
       "description": "Student's state of legal residence (full state name, e.g., 'Illinois')"
     },
@@ -54,7 +53,7 @@
       "enum": [
         "freshman",
         "sophomore",
-        "other_undergrad",
+        "other_undergraduate",
         "graduate"
       ]
     },
@@ -66,17 +65,29 @@
         "no"
       ]
     },
-    "personal_circumstances": {
-      "type": "string",
-      "description": "Student's personal circumstances (select all that apply or 'none')",
-      "enum": [
-        "active_duty",
-        "parents_deceased",
-        "foster_care",
-        "emancipated_minor",
-        "homeless",
-        "none"
-      ]
+    "circumstance_active_duty": {
+      "type": "boolean",
+      "description": "Student is currently serving on active duty or is a veteran (conditional: only if has_dependents=no)"
+    },
+    "circumstance_orphan": {
+      "type": "boolean",
+      "description": "Student was an orphan since turning 13 (conditional: only if has_dependents=no)"
+    },
+    "circumstance_foster_care": {
+      "type": "boolean",
+      "description": "Student was in foster care or ward of court since turning 13 (conditional: only if has_dependents=no)"
+    },
+    "circumstance_emancipated": {
+      "type": "boolean",
+      "description": "Student is/was a legally emancipated minor or in legal guardianship (conditional: only if has_dependents=no)"
+    },
+    "circumstance_homeless": {
+      "type": "boolean",
+      "description": "Student is unaccompanied and homeless (conditional: only if has_dependents=no)"
+    },
+    "circumstance_none": {
+      "type": "boolean",
+      "description": "None of the special circumstances apply (conditional: only if has_dependents=no)"
     },
     "parents_married": {
       "type": "string",
@@ -88,21 +99,22 @@
     },
     "parent_marital_status": {
       "type": "string",
-      "description": "Parent's marital status",
+      "description": "Parent's marital status (auto-populated based on parents_married answer)",
       "enum": [
         "married",
         "unmarried",
         "unmarried_together"
       ]
     },
-    "parent_state_of_residence": {
+    "parent_state": {
       "type": "string",
       "description": "Parent's state of legal residence (full state name, e.g., 'Illinois')"
     },
     "family_size": {
-      "type": "number",
-      "description": "Number of people in the student's family, including the student",
-      "minimum": 1
+      "type": "integer",
+      "description": "Total number of people in the student's family, including the student",
+      "minimum": 1,
+      "maximum": 20
     },
     "parent_filed_taxes": {
       "type": "string",
@@ -114,17 +126,17 @@
     },
     "parent_income": {
       "type": "number",
-      "description": "Parent's adjusted gross income in dollars (required if parent_filed_taxes = yes)",
+      "description": "Parent's Adjusted Gross Income in dollars (conditional: only if parent_filed_taxes=yes)",
       "minimum": 0
     },
     "parent_assets": {
       "type": "number",
-      "description": "Parent's total assets in dollars (required if parent_filed_taxes = yes)",
+      "description": "Parent's total assets in dollars - includes cash, savings, investments, real estate excluding primary home (conditional: only if parent_filed_taxes=yes)",
       "minimum": 0
     },
     "parent_child_support": {
       "type": "number",
-      "description": "Annual child support received in dollars (optional, enter 0 if none)",
+      "description": "Annual child support received by parent in dollars (conditional: only if parent_filed_taxes=yes). Enter 0 if none received.",
       "minimum": 0
     },
     "student_filed_taxes": {
