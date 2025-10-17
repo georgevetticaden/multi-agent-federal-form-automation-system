@@ -853,11 +853,12 @@ async def federalscout_complete_discovery(
             'output_path': str(output_path)
         }, logger=logger)
 
-        # Close browser and clean up session
-        await session.close()
-        _active_sessions.pop(session_id, None)
-        logger.info(f"🔒 SESSION CLOSED: {session_id}")
-        logger.info(f"   Remaining active sessions: {len(_active_sessions)}")
+        # DEMO MODE: Do NOT close browser for visual demo purposes
+        # The browser stays open so users can see the final state
+        # Session will be cleaned up by timeout or manual closure
+        logger.info(f"✅ SESSION KEPT OPEN FOR DEMO: {session_id}")
+        logger.info(f"   Browser will remain visible for demonstration")
+        logger.info(f"   Session will auto-cleanup after {config.session_timeout}s timeout")
         
         # Convert wizard structure to dict using mode='json' to handle datetime serialization
         # This ensures all datetime objects are converted to ISO format strings

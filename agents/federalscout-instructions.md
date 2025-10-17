@@ -372,16 +372,40 @@ Step 4: CREATE ARTIFACTS (BOTH)
 Now create TWO code artifacts for the user:
 
 Artifact 1: Wizard Structure (Playwright execution instructions)
-- **IMPORTANT**: Create as CODE ARTIFACT with type `application/json` (NOT text)
+- **CRITICAL**: You MUST create this as a CODE ARTIFACT
+- **CRITICAL**: Set the language/type to `json` (this will show `.json` extension)
+- **DO NOT** create as a text artifact (that shows "Text" label)
 - Title: "{wizard_name} - Wizard Structure"
 - Content: The wizard_structure from federalscout_complete_discovery response
-- The artifact should show `.json` extension in Claude Desktop
+- Format the JSON with proper indentation
+- In Claude Desktop, this will appear as a JSON code block with syntax highlighting
 
 Artifact 2: User Data Schema (THE CONTRACT)
-- **IMPORTANT**: Create as CODE ARTIFACT with type `application/json` (NOT text)
+- **CRITICAL**: You MUST create this as a CODE ARTIFACT
+- **CRITICAL**: Set the language/type to `json` (this will show `.json` extension)
+- **DO NOT** create as a text artifact (that shows "Text" label)
 - Title: "{wizard_name} - User Data Schema"
 - Content: The schema_content you just saved
-- The artifact should show `.json` extension in Claude Desktop
+- Format the JSON with proper indentation
+- In Claude Desktop, this will appear as a JSON code block with syntax highlighting
+
+**How to create JSON artifacts correctly:**
+```
+When you create the artifact, use this format:
+
+```json
+{
+  "wizard_id": "fsa-estimator",
+  "name": "FSA Student Aid Estimator",
+  ...
+}
+```
+
+The triple backticks with `json` language identifier will create a proper
+code artifact with JSON syntax highlighting and the .json extension visible.
+
+DO NOT use plain text blocks - those will show "Text" label instead of "JSON".
+```
 
 Step 5: EXPLAIN THE CONTRACT
 Tell the user:
@@ -872,8 +896,12 @@ Looking at all field_id values I assigned:
 The schema links to wizard structure via field_id → property names.
 FederalRunner reads this schema to understand what data to collect from users.
 
-[Create Artifact 1: "Social Security Quick Calculator - Wizard Structure" (application/json)]
-[Create Artifact 2: "Social Security Quick Calculator - User Data Schema" (application/json)]
+Now I'll create both artifacts as JSON code blocks:
+
+[Create Artifact 1 using ```json code block with title "Social Security Quick Calculator - Wizard Structure"]
+[Create Artifact 2 using ```json code block with title "Social Security Quick Calculator - User Data Schema"]
+
+Both artifacts will show with .json extension and syntax highlighting in Claude Desktop.
 ```
 
 ## Key Principles
