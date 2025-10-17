@@ -134,9 +134,9 @@ FederalScout requires the following configuration structure:
 {
   "mcpServers": {
     "federalscout": {
-      "command": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python",
+      "command": "/Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python",
       "args": [
-        "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py"
+        "/Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py"
       ],
       "env": {
         "FEDERALSCOUT_BROWSER_ENDPOINT": "http://127.0.0.1:9222",
@@ -149,10 +149,10 @@ FederalScout requires the following configuration structure:
         "FEDERALSCOUT_SCREENSHOT_MAX_SIZE_KB": "50",
         "FEDERALSCOUT_SAVE_SCREENSHOTS": "true",
         "FEDERALSCOUT_SESSION_TIMEOUT": "1800",
-        "FEDERALSCOUT_WORKSPACE_ROOT": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp",
-        "FEDERALSCOUT_WIZARDS_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards",
-        "FEDERALSCOUT_LOG_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs",
-        "FEDERALSCOUT_SCREENSHOT_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout"
+        "FEDERALSCOUT_WORKSPACE_ROOT": "/Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp",
+        "FEDERALSCOUT_WIZARDS_DIR": "/Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards",
+        "FEDERALSCOUT_LOG_DIR": "/Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs",
+        "FEDERALSCOUT_SCREENSHOT_DIR": "/Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout"
       }
     }
   }
@@ -169,7 +169,7 @@ FederalScout requires the following configuration structure:
 
 1. **Start the demo browser:**
    ```bash
-   cd /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp
+   cd /Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp
    bash scripts/start_browser_for_demo.sh
    ```
 
@@ -308,13 +308,13 @@ Copy one of the examples above and **replace all placeholder paths** with your a
 Make sure all paths exist:
 ```bash
 # Check venv Python exists
-ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python
+ls -la /Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python
 
 # Check server.py exists
-ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py
+ls -la /Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py
 
 # Check wizards directory exists
-ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards
+ls -la /Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards
 ```
 
 ### 4. Restart Claude Desktop
@@ -356,7 +356,7 @@ Discover the FSA Student Aid Estimator wizard at https://studentaid.gov/aid-esti
 
 Watch logs in real-time:
 ```bash
-tail -f /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs/federalscout.log
+tail -f /Users/aju/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs/federalscout.log
 ```
 
 **What to look for:**
@@ -371,13 +371,13 @@ tail -f /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form
 After discovery completes:
 ```bash
 # Check wizard structure was created
-ls -la ~/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/wizard-structures/
+ls -la ~/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/wizard-structures/
 
 # Check screenshots were saved
-ls -la ~/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout/
+ls -la ~/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout/
 
 # View wizard JSON
-cat ~/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/wizard-structures/fsa-estimator.json | jq
+cat ~/Dropbox/Development/Git/10-17-25-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/wizard-structures/fsa-estimator.json | jq
 ```
 
 ---
