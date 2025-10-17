@@ -1,0 +1,269 @@
+{
+  "wizard_id": "fsa-estimator",
+  "name": "FSA Student Aid Estimator",
+  "url": "https://studentaid.gov/aid-estimator/estimate/results",
+  "discovered_at": "2025-10-17T01:25:26.500359",
+  "discovery_version": "1.0.0",
+  "total_pages": 7,
+  "start_action": {
+    "description": "Click the 'Start Estimate' button on the landing page to begin the wizard",
+    "selector": "Start Estimate",
+    "selector_type": "text"
+  },
+  "pages": [
+    {
+      "page_number": 1,
+      "page_title": "Student Information",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/student-information",
+      "fields": [
+        {
+          "label": "Date of birth - Month",
+          "field_id": "birth_month",
+          "selector": "#fsa_Input_DateOfBirthMonth",
+          "field_type": "number",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "05",
+          "notes": "2-digit month (01-12)"
+        },
+        {
+          "label": "Date of birth - Day",
+          "field_id": "birth_day",
+          "selector": "#fsa_Input_DateOfBirthDay",
+          "field_type": "number",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "15",
+          "notes": "2-digit day (01-31)"
+        },
+        {
+          "label": "Date of birth - Year",
+          "field_id": "birth_year",
+          "selector": "#fsa_Input_DateOfBirthYear",
+          "field_type": "number",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "2007",
+          "notes": "4-digit year"
+        },
+        {
+          "label": "Marital status",
+          "field_id": "marital_status",
+          "selector": "#fsa_Radio_MaritalStatusUnmarried",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "unmarried",
+          "notes": "Options: unmarried (#fsa_Radio_MaritalStatusUnmarried), married (#fsa_Radio_MaritalStatusMarriedReMarried), separated (#fsa_Radio_MaritalStatusSeparated)"
+        },
+        {
+          "label": "State of residence",
+          "field_id": "state_of_residence",
+          "selector": "#fsa_Typeahead_StateOfResidence",
+          "field_type": "typeahead",
+          "interaction": "fill_enter",
+          "required": true,
+          "example_value": "Illinois",
+          "notes": "Typeahead field - type state name and press Enter"
+        },
+        {
+          "label": "Grade level for 2026-27 school year",
+          "field_id": "grade_level",
+          "selector": "#fsa_Radio_CollegeLevelFreshman",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "freshman",
+          "notes": "Options: freshman (#fsa_Radio_CollegeLevelFreshman), sophomore (#fsa_Radio_CollegeLevelSophomore), other_undergrad (#fsa_Radio_CollegeLevelOther), graduate (#fsa_Radio_CollegeLevelGraduate)"
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    },
+    {
+      "page_number": 2,
+      "page_title": "Student Personal Circumstances",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/student-information/personal-circumstances",
+      "fields": [
+        {
+          "label": "Does the student have children or other dependents that they support?",
+          "field_id": "has_dependents",
+          "selector": "#fsa_Radio_HaveDependentsNo",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "no",
+          "notes": "Options: yes (#fsa_Radio_HaveDependentsYes), no (#fsa_Radio_HaveDependentsNo)"
+        },
+        {
+          "label": "What are the student's personal circumstances?",
+          "field_id": "personal_circumstances",
+          "selector": "#fsa_Checkbox_none",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "none",
+          "notes": "Multi-select checkboxes. Options: active_duty (#fsa_Checkbox_ActiveDuty), parents_deceased (#fsa_Checkbox_ParentsDeceased), foster_care (#fsa_Checkbox_WasInFosterCare), emancipated_minor (#fsa_Checkbox_EmancipatedMinor), homeless (#fsa_Checkbox_Homeless), none (#fsa_Checkbox_none). This field appears conditionally after selecting has_dependents."
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    },
+    {
+      "page_number": 3,
+      "page_title": "Parent Marital Status",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/parent-marital-status",
+      "fields": [
+        {
+          "label": "Are the student's parents married?",
+          "field_id": "parents_married",
+          "selector": "#fsa_Radio_parentMaritalInformation-question1-yes",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "yes",
+          "notes": "Options: yes (#fsa_Radio_parentMaritalInformation-question1-yes), no (#fsa_Radio_parentMaritalInformation-question1-no). If 'yes' is selected, wizard will ask for both parents' financial information on subsequent pages."
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    },
+    {
+      "page_number": 4,
+      "page_title": "Parent Information",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/parent-information",
+      "fields": [
+        {
+          "label": "What is the parent's marital status?",
+          "field_id": "parent_marital_status",
+          "selector": "#fsa_Radio_ParenFamilyInfoMarried",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "married",
+          "notes": "Options: married (#fsa_Radio_ParenFamilyInfoMarried), unmarried (#fsa_Radio_ParenFamilyInfoUnmarried), unmarried_together (#fsa_Radio_ParenFamilyInfoUnmarriedTogether). This field is pre-populated based on previous answer about whether parents are married."
+        },
+        {
+          "label": "What is the parent's state of residence?",
+          "field_id": "parent_state_of_residence",
+          "selector": "#fsa_Typeahead_States",
+          "field_type": "typeahead",
+          "interaction": "fill_enter",
+          "required": true,
+          "example_value": "Illinois",
+          "notes": "Typeahead field - type state name and press Enter"
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    },
+    {
+      "page_number": 5,
+      "page_title": "Family Size",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/parent-information/family-size",
+      "fields": [
+        {
+          "label": "How many people are in the student's family, including the student?",
+          "field_id": "family_size",
+          "selector": "#fsa_Input_NumInHousehold",
+          "field_type": "number",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "4",
+          "notes": "Number input for family size (including student)"
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    },
+    {
+      "page_number": 6,
+      "page_title": "Parent Income and Assets",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/financial-information/parent-information",
+      "fields": [
+        {
+          "label": "Did the student's parent file taxes in 2024?",
+          "field_id": "parent_filed_taxes",
+          "selector": "#fsa_Radio_FamilySizeChangeYes",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "yes",
+          "notes": "Options: yes (#fsa_Radio_FamilySizeChangeYes), no (#fsa_Radio_FamilySizeChangeNo). If 'yes', additional financial fields appear."
+        },
+        {
+          "label": "Parent's Adjusted Gross Income",
+          "field_id": "parent_income",
+          "selector": "#fsa_Input_ParentIncome",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "85000",
+          "notes": "Dollar amount. Conditional field - appears only if parent_filed_taxes = yes. Includes wages, alimony, Social Security, business income."
+        },
+        {
+          "label": "Parent's Total Assets",
+          "field_id": "parent_assets",
+          "selector": "#fsa_Input_ParentAssets",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "12000",
+          "notes": "Dollar amount. Conditional field - appears only if parent_filed_taxes = yes. Includes cash, savings, checking accounts, net worth of businesses/farms, investments, real estate (not home)."
+        },
+        {
+          "label": "Annual Child Support Received",
+          "field_id": "parent_child_support",
+          "selector": "#fsa_Input_ParentChildSupport",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": false,
+          "example_value": "0",
+          "notes": "Dollar amount. Conditional field - appears only if parent_filed_taxes = yes. Total child support received for last complete calendar year. Enter 0 if none."
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    },
+    {
+      "page_number": 7,
+      "page_title": "Student Income and Assets",
+      "url_pattern": "https://studentaid.gov/aid-estimator/estimate/financial-information/student-information",
+      "fields": [
+        {
+          "label": "Did the student file taxes in 2024?",
+          "field_id": "student_filed_taxes",
+          "selector": "#fsa_Radio_StudentFiledNo",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "no",
+          "notes": "Options: yes (#fsa_Radio_StudentFiledYes), no (#fsa_Radio_StudentFiledNo). If 'yes' is selected, additional student financial fields would appear (similar to parent income page)."
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_FlowPrimary",
+        "selector_type": "id"
+      }
+    }
+  ]
+}

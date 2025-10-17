@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://formflow.io/schemas/wizard-structure-v1.json",
+  "title": "Wizard Structure Schema",
+  "description": "Universal schema for discovered government form wizards. Defines the structure that ALL wizard data files must conform to for Playwright execution.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["wizard_id", "name", "url", "discovered_at", "discovery_version", "total_pages", "pages"],
+  "properties": {
+    "wizard_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier for this wizard (lowercase letters, numbers, hyphens only)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable display name for the wizard"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://",
+      "description": "Starting URL of the wizard"
+    },
+    "discovered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this wizard was discovered"
+    },
+    "discovery_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of FederalScout used for discovery"
+    },
+    "total_pages": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of pages in the wizard"
+    },
+    "start_action": {
+      "type": "object",
+      "description": "Optional action required to start the wizard (e.g., clicking a button)",
+      "required": ["description", "selector"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Description of the action to start"
+        },
+        "selector": {
+          "type": "string",
+          "minLength": 1,
+          "description": "CSS selector for the start element"
+        },
+        "selector_type": {
+          "type": "string",
+          "enum": ["text", "id", "css", "auto"],
+          "default": "text",
+          "description": "Type of selector"
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of pages in the wizard (must match total_pages)",
+      "items": {
+        "type": "object",
+        "required": ["page_number", "page_title", "fields", "continue_button"],
+        "properties": {
+          "page_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number (1-indexed, must be sequential)"
+          },
+          "page_title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Title or heading of the page"
+          },
+          "url_pattern": {
+            "type": "string",
+            "description": "Optional URL pattern after navigation to this page"
+          },
+          "fields": {
+            "type": "array",
+            "description": "List of fields on this page",
+            "items": {
+              "type": "object",
+              "required": ["label", "field_id", "selector", "field_type", "interaction", "example_value"],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable label as shown to user"
+                },
+                "field_id": {
+                  "type": "string",
+                  "pattern": "^[a-z_][a-z0-9_]*$",
+                  "description": "Unique identifier within the wizard (snake_case, links to user data schema property)"
+                },
+                "selector": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Primary CSS selector for the field"
+                },
+                "selector_alternatives": {
+                  "type": "array",
+                  "description": "Alternative selectors if primary fails",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "field_type": {
+                  "type": "string",
+                  "enum": ["text", "number", "radio", "select", "typeahead", "checkbox", "group", "textarea", "search"],
+                  "description": "Type of form field"
+                },
+                "interaction": {
+                  "type": "string",
+                  "enum": ["fill", "click", "select", "javascript_click", "fill_enter"],
+                  "description": "Method for interacting with field"
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether this field is required"
+                },
+                "example_value": {
+                  "oneOf": [
+                    {"type": "string"},
+                    {"type": "object"}
+                  ],
+                  "description": "Example value for testing (string or object for grouped fields)"
+                },
+                "notes": {
+                  "type": "string",
+                  "description": "Special handling instructions or notes"
+                },
+                "sub_fields": {
+                  "type": "array",
+                  "description": "Sub-fields for grouped fields (e.g., date components). Required if field_type is 'group'.",
+                  "items": {
+                    "type": "object",
+                    "required": ["field_id", "selector", "field_type", "interaction", "example_value"],
+                    "properties": {
+                      "field_id": {
+                        "type": "string",
+                        "pattern": "^[a-z_][a-z0-9_]*$",
+                        "description": "Unique identifier within the group"
+                      },
+                      "selector": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "CSS selector for the sub-field"
+                      },
+                      "field_type": {
+                        "type": "string",
+                        "enum": ["text", "number", "radio", "select", "typeahead", "checkbox", "group", "textarea", "search"],
+                        "description": "Type of the sub-field"
+                      },
+                      "interaction": {
+                        "type": "string",
+                        "enum": ["fill", "click", "select", "javascript_click", "fill_enter"],
+                        "description": "How to interact with this sub-field"
+                      },
+                      "example_value": {
+                        "type": "string",
+                        "description": "Example value for testing"
+                      },
+                      "notes": {
+                        "type": "string",
+                        "description": "Additional notes about this sub-field"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "continue_button": {
+            "type": "object",
+            "required": ["text", "selector"],
+            "description": "Continue/Next button for this page",
+            "properties": {
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Button text (e.g., 'Continue', 'Next', 'Submit')"
+              },
+              "selector": {
+                "type": "string",
+                "minLength": 1,
+                "description": "CSS selector for the button"
+              },
+              "selector_type": {
+                "type": "string",
+                "enum": ["text", "id", "css", "auto"],
+                "default": "css",
+                "description": "Type of selector"
+              }
+            }
+          },
+          "validation": {
+            "type": "object",
+            "description": "Optional validation rules for this page",
+            "properties": {
+              "error_selector": {
+                "type": "string",
+                "description": "CSS selector for error messages"
+              },
+              "required_fields": {
+                "type": "array",
+                "description": "List of field_ids that are required on this page",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

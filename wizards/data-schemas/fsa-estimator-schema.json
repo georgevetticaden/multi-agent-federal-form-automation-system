@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FSA Student Aid Estimator - User Data",
+  "description": "User data required to execute the FSA Student Aid Estimator wizard",
+  "type": "object",
+  "required": [
+    "birth_month",
+    "birth_day",
+    "birth_year",
+    "marital_status",
+    "state_of_residence",
+    "grade_level",
+    "has_dependents",
+    "personal_circumstances",
+    "parents_married",
+    "parent_marital_status",
+    "parent_state_of_residence",
+    "family_size",
+    "parent_filed_taxes",
+    "student_filed_taxes"
+  ],
+  "properties": {
+    "birth_month": {
+      "type": "string",
+      "description": "Student's birth month (2 digits: 01-12)",
+      "pattern": "^(0[1-9]|1[0-2])$"
+    },
+    "birth_day": {
+      "type": "string",
+      "description": "Student's birth day (2 digits: 01-31)",
+      "pattern": "^(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "birth_year": {
+      "type": "string",
+      "description": "Student's birth year (4 digits)",
+      "pattern": "^[0-9]{4}$"
+    },
+    "marital_status": {
+      "type": "string",
+      "description": "Student's marital status",
+      "enum": [
+        "unmarried",
+        "married",
+        "separated"
+      ]
+    },
+    "state_of_residence": {
+      "type": "string",
+      "description": "Student's state of legal residence (full state name, e.g., 'Illinois')"
+    },
+    "grade_level": {
+      "type": "string",
+      "description": "Student's grade level for the 2026-27 school year",
+      "enum": [
+        "freshman",
+        "sophomore",
+        "other_undergrad",
+        "graduate"
+      ]
+    },
+    "has_dependents": {
+      "type": "string",
+      "description": "Does the student have children or other dependents that they support?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "personal_circumstances": {
+      "type": "string",
+      "description": "Student's personal circumstances (select all that apply or 'none')",
+      "enum": [
+        "active_duty",
+        "parents_deceased",
+        "foster_care",
+        "emancipated_minor",
+        "homeless",
+        "none"
+      ]
+    },
+    "parents_married": {
+      "type": "string",
+      "description": "Are the student's parents married?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "parent_marital_status": {
+      "type": "string",
+      "description": "Parent's marital status",
+      "enum": [
+        "married",
+        "unmarried",
+        "unmarried_together"
+      ]
+    },
+    "parent_state_of_residence": {
+      "type": "string",
+      "description": "Parent's state of legal residence (full state name, e.g., 'Illinois')"
+    },
+    "family_size": {
+      "type": "number",
+      "description": "Number of people in the student's family, including the student",
+      "minimum": 1
+    },
+    "parent_filed_taxes": {
+      "type": "string",
+      "description": "Did the student's parent file taxes in 2024?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "parent_income": {
+      "type": "number",
+      "description": "Parent's adjusted gross income in dollars (required if parent_filed_taxes = yes)",
+      "minimum": 0
+    },
+    "parent_assets": {
+      "type": "number",
+      "description": "Parent's total assets in dollars (required if parent_filed_taxes = yes)",
+      "minimum": 0
+    },
+    "parent_child_support": {
+      "type": "number",
+      "description": "Annual child support received in dollars (optional, enter 0 if none)",
+      "minimum": 0
+    },
+    "student_filed_taxes": {
+      "type": "string",
+      "description": "Did the student file taxes in 2024?",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    }
+  }
+}

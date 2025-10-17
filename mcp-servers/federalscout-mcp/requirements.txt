@@ -1,0 +1,21 @@
+# FederalScout Discovery Agent Requirements
+
+# Core dependencies
+pydantic==2.9.2
+pydantic-settings==2.6.0
+python-dotenv==1.0.0
+
+# MCP SDK
+mcp==1.1.2
+
+# Browser automation
+playwright==1.48.0
+
+# Image processing for screenshot optimization
+Pillow==11.0.0
+
+# Date/time utilities
+python-dateutil==2.9.0
+
+# JSON Schema validation (Contract-First pattern)
+jsonschema>=4.0.0
