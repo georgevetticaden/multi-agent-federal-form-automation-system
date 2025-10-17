@@ -2,18 +2,7 @@
 
 > **Vision-guided discovery + Contract-first execution = Voice-accessible government services**
 
-<div align="center">
-
-[![Technical Deep Dive](https://img.shields.io/badge/▶️%20Watch-Technical%20Deep%20Dive-red?style=for-the-badge&logo=youtube)](https://youtube.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg?style=flat-square)](https://www.python.org/downloads/)
-[![MCP Protocol](https://img.shields.io/badge/MCP-Protocol-green.svg?style=flat-square)](https://modelcontextprotocol.io)
-
-**[📺 Coming Soon: Technical Video Walkthrough](#)**
-
-*From visual discovery to automated execution — making federal forms conversationally accessible*
-
-</div>
+The multi-agent federal form automation system uses **FederalScout** to visually discover wizard structures and **FederalRunner** to execute them atomically. Together, these specialized agents transform government calculators—from FSA Student Aid Estimators to Social Security retirement calculators—into voice-accessible tools.
 
 ---
 
@@ -98,46 +87,25 @@ FederalScout discovers forms and generates **TWO artifacts**:
 
 ---
 
-## 🎬 See It In Action
+## 🎬 Technical Deep Dive
 
-### Phase 1: Discovery (One-Time Setup)
+<div align="center">
 
-```
-USER in Claude Desktop:
-"Discover the FSA Student Aid Estimator at https://studentaid.gov/aid-estimator/"
+### 📺 Watch the Complete System Walkthrough
 
-FederalScout:
-✓ Launches browser, navigates to site
-✓ Analyzes screenshots with Claude Vision
-✓ Discovers 6 pages, 47 fields
-✓ Generates Wizard Structure JSON
-✓ Generates User Data Schema (THE CONTRACT)
-✓ Saves both artifacts to wizards/ directory
+**Coming Soon:** A comprehensive video demonstration covering:
+- 🔍 **Live Discovery Session** - Watch FederalScout discover the FSA Student Aid Estimator
+- 🏗️ **Contract-First Pattern** - See how JSON Schemas enable universal execution
+- 🚀 **Voice-to-Result Demo** - Mobile execution from conversation to final results
+- 🛠️ **Architecture Deep Dive** - MCP protocol, Cloud Run deployment, and OAuth 2.1
 
-Result:
-- wizards/wizard-data/fsa-student-aid-estimator.json
-- wizards/wizard-schemas/fsa-student-aid-estimator-schema.json
-```
+**[📺 Subscribe for launch notification](#)**
 
-### Phase 2: Execution (Daily Use)
+---
 
-```
-USER on Claude.ai Mobile:
-"Hey Claude, calculate my student aid eligibility. I'm 18, born in 2007,
-unmarried, live in Illinois, college freshman. My parents make $85k
-with $12k in savings."
+**Want to see it now?** Follow the [Quick Start](#-quick-start) guide to run the system locally.
 
-FederalRunner:
-✓ Loads User Data Schema (THE CONTRACT)
-✓ Collects user data naturally (guided by schema)
-✓ Validates all inputs against schema
-✓ Loads Wizard Structure for execution
-✓ Maps user data to selectors via field_id
-✓ Executes atomically on studentaid.gov (8 seconds)
-✓ Returns results with screenshot audit trail
-
-Result: "Your Student Aid Index: $8,245"
-```
+</div>
 
 ---
 
@@ -227,7 +195,14 @@ cd mcp-servers/federalscout-mcp
 python3.11 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-playwright install webkit
+
+# Install Playwright browsers
+# WebKit: Default, works in headless mode with government sites
+# Chromium: Required for demo mode (connecting to existing browser)
+playwright install webkit chromium
+
+# Optional: Install Firefox for additional browser testing
+# playwright install firefox
 ```
 
 ### 2. Configure Claude Desktop

@@ -623,8 +623,13 @@ source venv/bin/activate
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Install Playwright browser (WebKit recommended)
-playwright install webkit
+# 4. Install Playwright browsers
+# WebKit: Default, works in headless mode with government sites
+# Chromium: Required for demo mode (connecting to existing browser)
+playwright install webkit chromium
+
+# Optional: Install Firefox for additional browser testing
+# playwright install firefox
 ```
 
 ### Configure Claude Desktop
@@ -861,7 +866,7 @@ mcp-servers/federalscout-mcp/
 ### Browser doesn't launch
 ```bash
 # Reinstall Playwright browsers
-playwright install webkit
+playwright install webkit chromium
 ```
 
 ### Session expired errors
