@@ -118,13 +118,19 @@ federalrunner-mcp/
 │   └── auth.py                  # OAuth 2.1 (TODO)
 ├── tests/
 │   ├── test_execution_local.py  # Execution tests ✅
-│   └── run_tests.sh             # Test runner script ✅
+│   ├── conftest.py              # Test configuration & fixtures ✅
+│   ├── run_tests.sh             # Test runner script ✅
+│   └── test_output/             # Test artifacts (gitignored)
+│       ├── logs/                #   - test_execution.log
+│       └── screenshots/         #   - *.jpg screenshots
 ├── .env.example                 # Configuration template
 ├── requirements.txt             # Production dependencies
 ├── requirements-test.txt        # Test dependencies
 ├── pytest.ini                   # Pytest configuration
 └── README.md                    # This file
 ```
+
+**Note:** Test screenshots are saved to `tests/test_output/screenshots/` (not `screenshots/` at root)
 
 ---
 

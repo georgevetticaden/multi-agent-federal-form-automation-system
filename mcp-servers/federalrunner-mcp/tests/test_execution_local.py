@@ -50,7 +50,7 @@ FSA_TEST_DATA = {
 
     # Page 2: Student Personal Circumstances
     "has_dependents": "no",
-    "circumstance_none": True,
+    "personal_circumstances": "none",
 
     # Page 3: Parent Marital Status
     "parents_married": "yes",
@@ -60,13 +60,13 @@ FSA_TEST_DATA = {
     "parent_state": "Illinois",
 
     # Page 5: Family Size
-    "family_size": 4,
+    "family_size": "4",
 
     # Page 6: Parent Income and Assets
     "parent_filed_taxes": "yes",
-    "parent_income": 85000,
-    "parent_assets": 12000,
-    "parent_child_support": 0,
+    "parent_income": "85000",
+    "parent_assets": "12000",
+    "parent_child_support": "0",
 
     # Page 7: Student Income and Assets
     "student_filed_taxes": "no"
@@ -144,7 +144,7 @@ async def test_federalrunner_get_wizard_info():
 
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_federalrunner_execute_wizard_non_headless():
+async def test_federalrunner_execute_wizard_non_headless(test_config):
     """
     Test MCP Tool: federalrunner_execute_wizard() [NON-HEADLESS MODE]
 
@@ -165,11 +165,14 @@ async def test_federalrunner_execute_wizard_non_headless():
     3. Load Wizard Structure from wizards/wizard-structures/
     4. Map field_id → selector (THE CRITICAL MAPPING)
     5. Execute atomically with Playwright
+
+    Screenshots are saved to: tests/test_output/screenshots/
     """
     logger.info("\n" + "="*70)
     logger.info("🔵 Non-Headless Chromium Execution (Visual Debugging)")
     logger.info("   Watch the browser execute the FSA wizard visually")
     logger.info("   Configuration loaded from .env file")
+    logger.info(f"   Screenshots will be saved to: {test_config.screenshot_dir}")
     logger.info("="*70 + "\n")
 
     # Execute wizard using the MCP tool (what Claude calls!)
@@ -197,7 +200,7 @@ async def test_federalrunner_execute_wizard_non_headless():
 
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_federalrunner_execute_wizard_headless():
+async def test_federalrunner_execute_wizard_headless(test_config):
     """
     Test MCP Tool: federalrunner_execute_wizard() [HEADLESS MODE]
 
@@ -209,10 +212,13 @@ async def test_federalrunner_execute_wizard_headless():
     This test explicitly overrides configuration to run in headless mode,
     regardless of .env settings. This validates the configuration that will
     be used in Cloud Run deployment.
+
+    Screenshots are saved to: tests/test_output/screenshots/
     """
     logger.info("\n" + "="*70)
     logger.info("🌐 Headless WebKit Execution (Production)")
     logger.info("   Testing production-ready headless execution")
+    logger.info(f"   Screenshots will be saved to: {test_config.screenshot_dir}")
     logger.info("="*70 + "\n")
 
     # Override configuration for headless execution

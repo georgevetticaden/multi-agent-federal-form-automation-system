@@ -26,15 +26,22 @@ The setup script will:
 
 ## Test Structure
 
-The test suite has 14 tests organized into layers:
+The test suite has **6 tests total** organized into three categories:
 
-| Test Type | Count | Speed | Browser |
-|-----------|-------|-------|---------|
-| **Unit Tests** | 6 | Fast (~5s) | None |
-| **MCP Tool Tests** | 2 | Fast (~1s) | None |
-| **Integration Tests** | 2 | Slow (~15-25s each) | Chromium/WebKit |
-| **End-to-End Tests** | 2 | Slow (~15-25s each) | Chromium/WebKit |
-| **Error Handling Tests** | 2 | Fast (~1s) | None |
+| Test Type | Count | Speed | Browser | Purpose |
+|-----------|-------|-------|---------|---------|
+| **MCP Tool Tests** | 2 | Fast (~1s) | None | Test tools Claude will call |
+| **Integration Tests (Browser)** | 2 | Slow (~20-40s each) | Chromium/WebKit | Full wizard execution |
+| **Error Handling Tests** | 2 | Fast (~1s) | None | Validation & error cases |
+
+### Test Breakdown
+
+1. `test_federalrunner_list_wizards()` - MCP tool test (fast)
+2. `test_federalrunner_get_wizard_info()` - MCP tool test (fast)
+3. `test_federalrunner_execute_wizard_non_headless()` - Integration test (slow, visual)
+4. `test_federalrunner_execute_wizard_headless()` - Integration test (slow, production)
+5. `test_execute_wizard_validation_failure()` - Error handling test (fast)
+6. `test_execute_wizard_nonexistent_wizard()` - Error handling test (fast)
 
 ---
 
@@ -46,57 +53,42 @@ The test suite has 14 tests organized into layers:
 # Activate virtual environment
 source venv/bin/activate
 
-# Run automated test runner (recommended)
-./run_tests.sh
+# Run all 6 tests
+pytest tests/test_execution_local.py -v
 ```
 
-This runs all 14 tests in the recommended order. **Total time: ~90 seconds.**
+**Total time: ~60-90 seconds** (depending on network speed and browser startup)
 
 ---
 
 ## Step-by-Step Testing Guide
 
-### Step 1: Unit Tests (Fast - No Browser)
+### Step 1: MCP Tool Tests (Fast - No Browser)
 
-Test individual components without browser execution:
-
-```bash
-pytest tests/test_execution_local.py -k "not slow and not e2e" -v
-```
-
-**Tests 6 components:**
-1. Schema loading (loads `fsa-estimator-schema.json`)
-2. Schema validation with valid data
-3. Schema validation with invalid data
-4. Schema validation with missing fields
-5. Wizard structure loading (loads `fsa-estimator.json`)
-6. Field ID to selector mapping
-
-**Expected:** All 6 tests pass in < 5 seconds.
-
----
-
-### Step 2: MCP Tool Tests (Fast - No Browser)
-
-Test MCP tools that Claude will call:
+Test the MCP tools that Claude will call:
 
 ```bash
 pytest tests/test_execution_local.py::test_federalrunner_list_wizards -v
 pytest tests/test_execution_local.py::test_federalrunner_get_wizard_info -v
 ```
 
-**Expected:** Both tests pass, confirming:
-- Wizards are discoverable (`list_wizards`)
-- Schemas are accessible (`get_wizard_info` returns THE CONTRACT)
+**What's tested:**
+1. **list_wizards** - Lists available wizards from `wizards/wizard-structures/`
+2. **get_wizard_info** - Returns THE SCHEMA (contract) from `wizards/data-schemas/`
+
+**Expected:** Both tests pass in < 2 seconds total, confirming:
+- FSA wizard is discoverable
+- Schema is accessible and valid JSON Schema (draft-07)
+- Schema includes Claude hints and example data
 
 ---
 
-### Step 3: Phase 1 Integration Test (NON-HEADLESS) ⭐ VISUAL TEST
+### Step 2: Phase 1 Integration Test (NON-HEADLESS) ⭐ VISUAL TEST
 
 **IMPORTANT:** This opens a visible browser window!
 
 ```bash
-pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_non_headless -v -s
+pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_non_headless -v -s
 ```
 
 **What you'll see:**
@@ -116,95 +108,112 @@ pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_no
 **Expected output:**
 ```
 ======================================================================
-🔵 PHASE 1: Non-Headless Chromium Execution
+🔵 Non-Headless Chromium Execution (Visual Debugging)
    Watch the browser execute the FSA wizard visually
+   Configuration loaded from .env file
+   Screenshots will be saved to: tests/test_output/screenshots/
 ======================================================================
 
-Mapped 17 fields
+🚀 MCP Tool: federalrunner_execute_wizard(wizard_id='fsa-estimator')
+   User data fields provided: 17 fields
+
+📋 Step 1: Loading User Data Schema...
+   ✓ Schema loaded
+
+✅ Step 2: Validating user data against schema...
+   ✓ Validation passed
+
+📂 Step 3: Loading Wizard Structure...
+   ✓ Wizard loaded: FSA Student Aid Estimator (7 pages)
+
+🔗 Step 4: Mapping field_id → selector...
+   ✓ Mapped 17 fields
+
+🎭 Step 5: Executing wizard with Playwright...
+   Browser: chromium, Headless: False, Slow Mo: 500ms
+
+🎭 Starting atomic execution: fsa-estimator
+📄 Page 1/7: Student Information
+📄 Page 2/7: Student Personal Circumstances
+📄 Page 3/7: Parent Marital Status
+📄 Page 4/7: Parent Information
+📄 Page 5/7: Family Size
+📄 Page 6/7: Parent Income and Assets
+📄 Page 7/7: Student Income and Assets
+📊 Extracting results from final page
+✅ Execution completed in ~40000ms
 
 ======================================================================
-✅ PHASE 1 PASSED
-   Execution time: 15000-25000ms
-   Pages completed: 7/7
-   Screenshots captured: 9
+✅ EXECUTION SUCCESSFUL
+   Wizard: fsa-estimator
+   Pages completed: 7
+   Execution time: ~40000ms
+   Screenshots: 10
+======================================================================
+
+✅ NON-HEADLESS TEST PASSED
 ======================================================================
 ```
 
-**Execution time:** ~15-25 seconds
+**Execution time:** ~20-40 seconds (with slow_mo=500ms for visual debugging)
 
 **Why this test matters:**
 - Visual confirmation that all fields are filled correctly
 - Perfect for debugging selector issues
-- Validates the complete atomic execution pattern
+- Validates the complete contract-first pattern:
+  1. Load schema
+  2. Validate user data
+  3. Map field_id → selector
+  4. Execute atomically
+
+**Screenshots:** Saved to `tests/test_output/screenshots/` (10 images)
 
 ---
 
-### Step 4: Phase 2 Integration Test (HEADLESS) ⭐ PRODUCTION MODE
+### Step 3: Phase 2 Integration Test (HEADLESS) ⭐ PRODUCTION MODE
 
 **RUN THIS AFTER Phase 1 passes!**
 
 ```bash
-pytest tests/test_execution_local.py::test_playwright_client_atomic_execution_headless -v -s
+pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_headless -v -s
 ```
 
 **What happens:**
 - **No visible browser window** (runs headlessly)
-- **Uses WebKit browser** (FSA blocks headless Chromium)
+- **Uses WebKit browser** (FSA blocks headless Chromium/Firefox)
 - **Same 7-page execution** as Phase 1
 - **Production configuration** validation
 
 **Expected output:**
 ```
 ======================================================================
-🌐 PHASE 2: Headless WebKit Execution (Production)
+🌐 Headless WebKit Execution (Production)
    Testing production-ready headless execution
+   Screenshots will be saved to: tests/test_output/screenshots/
 ======================================================================
 
+[Same execution flow as Phase 1, but faster]
+
 ======================================================================
-✅ PHASE 2 PASSED
-   Execution time: 12000-20000ms
-   Pages completed: 7/7
-   Screenshots captured: 9
+✅ HEADLESS TEST PASSED
+   Wizard: fsa-estimator
+   Execution time: ~25000ms
+   Pages completed: 7
+   Screenshots: 10
 ======================================================================
 ```
 
-**Execution time:** ~12-20 seconds
+**Execution time:** ~15-25 seconds (no slow_mo delay)
 
 **Why this test matters:**
-- Validates production configuration (Cloud Run uses this)
+- Validates production configuration (Cloud Run will use this)
 - Confirms WebKit headless works with FSA website
 - Faster execution than non-headless
+- Critical for deployment readiness
 
 ---
 
-### Step 5: End-to-End Tests (Complete MCP Workflow) ⭐ CONTRACT-FIRST
-
-These tests execute the **complete workflow Claude will use**:
-
-**Non-headless (visual debugging):**
-```bash
-pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_e2e_non_headless -v -s
-```
-
-**Headless (production validation):**
-```bash
-pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_e2e_headless -v -s
-```
-
-**What's different from Steps 3-4:**
-- Tests `federalrunner_execute_wizard()` tool (what Claude actually calls)
-- **Includes full contract-first pattern:**
-  1. Load User Data Schema from `wizards/data-schemas/`
-  2. Validate user_data against schema
-  3. Load Wizard Structure from `wizards/wizard-structures/`
-  4. Map `field_id` → `selector` (THE CRITICAL MAPPING)
-  5. Execute atomically with Playwright
-
-**Expected:** Both tests pass with same output as Steps 3-4.
-
----
-
-### Step 6: Error Handling Tests (Fast - No Browser)
+### Step 4: Error Handling Tests (Fast - No Browser)
 
 Test validation failures and edge cases:
 
@@ -213,9 +222,14 @@ pytest tests/test_execution_local.py::test_execute_wizard_validation_failure -v
 pytest tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard -v
 ```
 
+**What's tested:**
+1. **Validation failure** - Invalid user_data is caught before browser execution
+2. **Non-existent wizard** - Helpful error when wizard doesn't exist
+
 **Expected:** Both tests pass, confirming:
-- Invalid user_data is caught before execution
-- Non-existent wizards return helpful error messages
+- Schema validation prevents bad data from reaching browser
+- Error messages are helpful for debugging
+- No browser is launched for invalid requests
 
 ---
 
@@ -224,22 +238,94 @@ pytest tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard -v
 ### Run by marker:
 
 ```bash
-# Unit tests only
+# Fast tests only (no browser execution)
 pytest tests/test_execution_local.py -m "not slow" -v
 
-# Slow tests only (browser execution)
+# Slow tests only (browser execution - both phases)
 pytest tests/test_execution_local.py -m "slow" -v -s
-
-# End-to-end tests only
-pytest tests/test_execution_local.py -m "e2e" -v -s
 ```
 
 ### Run specific test:
 
 ```bash
 # Any specific test by name
-pytest tests/test_execution_local.py::test_schema_loading -v
+pytest tests/test_execution_local.py::test_federalrunner_list_wizards -v
 ```
+
+### Run with detailed logging:
+
+```bash
+# Show all logs (including DEBUG level)
+pytest tests/test_execution_local.py -v -s --log-cli-level=DEBUG
+```
+
+---
+
+## Test Output Directory
+
+All test artifacts are saved to `tests/test_output/` (gitignored):
+
+```
+mcp-servers/federalrunner-mcp/tests/test_output/
+├── logs/
+│   └── test_execution.log          # Test execution logs with full details
+├── screenshots/
+│   └── *.jpg                        # Browser screenshots from test runs
+└── wizards/                         # Test-specific wizard data (if generated)
+    ├── wizard-structures/
+    └── data-schemas/
+```
+
+**Note:** Production wizard data uses the shared location:
+- `multi-agent-federal-form-automation-system/wizards/wizard-structures/`
+- `multi-agent-federal-form-automation-system/wizards/data-schemas/`
+
+### Viewing Screenshots
+
+After running browser tests (Phase 1 or Phase 2):
+
+```bash
+# List screenshots
+ls -la tests/test_output/screenshots/
+
+# View screenshot count
+ls tests/test_output/screenshots/*.jpg | wc -l
+
+# Open screenshots directory
+open tests/test_output/screenshots/  # macOS
+```
+
+Screenshots are captured:
+- After start action (entering wizard)
+- After filling each of 7 pages
+- After final results extraction
+- Total: **10 screenshots per execution**
+
+---
+
+## Configuration
+
+Tests use configuration from `.env` file (auto-created by setup.sh):
+
+```bash
+# Browser Configuration (used by non-headless test)
+FEDERALRUNNER_BROWSER_TYPE=chromium     # For visual debugging
+FEDERALRUNNER_HEADLESS=false            # Show browser window
+FEDERALRUNNER_SLOW_MO=500               # Slow down to watch (500ms)
+
+# Note: Headless test overrides these to use webkit/headless
+```
+
+### Browser Strategy
+
+**CRITICAL:** FSA website blocks headless Chromium and Firefox.
+
+| Test | Browser | Headless | Slow Mo | Purpose |
+|------|---------|----------|---------|---------|
+| **Phase 1** | Chromium | ❌ False | 500ms | Visual debugging |
+| **Phase 2** | WebKit | ✅ True | 0ms | Production validation |
+
+**Production (Cloud Run):** Uses WebKit headless (same as Phase 2)
 
 ---
 
@@ -260,26 +346,26 @@ ls -la ../../wizards/data-schemas/fsa-estimator-schema.json
 
 **If missing:** Re-run FederalScout discovery to generate the schema.
 
----
-
-### Tests fail with "Wizard structure not found"
-
+**Check wizard structure too:**
 ```bash
-# Verify wizard structure exists
 ls -la ../../wizards/wizard-structures/fsa-estimator.json
 ```
-
-**If missing:** Re-run FederalScout discovery to generate the wizard structure.
 
 ---
 
 ### Browser doesn't open in Phase 1
 
+**Check `.env` configuration:**
 ```bash
-# Check Playwright installation
+cat .env | grep HEADLESS
+# Should show: FEDERALRUNNER_HEADLESS=false
+```
+
+**Check Playwright installation:**
+```bash
 playwright --version
 
-# Reinstall browsers
+# Reinstall browsers if needed
 playwright install chromium webkit
 ```
 
@@ -289,21 +375,27 @@ playwright install chromium webkit
 
 **Common causes:**
 - FSA website may be blocking headless Chromium
-- Verify test uses `browser_type="webkit"` (check test code)
+- Verify test uses `browser_type="webkit"` (already configured)
 - Look at error message for specific selector failures
 
-**Solution:** Phase 2 should use WebKit (already configured in tests).
+**Solution:** Phase 2 test already configured correctly with WebKit. If still fails:
+- Check logs in `tests/test_output/logs/test_execution.log`
+- Check screenshots in `tests/test_output/screenshots/`
 
 ---
 
-### Selectors fail on specific fields
+### Validation errors: "85000 is not of type 'string'"
 
-**FSA website may have changed.**
+**Cause:** Test data has numeric values but schema expects strings.
 
-**Steps to fix:**
-1. Re-run FederalScout discovery to update wizard structure
-2. Compare new selectors with old ones in `wizards/wizard-structures/fsa-estimator.json`
-3. Update tests if field mappings changed
+**Solution:** All numeric fields in test data must be strings:
+- ✅ Correct: `"parent_income": "85000"`
+- ❌ Wrong: `"parent_income": 85000`
+
+**Other validation issues:**
+- Date fields must be zero-padded: `"05"` not `"5"`
+- Enum values must match exactly: `"unmarried"` not `"single"`
+- Required fields must be present: Check `required` array in schema
 
 ---
 
@@ -316,9 +408,20 @@ playwright install chromium webkit
 
 **Solution:**
 - Check internet connection
-- Visit https://studentaid.gov/aid-estimator/ in your browser manually
+- Visit https://studentaid.gov/aid-estimator/ manually
+- Check logs in `tests/test_output/logs/test_execution.log`
 - Re-run the test
-- Check logs in `mcp-servers/federalrunner-mcp/logs/`
+
+---
+
+### Selectors fail on specific fields
+
+**FSA website may have changed.**
+
+**Steps to fix:**
+1. Re-run FederalScout discovery to update wizard structure
+2. Compare new selectors with old ones in `wizards/wizard-structures/fsa-estimator.json`
+3. Update test data if field_id names changed
 
 ---
 
@@ -327,32 +430,25 @@ playwright install chromium webkit
 **✅ All tests passing:**
 
 ```
-tests/test_execution_local.py::test_schema_loading PASSED
-tests/test_execution_local.py::test_schema_validation_valid_data PASSED
-tests/test_execution_local.py::test_schema_validation_invalid_data PASSED
-tests/test_execution_local.py::test_schema_validation_missing_required_fields PASSED
-tests/test_execution_local.py::test_wizard_structure_loading PASSED
-tests/test_execution_local.py::test_field_id_to_selector_mapping PASSED
 tests/test_execution_local.py::test_federalrunner_list_wizards PASSED
 tests/test_execution_local.py::test_federalrunner_get_wizard_info PASSED
-tests/test_execution_local.py::test_playwright_client_atomic_execution_non_headless PASSED [~20s]
-tests/test_execution_local.py::test_playwright_client_atomic_execution_headless PASSED [~15s]
-tests/test_execution_local.py::test_federalrunner_execute_wizard_e2e_non_headless PASSED [~20s]
-tests/test_execution_local.py::test_federalrunner_execute_wizard_e2e_headless PASSED [~15s]
+tests/test_execution_local.py::test_federalrunner_execute_wizard_non_headless PASSED [~40s]
+tests/test_execution_local.py::test_federalrunner_execute_wizard_headless PASSED [~25s]
 tests/test_execution_local.py::test_execute_wizard_validation_failure PASSED
 tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard PASSED
 
-========== 14 passed in ~90s ==========
+========== 6 passed in ~70s ==========
 ```
 
 ---
 
 ## Next Steps After Tests Pass
 
-1. ✅ **All unit tests pass** → Core components working
-2. ✅ **Phase 1 & 2 integration tests pass** → Playwright execution validated
-3. ✅ **End-to-end tests pass** → Contract-first pattern working
-4. ✅ **All 14 tests pass** → **Ready for FastAPI MCP Server implementation!**
+1. ✅ **MCP tool tests pass** → Tools are ready for Claude to call
+2. ✅ **Phase 1 (non-headless) passes** → Visual confirmation execution works
+3. ✅ **Phase 2 (headless) passes** → Production configuration validated
+4. ✅ **Error handling tests pass** → Validation working correctly
+5. ✅ **All 6 tests pass** → **Ready for FastAPI MCP Server implementation!**
 
 ---
 
@@ -360,15 +456,18 @@ tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard PASSED
 
 ```
 multi-agent-federal-form-automation-system/
-├── wizards/
+├── wizards/                                    # Shared wizard data
 │   ├── wizard-structures/
-│   │   └── fsa-estimator.json          # Wizard structure (FederalScout output)
+│   │   └── fsa-estimator.json                 # Wizard structure (FederalScout output)
 │   └── data-schemas/
-│       └── fsa-estimator-schema.json   # User Data Schema (THE CONTRACT)
+│       └── fsa-estimator-schema.json          # User Data Schema (THE CONTRACT)
 └── mcp-servers/federalrunner-mcp/
     ├── tests/
-    │   ├── test_execution_local.py     # 14 tests
-    │   └── run_tests.sh                # Automated test runner
-    ├── .env                            # Configuration (auto-created by setup.sh)
-    └── venv/                           # Virtual environment (created by setup.sh)
+    │   ├── test_execution_local.py            # 6 tests
+    │   ├── conftest.py                        # Test configuration & fixtures
+    │   └── test_output/                       # Test artifacts (gitignored)
+    │       ├── logs/test_execution.log
+    │       └── screenshots/*.jpg
+    ├── .env                                   # Configuration (auto-created by setup.sh)
+    └── venv/                                  # Virtual environment (created by setup.sh)
 ```
