@@ -148,8 +148,8 @@ class FederalScoutConfig(BaseSettings):
             self.workspace_root = Path.cwd()
 
         if self.wizards_dir is None:
-            # SHARED LOCATION: Use root formflow-agent/wizards/ directory
-            # Navigate up from mcp-servers/federalscout-mcp/ to formflow-agent/
+            # SHARED LOCATION: Use root multi-agent-federal-form-automation-system/wizards/ directory
+            # Navigate up from mcp-servers/federalscout-mcp/ to multi-agent-federal-form-automation-system/
             project_root = Path(__file__).parent.parent.parent.parent
             self.wizards_dir = project_root / "wizards"
 
@@ -158,8 +158,8 @@ class FederalScoutConfig(BaseSettings):
             self.log_dir = self.workspace_root / "logs"
 
         if self.screenshot_dir is None:
-            # SHARED LOCATION: Use formflow-agent/wizards/screenshots/federal-scout/
-            # Navigate up from mcp-servers/federalscout-mcp/ to formflow-agent/
+            # SHARED LOCATION: Use multi-agent-federal-form-automation-system/wizards/screenshots/federal-scout/
+            # Navigate up from mcp-servers/federalscout-mcp/ to multi-agent-federal-form-automation-system/
             project_root = Path(__file__).parent.parent.parent.parent
             self.screenshot_dir = project_root / "wizards" / "screenshots" / "federal-scout"
 

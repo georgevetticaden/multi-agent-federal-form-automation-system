@@ -208,7 +208,7 @@ __marimo__/
 mcp-servers/.DS_Store
 requirements/.DS_Store
 
-# FormFlow Agent - Shared Resources
+# FormFlow - Shared Resources
 # wizards/ directory at root is TRACKED (shared between FederalScout and FederalRunner)
 # wizards/wizard-structures/ subdirectory is TRACKED (wizard Playwright execution instructions)
 # wizards/data-schemas/ subdirectory is TRACKED (user data schemas - THE CONTRACT)

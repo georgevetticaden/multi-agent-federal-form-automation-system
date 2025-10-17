@@ -276,7 +276,7 @@ MCP configuration for Claude Desktop:
     "federalscout": {
       "command": "python",
       "args": ["-m", "federalscout_mcp.server"],
-      "cwd": "/path/to/formflow-agent/mcp-servers/federalscout-mcp",
+      "cwd": "/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp",
       "env": {
         "FEDERALSCOUT_HEADLESS": "false"
       }

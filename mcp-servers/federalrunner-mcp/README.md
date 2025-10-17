@@ -4,7 +4,7 @@ Execute government form wizards atomically with natural language input.
 
 ## Overview
 
-FederalRunner is the execution component of the FormFlow system. It takes discovered wizard structures (from FederalScout) and executes them atomically with user-provided data, returning official government results.
+FederalRunner is the execution component of the Multi-Agent Federal Form Automation system. It takes discovered wizard structures (from FederalScout) and executes them atomically with user-provided data, returning official government results.
 
 **Key Features:**
 - ✅ Atomic execution (launch → fill all pages → extract results → close)

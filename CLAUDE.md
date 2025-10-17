@@ -1,8 +1,8 @@
-# FormFlow Agent - Implementation Guide for Claude Code
+# Multi-Agent Federal Form Automation System - Implementation Guide for Claude Code
 
 ## Project Overview
 
-FormFlow enables automation of government form wizards through **Contract-First Form Automation** - a pattern where visual form discovery automatically generates type-safe contracts (JSON Schemas) that bridge human interaction and automated execution.
+Multi-Agent Federal Form Automation System enables automation of government form wizards through **Contract-First Form Automation** - a pattern where visual form discovery automatically generates type-safe contracts (JSON Schemas) that bridge human interaction and automated execution.
 
 **Two specialized agents:**
 1. **FederalScout** - Discovers wizard structures + generates schemas (local, Claude Desktop) 🚧 **SCHEMA GENERATION IN PROGRESS**
@@ -81,7 +81,7 @@ User Data Schema:           Wizard Data:
 - ✅ JSON schema validation
 - ✅ Configuration management via environment variables
 - ✅ DateTime serialization handling (mode='json')
-- ✅ Shared wizards directory (`formflow-agent/wizards/`)
+- ✅ Shared wizards directory (`multi-agent-federal-form-automation-system/wizards/`)
 
 ### Phase 2: FederalScout Discovery Agent ✅
 - ✅ MCP stdio server for Claude Desktop

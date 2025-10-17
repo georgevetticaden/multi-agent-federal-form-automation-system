@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "federalscout-mcp"
 version = "1.0.0"
 description = "FederalScout Discovery Agent - Interactive wizard structure discovery via MCP"
-authors = [{name = "FormFlow Team"}]
+authors = [{name = "Multi-Agent Federal Form Automation System Team"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"

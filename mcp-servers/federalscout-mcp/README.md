@@ -949,4 +949,4 @@ Contributions welcome! See root [README.md](../../README.md) for contribution gu
 
 **Built with ❤️ for accessible government services**
 
-*Part of the FormFlow project - Making government forms conversationally accessible*
+*Part of the Multi-Agent Federal Form Automation System project - Making government forms conversationally accessible*

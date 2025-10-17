@@ -389,14 +389,14 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "federalscout": {
-      "command": "/path/to/formflow-agent/mcp-servers/federalscout-mcp/venv/bin/python",
-      "args": ["/path/to/formflow-agent/mcp-servers/federalscout-mcp/src/server.py"],
+      "command": "/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python",
+      "args": ["/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py"],
       "env": {
         "FEDERALSCOUT_HEADLESS": "false",
         "FEDERALSCOUT_BROWSER_TYPE": "webkit",
         "FEDERALSCOUT_SCREENSHOT_QUALITY": "60",
         "FEDERALSCOUT_SCREENSHOT_MAX_SIZE_KB": "50",
-        "FEDERALSCOUT_WIZARDS_DIR": "/path/to/formflow-agent/wizards"
+        "FEDERALSCOUT_WIZARDS_DIR": "/path/to/multi-agent-federal-form-automation-system/wizards"
       }
     }
   }
@@ -446,7 +446,7 @@ cp .env.example .env
 ## 📁 Project Structure
 
 ```
-formflow-agent/
+multi-agent-federal-form-automation-system/
 ├── mcp-servers/
 │   ├── federalscout-mcp/              # Discovery agent (local MCP server)
 │   │   ├── src/
@@ -748,8 +748,8 @@ We welcome contributions! This project demonstrates patterns applicable to any w
 
 ```bash
 # Fork and clone
-git clone https://github.com/YOUR_USERNAME/formflow-agent.git
-cd formflow-agent
+git clone https://github.com/YOUR_USERNAME/multi-agent-federal-form-automation-system.git
+cd multi-agent-federal-form-automation-system
 
 # Set up FederalScout
 cd mcp-servers/federalscout-mcp
@@ -773,7 +773,7 @@ If you use FormFlow in research or production systems:
   author = {Vetticaden, George},
   title = {FormFlow: Voice-Accessible Government Form Automation},
   year = {2025},
-  url = {https://github.com/georgevetticaden/formflow-agent},
+  url = {https://github.com/georgevetticaden/multi-agent-federal-form-automation-system},
   note = {Two-phase architecture with vision-guided discovery and atomic execution}
 }
 ```
@@ -803,7 +803,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## 📞 Contact
 
-- **GitHub Issues:** [Report bugs or request features](https://github.com/georgevetticaden/formflow-agent/issues)
+- **GitHub Issues:** [Report bugs or request features](https://github.com/georgevetticaden/multi-agent-federal-form-automation-system/issues)
 - **LinkedIn:** [George Vetticaden](https://www.linkedin.com/in/georgevetticaden/)
 - **YouTube:** Demo videos and tutorials (coming soon)
 
@@ -815,6 +815,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 *Demonstrating how AI can bridge the gap between complex forms and natural conversation*
 
-[⭐ Star this repo](https://github.com/georgevetticaden/formflow-agent) if you found it valuable!
+[⭐ Star this repo](https://github.com/georgevetticaden/multi-agent-federal-form-automation-system) if you found it valuable!
 
 </div>

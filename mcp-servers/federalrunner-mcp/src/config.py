@@ -136,8 +136,8 @@ class FederalRunnerConfig(BaseSettings):
             self.workspace_root = Path.cwd()
 
         if self.wizards_dir is None:
-            # SHARED LOCATION: Use root formflow-agent/wizards/ directory
-            # Navigate up from mcp-servers/federalrunner-mcp/ to formflow-agent/
+            # SHARED LOCATION: Use root multi-agent-federal-form-automation-system/wizards/ directory
+            # Navigate up from mcp-servers/federalrunner-mcp/ to multi-agent-federal-form-automation-system/
             project_root = Path(__file__).parent.parent.parent.parent
             self.wizards_dir = project_root / "wizards"
 

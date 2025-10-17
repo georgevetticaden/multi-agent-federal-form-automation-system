@@ -70,7 +70,7 @@ FederalScout requires the following configuration structure:
 
         // Directory settings (REQUIRED for Claude Desktop)
         "FEDERALSCOUT_WORKSPACE_ROOT": "<absolute-path-to-federalscout-mcp>",
-        "FEDERALSCOUT_WIZARDS_DIR": "<absolute-path-to-formflow-agent>/wizards",
+        "FEDERALSCOUT_WIZARDS_DIR": "<absolute-path-to-multi-agent-federal-form-automation-system>/wizards",
         "FEDERALSCOUT_LOG_DIR": "<absolute-path-to-federalscout-mcp>/logs",
         "FEDERALSCOUT_SCREENSHOT_DIR": "<absolute-path-to-federalscout-mcp>/screenshots",
 
@@ -94,9 +94,9 @@ FederalScout requires the following configuration structure:
 {
   "mcpServers": {
     "federalscout": {
-      "command": "/absolute/path/to/formflow-agent/mcp-servers/federalscout-mcp/venv/bin/python",
+      "command": "/absolute/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python",
       "args": [
-        "/absolute/path/to/formflow-agent/mcp-servers/federalscout-mcp/src/server.py"
+        "/absolute/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py"
       ],
       "env": {
         "FEDERALSCOUT_BROWSER_TYPE": "webkit",
@@ -108,10 +108,10 @@ FederalScout requires the following configuration structure:
         "FEDERALSCOUT_SCREENSHOT_MAX_SIZE_KB": "50",
         "FEDERALSCOUT_SAVE_SCREENSHOTS": "true",
         "FEDERALSCOUT_SESSION_TIMEOUT": "1800",
-        "FEDERALSCOUT_WORKSPACE_ROOT": "/absolute/path/to/formflow-agent/mcp-servers/federalscout-mcp",
-        "FEDERALSCOUT_WIZARDS_DIR": "/absolute/path/to/formflow-agent/wizards",
-        "FEDERALSCOUT_LOG_DIR": "/absolute/path/to/formflow-agent/mcp-servers/federalscout-mcp/logs",
-        "FEDERALSCOUT_SCREENSHOT_DIR": "/absolute/path/to/formflow-agent/wizards/screenshots/form-scout"
+        "FEDERALSCOUT_WORKSPACE_ROOT": "/absolute/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp",
+        "FEDERALSCOUT_WIZARDS_DIR": "/absolute/path/to/multi-agent-federal-form-automation-system/wizards",
+        "FEDERALSCOUT_LOG_DIR": "/absolute/path/to/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs",
+        "FEDERALSCOUT_SCREENSHOT_DIR": "/absolute/path/to/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout"
       }
     }
   }
@@ -134,9 +134,9 @@ FederalScout requires the following configuration structure:
 {
   "mcpServers": {
     "federalscout": {
-      "command": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp/venv/bin/python",
+      "command": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python",
       "args": [
-        "/Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp/src/server.py"
+        "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py"
       ],
       "env": {
         "FEDERALSCOUT_BROWSER_ENDPOINT": "http://127.0.0.1:9222",
@@ -149,10 +149,10 @@ FederalScout requires the following configuration structure:
         "FEDERALSCOUT_SCREENSHOT_MAX_SIZE_KB": "50",
         "FEDERALSCOUT_SAVE_SCREENSHOTS": "true",
         "FEDERALSCOUT_SESSION_TIMEOUT": "1800",
-        "FEDERALSCOUT_WORKSPACE_ROOT": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp",
-        "FEDERALSCOUT_WIZARDS_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards",
-        "FEDERALSCOUT_LOG_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp/logs",
-        "FEDERALSCOUT_SCREENSHOT_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards/screenshots/form-scout"
+        "FEDERALSCOUT_WORKSPACE_ROOT": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp",
+        "FEDERALSCOUT_WIZARDS_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards",
+        "FEDERALSCOUT_LOG_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs",
+        "FEDERALSCOUT_SCREENSHOT_DIR": "/Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout"
       }
     }
   }
@@ -169,7 +169,7 @@ FederalScout requires the following configuration structure:
 
 1. **Start the demo browser:**
    ```bash
-   cd /Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp
+   cd /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp
    bash scripts/start_browser_for_demo.sh
    ```
 
@@ -237,13 +237,13 @@ FederalScout requires the following configuration structure:
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `FEDERALSCOUT_WORKSPACE_ROOT` | FederalScout project root | `/path/to/federalscout-mcp` |
-| `FEDERALSCOUT_WIZARDS_DIR` | **Shared wizards directory** (formflow-agent/wizards) | `/path/to/formflow-agent/wizards` |
+| `FEDERALSCOUT_WIZARDS_DIR` | **Shared wizards directory** (multi-agent-federal-form-automation-system/wizards) | `/path/to/multi-agent-federal-form-automation-system/wizards` |
 | `FEDERALSCOUT_LOG_DIR` | FederalScout application logs | `/path/to/federalscout-mcp/logs` |
-| `FEDERALSCOUT_SCREENSHOT_DIR` | **Shared screenshots directory** | `/path/to/formflow-agent/wizards/screenshots/form-scout` |
+| `FEDERALSCOUT_SCREENSHOT_DIR` | **Shared screenshots directory** | `/path/to/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout` |
 
 **Important directory structure:**
 ```
-formflow-agent/
+multi-agent-federal-form-automation-system/
 ├── wizards/                          # SHARED wizard directory
 │   ├── data-schemas/                 # User Data Schemas (Contract)
 │   │   └── fsa-estimator-schema.json
@@ -262,9 +262,9 @@ formflow-agent/
 ```
 
 **Why shared directories:**
-- FederalScout discovers wizard structures → saves to `formflow-agent/wizards/wizard-structures/`
-- FederalScout saves screenshots → saves to `formflow-agent/wizards/screenshots/form-scout/`
-- FederalRunner reads wizard structures ← loads from `formflow-agent/wizards/wizard-structures/`
+- FederalScout discovers wizard structures → saves to `multi-agent-federal-form-automation-system/wizards/wizard-structures/`
+- FederalScout saves screenshots → saves to `multi-agent-federal-form-automation-system/wizards/screenshots/form-scout/`
+- FederalRunner reads wizard structures ← loads from `multi-agent-federal-form-automation-system/wizards/wizard-structures/`
 - All wizards and discovery artifacts in one shared location
 - Version controlled in git at project root level
 
@@ -308,13 +308,13 @@ Copy one of the examples above and **replace all placeholder paths** with your a
 Make sure all paths exist:
 ```bash
 # Check venv Python exists
-ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp/venv/bin/python
+ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/venv/bin/python
 
 # Check server.py exists
-ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp/src/server.py
+ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/src/server.py
 
 # Check wizards directory exists
-ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards
+ls -la /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards
 ```
 
 ### 4. Restart Claude Desktop
@@ -356,7 +356,7 @@ Discover the FSA Student Aid Estimator wizard at https://studentaid.gov/aid-esti
 
 Watch logs in real-time:
 ```bash
-tail -f /Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/mcp-servers/federalscout-mcp/logs/federalscout.log
+tail -f /Users/aju/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/mcp-servers/federalscout-mcp/logs/federalscout.log
 ```
 
 **What to look for:**
@@ -371,13 +371,13 @@ tail -f /Users/aju/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-
 After discovery completes:
 ```bash
 # Check wizard structure was created
-ls -la ~/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards/wizard-structures/
+ls -la ~/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/wizard-structures/
 
 # Check screenshots were saved
-ls -la ~/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards/screenshots/form-scout/
+ls -la ~/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout/
 
 # View wizard JSON
-cat ~/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards/wizard-structures/fsa-estimator.json | jq
+cat ~/Dropbox/Development/Git/10-14-25-gov-multi-agent-federal-form-automation-system/multi-agent-federal-form-automation-system/wizards/wizard-structures/fsa-estimator.json | jq
 ```
 
 ---
@@ -417,8 +417,8 @@ cat ~/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards
 1. Check `FEDERALSCOUT_SAVE_SCREENSHOTS=true` in config
 2. Verify screenshot directory exists and is writable:
    ```bash
-   mkdir -p /path/to/formflow-agent/wizards/screenshots/form-scout
-   chmod 755 /path/to/formflow-agent/wizards/screenshots/form-scout
+   mkdir -p /path/to/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout
+   chmod 755 /path/to/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout
    ```
 3. Check disk space: `df -h`
 
@@ -457,9 +457,9 @@ cat ~/Dropbox/Development/Git/10-14-25-gov-formflow-agent/formflow-agent/wizards
 **Fixes:**
 1. Create missing directories:
    ```bash
-   mkdir -p /path/to/formflow-agent/wizards/wizard-structures
-   mkdir -p /path/to/formflow-agent/wizards/data-schemas
-   mkdir -p /path/to/formflow-agent/wizards/screenshots/form-scout
+   mkdir -p /path/to/multi-agent-federal-form-automation-system/wizards/wizard-structures
+   mkdir -p /path/to/multi-agent-federal-form-automation-system/wizards/data-schemas
+   mkdir -p /path/to/multi-agent-federal-form-automation-system/wizards/screenshots/form-scout
    mkdir -p /path/to/federalscout-mcp/logs
    ```
 2. Check all paths in config are **absolute** (not relative)
@@ -526,4 +526,4 @@ Once FederalScout is working in Claude Desktop:
 
 **Built with ❤️ for accessible government services**
 
-*Part of the FormFlow project - Making government forms conversationally accessible*
+*Part of the Multi-Agent Federal Form Automation System project - Making government forms conversationally accessible*
