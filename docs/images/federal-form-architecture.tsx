@@ -3,7 +3,7 @@ import { Brain, Eye, FileCode, Database, Server, Cloud, Check, Sparkles, Smartph
 
 const FederalFormArchitecture = () => {
   const [stage, setStage] = useState(0);
-  const maxStages = 5;
+  const maxStages = 10;
 
   useEffect(() => {
     const handleKeyPress = (e) => {
@@ -21,7 +21,7 @@ const FederalFormArchitecture = () => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50 p-8">
       {/* Title */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <h1 className="text-4xl font-bold mb-3">
           <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent">
             Multi-Agent Federal Form Automation System
@@ -33,31 +33,87 @@ const FederalFormArchitecture = () => {
       </div>
 
       {/* Three-Row Architecture */}
-      <div className="max-w-[1400px] mx-auto space-y-4">
+      <div className="max-w-[1400px] mx-auto space-y-2">
         
         {/* ROW 1: PHASE 1 - Discovery Flow */}
         <div className={`transition-all duration-700 ${stage >= 1 ? 'opacity-100' : 'opacity-0'}`}>
           <div className="bg-white rounded-2xl shadow-xl border-2 border-blue-300 p-6">
             <h2 className="text-2xl font-bold text-blue-800 mb-5 text-center">PHASE 1: Discovery Flow</h2>
             
-            <div className="flex items-center justify-between gap-4">
-              {/* FederalScout Agent */}
-              <div className="flex-1 flex flex-col items-center">
-                <div className="bg-blue-100 rounded-lg px-4 py-2 mb-3 border border-blue-300">
-                  <p className="text-sm font-bold text-blue-800">Running on: Claude Desktop</p>
-                </div>
-                
-                <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-5 text-white shadow-lg w-full">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sparkles className="w-7 h-7" />
-                    <span className="text-2xl font-bold">FederalScout Agent</span>
+            <div className="flex items-center justify-between px-8">
+              {/* Left column: User Query + FederalScout Agent */}
+              <div className="w-[320px] flex flex-col items-center gap-4">
+                {/* User Query Box */}
+                <div className={`transition-all duration-500 ${stage >= 1 ? 'opacity-100' : 'opacity-0'} w-full`}>
+                  <div className="bg-gradient-to-r from-indigo-100 to-blue-100 rounded-xl p-4 border-2 border-indigo-300 shadow-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-indigo-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <FileCode className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800 mb-1">Discovery Request</p>
+                        <p className="text-sm text-gray-700 leading-snug mb-1">
+                          "Discover FSA Student Aid Estimator wizard"
+                        </p>
+                        <p className="text-xs text-gray-600 font-mono break-all">
+                          studentaid.gov/aid-estimator/
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-center opacity-90">Vision-guided wizard discovery</p>
+                  
+                  {/* Down Arrow */}
+                  <div className="flex justify-center my-2">
+                    <div className="text-blue-500">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <path d="M12 5v14M19 12l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FederalScout Agent */}
+                <div className={`transition-all duration-500 ${stage >= 2 ? 'opacity-100' : 'opacity-0'} w-full`}>
+                  <div className="bg-blue-100 rounded-lg px-4 py-2 mb-3 border border-blue-300">
+                    <p className="text-sm font-bold text-blue-800">Running on: Claude Desktop</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-5 text-white shadow-lg">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Sparkles className="w-7 h-7" />
+                      <span className="text-2xl font-bold">FederalScout Agent</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="bg-white/20 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Eye className="w-4 h-4" />
+                          <span className="font-semibold">Visual Understanding:</span>
+                        </div>
+                        <p className="text-xs ml-6 opacity-90">Claude Vision analyzes screenshots</p>
+                      </div>
+                      <div className="bg-white/20 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Brain className="w-4 h-4" />
+                          <span className="font-semibold">Reasoning:</span>
+                        </div>
+                        <p className="text-xs ml-6 opacity-90">Navigates form, creates complete structure</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow from Agent to MCP */}
+              <div className={`flex items-center px-2 transition-all duration-500 ${stage >= 3 ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="text-blue-500">
+                  <svg width="36" height="24" viewBox="0 0 36 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <path d="M2 12h28M24 6l6 6-6 6"/>
+                  </svg>
                 </div>
               </div>
 
               {/* FederalScout MCP Server */}
-              <div className={`flex-1 flex flex-col items-center transition-all duration-500 ${stage >= 2 ? 'opacity-100' : 'opacity-0'}`}>
+              <div className={`w-[280px] flex flex-col items-center transition-all duration-500 ${stage >= 3 ? 'opacity-100' : 'opacity-0'}`}>
                 <div className="bg-orange-100 rounded-lg px-4 py-2 mb-3 border border-orange-300">
                   <p className="text-sm font-bold text-orange-800">Running on: Local Mac (stdio)</p>
                 </div>
@@ -69,23 +125,40 @@ const FederalFormArchitecture = () => {
                   </div>
                   <div className="space-y-2">
                     <div className="bg-white rounded-lg p-2 border border-orange-200">
-                      <div className="flex items-center gap-2 text-sm text-gray-800">
+                      <div className="flex items-center gap-2 text-xs text-gray-800">
                         <Chrome className="w-4 h-4 text-orange-600" />
-                        <span>Playwright automation</span>
+                        <span className="font-semibold">Playwright Automation</span>
                       </div>
-                    </div>
-                    <div className="bg-white rounded-lg p-2 border border-orange-200">
-                      <div className="flex items-center gap-2 text-sm text-gray-800">
-                        <Eye className="w-4 h-4 text-purple-600" />
-                        <span>Claude Vision analysis</span>
+                      <div className="ml-6 mt-1 space-y-0.5">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                          <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
+                          <span>Screenshot capture (23KB)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                          <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
+                          <span>Browser interaction</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                          <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
+                          <span>Execute & verify</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Arrow from MCP to Government Website */}
+              <div className={`flex items-center px-2 transition-all duration-500 ${stage >= 4 ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="text-blue-500">
+                  <svg width="36" height="24" viewBox="0 0 36 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <path d="M2 12h28M24 6l6 6-6 6"/>
+                  </svg>
+                </div>
+              </div>
+
               {/* Government Website */}
-              <div className={`flex-1 flex flex-col items-center transition-all duration-500 ${stage >= 2 ? 'opacity-100' : 'opacity-0'}`}>
+              <div className={`w-[380px] flex flex-col items-center transition-all duration-500 ${stage >= 4 ? 'opacity-100' : 'opacity-0'}`}>
                 <div className="bg-green-100 rounded-lg px-4 py-2 mb-3 border border-green-300">
                   <p className="text-sm font-bold text-green-800">Running on: studentaid.gov</p>
                 </div>
@@ -108,38 +181,51 @@ const FederalFormArchitecture = () => {
           </div>
         </div>
 
-        {/* ROW 2: Contract-First Artifacts - COMPACT */}
-        <div className={`transition-all duration-700 ${stage >= 3 ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="bg-purple-50 rounded-2xl shadow-xl border-2 border-purple-300 p-4">
-            <h2 className="text-xl font-bold text-purple-800 mb-3 text-center">Contract-First Artifacts</h2>
-            
-            <div className="flex items-stretch justify-center gap-4">
-              {/* Artifact 1: Wizard Structure */}
-              <div className="flex-1 max-w-lg">
-                <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl p-4 shadow-lg border-2 border-blue-400 h-full">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                      <FileCode className="w-6 h-6 text-white" />
+        {/* Arrow from Phase 1 to Contract-First Artifacts */}
+        <div className={`flex justify-center my-1 transition-all duration-700 ${stage >= 5 ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="text-purple-500">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M12 2v20M6 16l6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* ROW 2: Contract-First Artifacts - COMPACT AND NARROWER */}
+        <div className={`transition-all duration-700 ${stage >= 5 ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-purple-50 rounded-2xl shadow-xl border-2 border-purple-300 p-2">
+              <h2 className="text-lg font-bold text-purple-800 mb-2 text-center">Discovery Outputs</h2>
+              
+              <div className="flex items-stretch justify-center gap-2">
+                {/* Artifact 1: Wizard Structure */}
+                <div className="flex-1">
+                  <div className="bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl p-2 shadow-lg border-2 border-blue-400 h-full">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <FileCode className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-bold text-blue-900">Wizard Structure</h4>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-blue-900">Wizard Structure</h4>
-                      <p className="text-xs text-blue-700">Playwright execution instructions</p>
-                    </div>
+                    <p className="text-xs text-blue-700 ml-11">6 pages, 47 fields</p>
+                    <p className="text-xs text-gray-600 ml-11 mt-1">→ Playwright execution</p>
                   </div>
                 </div>
-              </div>
 
-              {/* Artifact 2: User Data Schema - THE CONTRACT */}
-              <div className="flex-1 max-w-lg">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-4 shadow-lg border-2 border-green-400 h-full">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                      <Shield className="w-6 h-6 text-white" />
+                {/* Artifact 2: Input Schema */}
+                <div className="flex-1">
+                  <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl p-2 shadow-lg border-2 border-green-400 h-full">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-9 h-9 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Shield className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-base font-bold text-green-900">Input Schema</h4>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-green-900">User Data Schema</h4>
-                      <p className="text-xs text-green-700 font-bold">THE CONTRACT - Defines required user data</p>
-                    </div>
+                    <p className="text-xs text-green-700 ml-11">Required user inputs</p>
+                    <p className="text-xs text-gray-600 ml-11 mt-1">→ Agent data extraction</p>
                   </div>
                 </div>
               </div>
@@ -147,34 +233,91 @@ const FederalFormArchitecture = () => {
           </div>
         </div>
 
+        {/* Arrow from Contract-First Artifacts to Phase 2 */}
+        <div className={`flex justify-center my-1 transition-all duration-700 ${stage >= 6 ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="text-purple-500">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <path d="M12 2v20M6 16l6 6 6-6"/>
+            </svg>
+          </div>
+        </div>
+
         {/* ROW 3: PHASE 2 - Execution Flow */}
-        <div className={`transition-all duration-700 ${stage >= 4 ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`transition-all duration-700 ${stage >= 6 ? 'opacity-100' : 'opacity-0'}`}>
           <div className="bg-white rounded-2xl shadow-xl border-2 border-green-300 p-6">
             <h2 className="text-2xl font-bold text-green-800 mb-5 text-center">PHASE 2: Execution Flow</h2>
             
-            <div className="flex items-center justify-between gap-4">
-              {/* FederalRunner Agent on Claude Mobile */}
-              <div className="flex-1 flex flex-col items-center">
-                <div className="bg-blue-100 rounded-lg px-4 py-2 mb-3 border border-blue-300">
-                  <p className="text-sm font-bold text-blue-800">Running on: Claude.ai / Claude Mobile</p>
-                </div>
-                
-                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl p-5 text-white shadow-lg w-full">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Sparkles className="w-7 h-7" />
-                    <span className="text-2xl font-bold">FederalRunner Agent</span>
+            <div className="flex items-center justify-between px-8">
+              {/* Left column: User Query + FederalRunner Agent */}
+              <div className="w-[380px] flex flex-col items-center gap-4">
+                {/* User Query Box */}
+                <div className={`transition-all duration-500 ${stage >= 6 ? 'opacity-100' : 'opacity-0'} w-full`}>
+                  <div className="bg-gradient-to-r from-pink-100 to-purple-100 rounded-xl p-4 border-2 border-pink-300 shadow-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Smartphone className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800 mb-1">Voice Query</p>
+                        <p className="text-sm italic text-gray-700">
+                          "Hey Claude, calculate my federal student aid. I'm 17..."
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-center opacity-90 mb-3">Atomic wizard execution</p>
-                  <div className="bg-white/20 rounded-lg p-3">
-                    <p className="text-xs italic text-center">
-                      "Hey Claude, calculate my federal student aid. I'm 17..."
-                    </p>
+                  
+                  {/* Down Arrow */}
+                  <div className="flex justify-center my-2">
+                    <div className="text-blue-500">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <path d="M12 5v14M19 12l-7 7-7-7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FederalRunner Agent */}
+                <div className={`transition-all duration-500 ${stage >= 7 ? 'opacity-100' : 'opacity-0'} w-full`}>
+                  <div className="bg-blue-100 rounded-lg px-4 py-2 mb-3 border border-blue-300">
+                    <p className="text-sm font-bold text-blue-800">Running on: Claude.ai / Claude Mobile</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl p-5 text-white shadow-lg">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Sparkles className="w-7 h-7" />
+                      <span className="text-2xl font-bold">FederalRunner Agent</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="bg-white/20 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Brain className="w-4 h-4" />
+                          <span className="font-semibold">Natural Conversation:</span>
+                        </div>
+                        <p className="text-xs ml-6 opacity-90">Collects user data conversationally</p>
+                      </div>
+                      <div className="bg-white/20 rounded-lg p-2">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Smartphone className="w-4 h-4" />
+                          <span className="font-semibold">Voice-First:</span>
+                        </div>
+                        <p className="text-xs ml-6 opacity-90">Mobile access, hands-free execution</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              {/* Arrow from Agent to MCP */}
+              <div className={`flex items-center px-2 transition-all duration-500 ${stage >= 8 ? 'opacity-100' : 'opacity-0'}`}>
+                <div className="text-blue-500">
+                  <svg width="36" height="24" viewBox="0 0 36 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <path d="M2 12h28M24 6l6 6-6 6"/>
+                  </svg>
+                </div>
+              </div>
+
               {/* FederalRunner MCP Server */}
-              <div className={`flex-1 flex flex-col items-center transition-all duration-500 ${stage >= 5 ? 'opacity-100' : 'opacity-0'}`}>
+              <div className={`w-[320px] flex flex-col items-center transition-all duration-500 ${stage >= 8 ? 'opacity-100' : 'opacity-0'}`}>
                 <div className="bg-green-100 rounded-lg px-4 py-2 mb-3 border border-green-300">
                   <p className="text-sm font-bold text-green-800">Running on: Google Cloud Run</p>
                 </div>
@@ -196,19 +339,46 @@ const FederalFormArchitecture = () => {
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-2 border border-green-200">
-                      <div className="flex items-center gap-2 text-sm text-gray-800">
+                      <div className="flex items-center gap-2 text-xs text-gray-800">
                         <Chrome className="w-4 h-4 text-orange-600" />
-                        <span>Playwright headless</span>
+                        <span className="font-semibold">Playwright headless</span>
+                      </div>
+                      <div className="ml-6 mt-1 space-y-0.5">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                          <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                          <span>Atomic execution (8 sec)</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Government Website + Auth0 Column */}
-              <div className={`flex-1 space-y-3 transition-all duration-500 ${stage >= 5 ? 'opacity-100' : 'opacity-0'}`}>
+              {/* Arrows from MCP to Government Website and Auth0 */}
+              <div className="flex flex-col h-full">
+                {/* Arrow to Government Website - aligned to top */}
+                <div className={`flex items-center px-2 mt-4 transition-all duration-500 ${stage >= 9 ? 'opacity-100' : 'opacity-0'}`}>
+                  <div className="text-blue-500">
+                    <svg width="36" height="24" viewBox="0 0 36 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M2 12h28M24 6l6 6-6 6"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Arrow to Auth0 - pushed down with large margin */}
+                <div className={`flex items-center px-2 mt-48 transition-all duration-500 ${stage >= 10 ? 'opacity-100' : 'opacity-0'}`}>
+                  <div className="text-blue-500">
+                    <svg width="36" height="24" viewBox="0 0 36 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M2 12h28M24 6l6 6-6 6"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Government Website + Auth0 - Now as separate build stages */}
+              <div className="w-[380px] flex flex-col gap-3">
                 {/* Government Website */}
-                <div className="flex flex-col items-center">
+                <div className={`flex flex-col items-center transition-all duration-500 ${stage >= 9 ? 'opacity-100' : 'opacity-0'}`}>
                   <div className="bg-orange-100 rounded-lg px-4 py-2 mb-3 border border-orange-300">
                     <p className="text-sm font-bold text-orange-800">Running on: studentaid.gov</p>
                   </div>
@@ -228,7 +398,7 @@ const FederalFormArchitecture = () => {
                 </div>
 
                 {/* Auth0 */}
-                <div className="flex flex-col items-center">
+                <div className={`flex flex-col items-center transition-all duration-500 ${stage >= 10 ? 'opacity-100' : 'opacity-0'}`}>
                   <div className="bg-purple-100 rounded-lg px-4 py-2 mb-3 border border-purple-300">
                     <p className="text-sm font-bold text-purple-800">Running on: Auth0 Cloud</p>
                   </div>
@@ -252,7 +422,7 @@ const FederalFormArchitecture = () => {
       </div>
 
       {/* Bottom: Key Innovation Summary */}
-      <div className={`mt-6 max-w-[1400px] mx-auto transition-all duration-700 ${stage >= 5 ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`mt-3 max-w-[1400px] mx-auto transition-all duration-700 ${stage >= 10 ? 'opacity-100' : 'opacity-0'}`}>
         <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl shadow-xl border-2 border-purple-300 p-5">
           <h3 className="text-2xl font-bold text-purple-900 mb-2 text-center">Contract-First Pattern Innovation</h3>
           <p className="text-center text-gray-700 mb-4">
