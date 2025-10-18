@@ -113,7 +113,7 @@ class PlaywrightClient:
 
             # 3. Execute start action (if exists)
             if wizard_structure.start_action:
-                logger.info(f"->  Executing start action: {wizard_structure.start_action.selector}")
+                logger.info(f"->  Executing start action: {wizard_structure.start_action.selector}")
                 await self._execute_start_action(wizard_structure.start_action)
                 await self.page.wait_for_load_state('networkidle')
                 await self.page.wait_for_timeout(1000)
@@ -147,7 +147,7 @@ class PlaywrightClient:
                 screenshots.append(await self._take_screenshot(screenshot_label))
 
                 # Click continue button to go to next page
-                logger.info(f"->  Clicking continue button")
+                logger.info(f"->  Clicking continue button")
                 await self._click_continue(page_structure.continue_button)
                 await self.page.wait_for_load_state('networkidle')
                 await self.page.wait_for_timeout(1500)  # Wait for next page to load
@@ -163,7 +163,7 @@ class PlaywrightClient:
 
             execution_time_ms = int((time.time() - start_time) * 1000)
 
-            logger.info(f" Execution completed in {execution_time_ms}ms")
+            logger.info(f" Execution completed in {execution_time_ms}ms")
 
             return {
                 'success': True,
@@ -215,7 +215,7 @@ class PlaywrightClient:
         # Select browser type based on configuration
         if self.config.browser_type == "webkit":
             browser_launcher = self.playwright.webkit
-            logger.info("< Using WebKit (FSA-compatible for headless)")
+            logger.info("< Using WebKit (FSA-compatible for headless)")
         elif self.config.browser_type == "firefox":
             browser_launcher = self.playwright.firefox
             logger.info(">-> Using Firefox")
@@ -242,7 +242,7 @@ class PlaywrightClient:
         self.page = await self.context.new_page()
 
         logger.info(
-            f" Browser launched: {self.config.browser_type} "
+            f" Browser launched: {self.config.browser_type} "
             f"(headless={self.config.headless}, viewport={self.config.viewport_width}x{self.config.viewport_height})"
         )
 
@@ -260,7 +260,7 @@ class PlaywrightClient:
             field: FieldStructure with selector and interaction type
             value: Value to fill (type depends on field_type)
         """
-        logger.debug(f"    Filling {field.field_id}: {field.selector} = {value}")
+        logger.debug(f"    Filling {field.field_id}: {field.selector} = {value}")
 
         try:
             if field.interaction == InteractionType.FILL:
@@ -291,7 +291,7 @@ class PlaywrightClient:
                 logger.debug(f"    -> Selected dropdown option")
 
             else:
-                logger.warning(f"    ->  Unknown interaction type: {field.interaction}")
+                logger.warning(f"    ->  Unknown interaction type: {field.interaction}")
 
         except Exception as e:
             logger.error(f"    L Failed to fill field {field.field_id}: {e}")
@@ -308,7 +308,7 @@ class PlaywrightClient:
         Args:
             continue_button: ContinueButton with selector and type
         """
-        logger.debug(f"  =->  Clicking continue: {continue_button.selector}")
+        logger.debug(f"  =->  Clicking continue: {continue_button.selector}")
 
         try:
             if continue_button.selector_type == SelectorType.TEXT:
@@ -371,7 +371,7 @@ class PlaywrightClient:
             return screenshot_b64
 
         except Exception as e:
-            logger.warning(f"  ->  Screenshot failed for {label}: {e}")
+            logger.warning(f"  ->  Screenshot failed for {label}: {e}")
             return ""  # Return empty string on failure
 
     async def _extract_results(self) -> Dict[str, Any]:
@@ -412,7 +412,7 @@ class PlaywrightClient:
             #     results['student_aid_index'] = extract_sai(page)
             #     results['pell_grant_estimate'] = extract_pell(page)
 
-            logger.info(f"   Results extracted from: {page_url}")
+            logger.info(f"   Results extracted from: {page_url}")
 
             return results
 
@@ -430,7 +430,7 @@ class PlaywrightClient:
         Args:
             start_action: StartAction with selector and type
         """
-        logger.debug(f"  ->  Start action: {start_action.selector}")
+        logger.debug(f"  ->  Start action: {start_action.selector}")
 
         try:
             if start_action.selector_type == SelectorType.TEXT:

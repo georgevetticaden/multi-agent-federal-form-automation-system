@@ -95,8 +95,8 @@ async def lifespan(app: FastAPI):
 
     try:
         await playwright_client.initialize()
-        logger.info(" Playwright client initialized successfully")
-        logger.info(" FederalRunner MCP Server ready to accept requests")
+        logger.info(" Playwright client initialized successfully")
+        logger.info(" FederalRunner MCP Server ready to accept requests")
     except Exception as e:
         logger.error(f"L Failed to initialize Playwright client: {e}")
         raise
@@ -110,8 +110,8 @@ async def lifespan(app: FastAPI):
     if playwright_client:
         logger.info("Cleaning up Playwright client...")
         await playwright_client.cleanup()
-        logger.info(" Playwright client cleaned up")
-    logger.info(" FederalRunner MCP Server stopped")
+        logger.info(" Playwright client cleaned up")
+    logger.info(" FederalRunner MCP Server stopped")
 
 
 # Create FastAPI app
@@ -408,7 +408,7 @@ async def mcp_endpoint(request: Request):
 
             # Mark session as fully initialized
             session_initialized[session_id] = True
-            logger.info(f" Session {session_id} is now FULLY INITIALIZED")
+            logger.info(f" Session {session_id} is now FULLY INITIALIZED")
 
             # Return 202 Accepted (per MCP spec for notifications with id: null)
             # 202 = "Acknowledged receipt of notification, no response body"

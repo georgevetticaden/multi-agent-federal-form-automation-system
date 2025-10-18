@@ -75,7 +75,7 @@ async def federalrunner_list_wizards() -> Dict[str, Any]:
                 })
                 logger.debug(f"   [OK] Loaded: {wizard.wizard_id}")
             except Exception as e:
-                logger.warning(f"[WARNING]️  Failed to load {json_file.name}: {e}")
+                logger.warning(f"[WARNING]  Failed to load {json_file.name}: {e}")
                 # Continue loading other wizards
 
         logger.info(f"[OK] Found {len(wizards)} wizard(s)")
@@ -128,12 +128,12 @@ async def federalrunner_get_wizard_info(wizard_id: str) -> Dict[str, Any]:
                     },
                     ...
                 },
-                '_claude_hints': {...},  ← Helper hints for Claude
-                '_example_user_data': {...}  ← Example structure
+                '_claude_hints': {...},   Helper hints for Claude
+                '_example_user_data': {...}   Example structure
             }
         }
     """
-    logger.info(f"📄 MCP Tool: federalrunner_get_wizard_info(wizard_id='{wizard_id}')")
+    logger.info(f" MCP Tool: federalrunner_get_wizard_info(wizard_id='{wizard_id}')")
 
     try:
         config = get_config()
@@ -180,7 +180,7 @@ async def federalrunner_get_wizard_info(wizard_id: str) -> Dict[str, Any]:
             'name': wizard.name,
             'url': wizard.url,
             'total_pages': wizard.total_pages,
-            'schema': enhanced_schema  # ← Claude reads THIS to collect user data
+            'schema': enhanced_schema  #  Claude reads THIS to collect user data
         }
 
     except Exception as e:
@@ -203,7 +203,7 @@ async def federalrunner_execute_wizard(
     1. Load User Data Schema
     2. Validate user_data against schema (catch errors before execution)
     3. Load Wizard Structure
-    4. 🔗 Map user_data (field_id) -> field_values (selector) -> THE CRITICAL MAPPING
+    4.  Map user_data (field_id) -> field_values (selector) -> THE CRITICAL MAPPING
     5. Execute atomically with Playwright
 
     Args:
@@ -277,7 +277,7 @@ async def federalrunner_execute_wizard(
         logger.info("   [OK] Validation passed")
 
         # 3. Load wizard structure
-        logger.info("📂 Step 3: Loading Wizard Structure...")
+        logger.info(" Step 3: Loading Wizard Structure...")
         wizard_path = config.wizards_dir / "wizard-structures" / f"{wizard_id}.json"
 
         if not wizard_path.exists():
@@ -290,9 +290,9 @@ async def federalrunner_execute_wizard(
         wizard = WizardStructure.from_json_file(wizard_path)
         logger.info(f"   [OK] Wizard loaded: {wizard.name} ({wizard.total_pages} pages)")
 
-        # 4. 🔗 MAP user_data (field_id) -> field_values (selector)
+        # 4.  MAP user_data (field_id) -> field_values (selector)
         # This is THE CRITICAL STEP from REQ-CONTRACT-006
-        logger.info("🔗 Step 4: Mapping field_id -> selector...")
+        logger.info(" Step 4: Mapping field_id -> selector...")
         field_values = {}  # selector -> value
 
         for page in wizard.pages:
@@ -308,7 +308,7 @@ async def federalrunner_execute_wizard(
         logger.info(f"   [OK] Mapped {len(field_values)} fields")
 
         # 5. Execute atomically with Playwright
-        logger.info("🎭 Step 5: Executing wizard with Playwright...")
+        logger.info(" Step 5: Executing wizard with Playwright...")
         logger.info(f"   Browser: {config.browser_type}, Headless: {config.headless}, Slow Mo: {config.slow_mo}ms")
 
         client = PlaywrightClient(config)
