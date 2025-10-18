@@ -362,28 +362,44 @@ async def test_execute_wizard_runtime_error_with_screenshot():
     """
     Test runtime execution error with screenshot capture.
 
-    This tests the critical case where:
-    1. User data PASSES schema validation (all required fields, correct types/patterns)
-    2. BUT runtime execution FAILS (e.g., invalid value for form's dropdown/typeahead)
-    3. Error message AND screenshot are returned to Claude for troubleshooting
+    🎯 VISUAL VALIDATION LOOP PATTERN (see requirements/reference/mdcalc/MDCalc-Blog.md)
+
+    This test validates the same self-correcting pattern used in the MDCalc agent:
+
+    1. Schema validation passes ✅ (type-safe contract upheld)
+    2. Runtime execution fails ❌ (form shows validation error like "Select a response")
+    3. Error screenshot captured 📸 (visual context of failure)
+    4. Claude Vision analyzes screenshot + error message
+    5. Claude guides user to correct the issue (e.g., "provide valid US state")
+    6. Re-execute with corrected data
+
+    From MDCalc blog: "The agent takes another screenshot to check for validation errors.
+    This creates a self-correcting loop. The agent sees errors exactly as a human would
+    and adapts on the fly. No error codes to parse, no API documentation to maintain—
+    just visual understanding."
 
     Test scenario: International student currently studying abroad
     - Parent lives in: "California" (US state - valid)
     - Student currently in: "Kerala, India" (studying abroad)
     - User provides "Kerala, India" for student state field
 
-    Schema validation: PASSES (state is just "type: string" with examples)
-    Runtime execution: FAILS at some point during wizard execution
+    Schema validation: PASSES (state field accepts any string per schema)
+    Runtime execution: FAILS (FSA form rejects "Kerala, India" - requires US state)
+    Visual error: Screenshot shows "Select a response" validation message
 
     Expected behavior:
     - success: False
     - error: Contains helpful error message about field failure
     - screenshots: Includes error screenshot showing where execution failed
     - pages_completed < 7 (execution failed before completion)
-    - Claude can use error + screenshot to:
-      1. Analyze what went wrong (invalid selector, form validation, etc.)
-      2. Guide user to provide correct information
-      3. Re-execute with corrected data
+    - Claude Vision can analyze screenshot + error to:
+      1. See the "Select a response" validation error visually
+      2. Understand FSA requires US state for legal residence
+      3. Guide user: "For dependent students, use parent's state (California)"
+      4. Re-execute with corrected data
+
+    This is the universal pattern for form automation without APIs - visual intelligence
+    that self-corrects based on what it sees, just like a human would.
     """
     logger.info("\n" + "="*70)
     logger.info("🔴 Runtime Execution Error Test (with Screenshot Capture)")
