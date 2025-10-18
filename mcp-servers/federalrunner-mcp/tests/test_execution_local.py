@@ -354,3 +354,100 @@ async def test_execute_wizard_nonexistent_wizard():
 
     logger.info("✅ PASSED: Non-existent wizard error handled gracefully")
     logger.info(f"   Error: {result['error']}")
+
+
+@pytest.mark.asyncio
+@pytest.mark.slow
+async def test_execute_wizard_runtime_error_with_screenshot():
+    """
+    Test runtime execution error with screenshot capture.
+
+    This tests the critical case where:
+    1. User data PASSES schema validation (all required fields, correct types/patterns)
+    2. BUT runtime execution FAILS (e.g., invalid value for form's dropdown/typeahead)
+    3. Error message AND screenshot are returned to Claude for troubleshooting
+
+    Test scenario: International student currently studying abroad
+    - Parent lives in: "California" (US state - valid)
+    - Student currently in: "Kerala, India" (studying abroad)
+    - User provides "Kerala, India" for student state field
+
+    Schema validation: PASSES (state is just "type: string" with examples)
+    Runtime execution: FAILS at some point during wizard execution
+
+    Expected behavior:
+    - success: False
+    - error: Contains helpful error message about field failure
+    - screenshots: Includes error screenshot showing where execution failed
+    - pages_completed < 7 (execution failed before completion)
+    - Claude can use error + screenshot to:
+      1. Analyze what went wrong (invalid selector, form validation, etc.)
+      2. Guide user to provide correct information
+      3. Re-execute with corrected data
+    """
+    logger.info("\n" + "="*70)
+    logger.info("🔴 Runtime Execution Error Test (with Screenshot Capture)")
+    logger.info("   Scenario: Student studying abroad in Kerala, India")
+    logger.info("   Parent lives in California, USA")
+    logger.info("   User incorrectly provides student's current location instead of legal residence")
+    logger.info("="*70 + "\n")
+
+    # Create test data that passes validation but fails at runtime
+    # Realistic scenario: International student studying in India
+    FSA_TEST_DATA_INVALID_STATE = {
+        **FSA_TEST_DATA,
+        "state": "Kerala, India",        # Student's CURRENT location (studying abroad)
+        "parent_state": "California"     # Parent's US state (correct)
+    }
+
+    result = await federalrunner_execute_wizard(
+        wizard_id="fsa-estimator",
+        user_data=FSA_TEST_DATA_INVALID_STATE
+    )
+
+    # Pretty-print the full result for debugging
+    import json
+    logger.info("\n" + "="*70)
+    logger.info("📋 Full execution result:")
+    logger.info("="*70)
+    # Create a copy without screenshots (too large to log)
+    result_without_screenshots = {k: v for k, v in result.items() if k != 'screenshots'}
+    result_without_screenshots['screenshots'] = f"<{len(result.get('screenshots', []))} screenshots captured>"
+    logger.info(json.dumps(result_without_screenshots, indent=2))
+    logger.info("="*70 + "\n")
+
+    # Should fail at runtime (not validation)
+    assert result['success'] is False, "Expected execution to fail with invalid state"
+    assert 'error' in result, "Response missing 'error' field"
+    assert 'error_type' in result, "Response missing 'error_type' field"
+
+    # Should have captured screenshots (including error screenshot)
+    assert 'screenshots' in result, "Response missing 'screenshots' field"
+    assert len(result['screenshots']) > 0, "No screenshots captured (should have error screenshot)"
+
+    # Should report which page it failed on
+    assert 'pages_completed' in result
+    # Should fail somewhere during execution (not complete all 7 pages)
+    # Note: The actual failure may vary - typeahead might accept the value but cause issues later
+    assert result['pages_completed'] < 7, f"Should fail before completing all pages, got {result['pages_completed']}"
+
+    # Should have execution time
+    assert 'execution_time_ms' in result
+    assert result['execution_time_ms'] > 0
+
+    logger.info("✅ PASSED: Runtime error captured with context")
+    logger.info(f"   Error type: {result['error_type']}")
+    logger.info(f"   Error message: {result['error']}")
+    logger.info(f"   Pages completed before error: {result['pages_completed']}")
+    logger.info(f"   Screenshots captured: {len(result['screenshots'])}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info("\n   💡 Claude can use this error + screenshot to:")
+    logger.info("      1. Show user the error screenshot")
+    logger.info("      2. Analyze what went wrong (field selector, validation, etc.)")
+    logger.info("      3. Provide guidance on correcting the input")
+    logger.info("      4. Re-execute with corrected data")
+    logger.info("\n   📝 Note: This test validates error recovery pattern:")
+    logger.info("      - Data passes schema validation ✅")
+    logger.info("      - Execution encounters runtime error ❌")
+    logger.info("      - Error + screenshot captured for Claude to analyze 📸")
+    logger.info("="*70 + "\n")

@@ -26,13 +26,13 @@ The setup script will:
 
 ## Test Structure
 
-The test suite has **6 tests total** organized into three categories:
+The test suite has **7 tests total** organized into three categories:
 
 | Test Type | Count | Speed | Browser | Purpose |
 |-----------|-------|-------|---------|---------|
 | **MCP Tool Tests** | 2 | Fast (~1s) | None | Test tools Claude will call |
 | **Integration Tests (Browser)** | 2 | Slow (~20-40s each) | Chromium/WebKit | Full wizard execution |
-| **Error Handling Tests** | 2 | Fast (~1s) | None | Validation & error cases |
+| **Error Handling Tests** | 3 | Fast-Slow | None-Chromium | Validation, error cases, runtime errors |
 
 ### Test Breakdown
 
@@ -40,8 +40,9 @@ The test suite has **6 tests total** organized into three categories:
 2. `test_federalrunner_get_wizard_info()` - MCP tool test (fast)
 3. `test_federalrunner_execute_wizard_non_headless()` - Integration test (slow, visual)
 4. `test_federalrunner_execute_wizard_headless()` - Integration test (slow, production)
-5. `test_execute_wizard_validation_failure()` - Error handling test (fast)
-6. `test_execute_wizard_nonexistent_wizard()` - Error handling test (fast)
+5. `test_execute_wizard_validation_failure()` - Error handling test (fast, schema validation)
+6. `test_execute_wizard_nonexistent_wizard()` - Error handling test (fast, missing wizard)
+7. `test_execute_wizard_runtime_error_with_screenshot()` - Error handling test (slow, runtime execution error)
 
 ---
 
@@ -53,11 +54,11 @@ The test suite has **6 tests total** organized into three categories:
 # Activate virtual environment
 source venv/bin/activate
 
-# Run all 6 tests
+# Run all 7 tests
 pytest tests/test_execution_local.py -v
 ```
 
-**Total time: ~60-90 seconds** (depending on network speed and browser startup)
+**Total time: ~70-110 seconds** (depending on network speed and browser startup)
 
 ---
 
@@ -213,23 +214,38 @@ pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_headless
 
 ---
 
-### Step 4: Error Handling Tests (Fast - No Browser)
+### Step 4: Error Handling Tests
 
 Test validation failures and edge cases:
 
 ```bash
+# Fast tests (no browser)
 pytest tests/test_execution_local.py::test_execute_wizard_validation_failure -v
 pytest tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard -v
+
+# Slow test (browser execution with runtime error)
+pytest tests/test_execution_local.py::test_execute_wizard_runtime_error_with_screenshot -v -s
 ```
 
 **What's tested:**
-1. **Validation failure** - Invalid user_data is caught before browser execution
-2. **Non-existent wizard** - Helpful error when wizard doesn't exist
+1. **Validation failure** - Invalid user_data is caught before browser execution (fast)
+2. **Non-existent wizard** - Helpful error when wizard doesn't exist (fast)
+3. **Runtime execution error** - Realistic scenario: Student studying abroad in Kerala, India; parent in California, USA (slow, ~20-30s)
 
-**Expected:** Both tests pass, confirming:
+**Test #3 scenario details:**
+- User provides "Kerala, India" for student state (current location while studying abroad)
+- Schema validation: PASSES (state field accepts any string)
+- Runtime execution: FAILS (FSA typeahead only accepts US states for legal residence)
+- Error captured with screenshot showing failed field
+
+**Expected:** All tests pass, confirming:
 - Schema validation prevents bad data from reaching browser
 - Error messages are helpful for debugging
-- No browser is launched for invalid requests
+- Runtime errors are captured with screenshots for troubleshooting
+- Claude can use error + screenshot to:
+  - Explain difference between "current location" vs "legal residence"
+  - Clarify that dependent students use parent's state
+  - Ask: "Is the student's legal residence California (parent's state)?"
 
 ---
 
@@ -436,8 +452,9 @@ tests/test_execution_local.py::test_federalrunner_execute_wizard_non_headless PA
 tests/test_execution_local.py::test_federalrunner_execute_wizard_headless PASSED [~25s]
 tests/test_execution_local.py::test_execute_wizard_validation_failure PASSED
 tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard PASSED
+tests/test_execution_local.py::test_execute_wizard_runtime_error_with_screenshot PASSED [~20s]
 
-========== 6 passed in ~70s ==========
+========== 7 passed in ~90s ==========
 ```
 
 ---
@@ -447,8 +464,8 @@ tests/test_execution_local.py::test_execute_wizard_nonexistent_wizard PASSED
 1. ✅ **MCP tool tests pass** → Tools are ready for Claude to call
 2. ✅ **Phase 1 (non-headless) passes** → Visual confirmation execution works
 3. ✅ **Phase 2 (headless) passes** → Production configuration validated
-4. ✅ **Error handling tests pass** → Validation working correctly
-5. ✅ **All 6 tests pass** → **Ready for FastAPI MCP Server implementation!**
+4. ✅ **Error handling tests pass** → Validation and runtime error handling working correctly
+5. ✅ **All 7 tests pass** → **Ready for FastAPI MCP Server implementation!**
 
 ---
 
@@ -463,7 +480,7 @@ multi-agent-federal-form-automation-system/
 │       └── fsa-estimator-schema.json          # User Data Schema (THE CONTRACT)
 └── mcp-servers/federalrunner-mcp/
     ├── tests/
-    │   ├── test_execution_local.py            # 6 tests
+    │   ├── test_execution_local.py            # 7 tests
     │   ├── conftest.py                        # Test configuration & fixtures
     │   └── test_output/                       # Test artifacts (gitignored)
     │       ├── logs/test_execution.log
