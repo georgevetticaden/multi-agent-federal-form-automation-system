@@ -40,6 +40,16 @@ RUN apt-get update && apt-get install -y \
     libflite1 \
     libgles2 \
     gstreamer1.0-libav \
+    libicu66 \
+    libxslt1.1 \
+    libevent-2.1-7 \
+    libwebpdemux2 \
+    libjpeg8 \
+    libwebp6 \
+    libenchant-2-2 \
+    libsecret-1-0 \
+    libffi7 \
+    libjson-glib-1.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
