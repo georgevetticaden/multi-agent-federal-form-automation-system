@@ -22,8 +22,7 @@ import logging
 from pathlib import Path
 import sys
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# No sys.path manipulation needed - package installed via pip install -e .
 
 from execution_tools import (
     federalrunner_list_wizards,

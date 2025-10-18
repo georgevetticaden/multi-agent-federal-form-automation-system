@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "federalrunner-mcp"
+version = "1.0.0"
+description = "FederalRunner MCP Server - Federal form wizard automation"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.6",
+    "uvicorn[standard]>=0.34.0",
+    "pydantic>=2.10.5",
+    "pydantic-settings>=2.7.1",
+    "playwright>=1.49.1",
+    "python-dotenv>=1.0.1",
+    "jsonschema>=4.23.0",
+    "python-jose[cryptography]>=3.3.0",
+    "requests>=2.32.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-timeout>=2.3.1",
+]
+
+[tool.setuptools]
+py-modules = ["execution_tools", "config", "auth", "models", "schema_validator", "playwright_client", "logging_config", "server"]
+package-dir = {"" = "src"}
