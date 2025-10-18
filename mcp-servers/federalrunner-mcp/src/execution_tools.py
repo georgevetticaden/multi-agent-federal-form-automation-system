@@ -264,7 +264,9 @@ async def federalrunner_execute_wizard(
 
         if not validation_result['valid']:
             logger.error(f"❌ User data validation failed")
-            logger.error(f"   Validation errors: {validation_result}")
+            logger.error(f"   Validation errors:")
+            # Pretty-print validation errors for readability
+            logger.error(json.dumps(validation_result, indent=2))
             return {
                 'success': False,
                 'error': 'User data validation failed',

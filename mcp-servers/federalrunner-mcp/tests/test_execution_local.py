@@ -291,25 +291,48 @@ async def test_execute_wizard_validation_failure():
 
     The schema validator should reject invalid data and return helpful errors
     to guide Claude in collecting the correct data.
+
+    Tests both missing fields and invalid field values.
     """
-    invalid_data = {
-        "birth_month": "13",  # Invalid - doesn't match pattern
+    # Test 1: Missing required fields
+    invalid_data_missing = {
+        "birth_month": "05",
         "birth_year": "2007"
-        # Missing most required fields
+        # Missing birth_day and other required fields
     }
 
     result = await federalrunner_execute_wizard(
         wizard_id="fsa-estimator",
-        user_data=invalid_data
+        user_data=invalid_data_missing
     )
 
-    # Should fail validation
     assert result['success'] is False
     assert 'validation_errors' in result
     assert result['error'] == 'User data validation failed'
+    assert len(result['validation_errors']['missing_fields']) > 0
 
-    logger.info("✅ PASSED: Validation failure caught before execution")
-    logger.info(f"   Error: {result['error']}")
+    logger.info("✅ PASSED: Missing fields validation caught")
+    logger.info(f"   Missing fields: {len(result['validation_errors']['missing_fields'])}")
+
+    # Test 2: Invalid field values (all required fields present but some invalid)
+    invalid_data_pattern = {
+        **FSA_TEST_DATA,  # Start with valid data
+        "birth_month": "13",  # Invalid - doesn't match pattern ^(0[1-9]|1[0-2])$
+        "birth_day": "32"     # Invalid - doesn't match pattern ^(0[1-9]|[12][0-9]|3[01])$
+    }
+
+    result = await federalrunner_execute_wizard(
+        wizard_id="fsa-estimator",
+        user_data=invalid_data_pattern
+    )
+
+    assert result['success'] is False
+    assert 'validation_errors' in result
+    assert result['error'] == 'User data validation failed'
+    assert len(result['validation_errors'].get('invalid_fields', [])) > 0
+
+    logger.info("✅ PASSED: Invalid field values validation caught")
+    logger.info(f"   Invalid fields: {len(result['validation_errors']['invalid_fields'])}")
 
 
 @pytest.mark.asyncio
