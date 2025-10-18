@@ -351,6 +351,21 @@ class PlaywrightClient:
             screenshot_b64 = base64.b64encode(screenshot_bytes).decode('utf-8')
             size_kb = len(screenshot_bytes) / 1024
 
+            # Save to disk if configured (for local testing/debugging)
+            if self.config.save_screenshots:
+                from datetime import datetime
+                timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+                filename = f"screenshot_{timestamp}_{label}.jpg"
+                screenshot_path = self.config.screenshot_dir / filename
+
+                # Ensure directory exists
+                screenshot_path.parent.mkdir(parents=True, exist_ok=True)
+
+                with open(screenshot_path, 'wb') as f:
+                    f.write(screenshot_bytes)
+
+                logger.debug(f"  💾 Screenshot saved: {screenshot_path.name}")
+
             logger.debug(f"  =� Screenshot captured: {label} ({size_kb:.1f}KB)")
 
             return screenshot_b64
