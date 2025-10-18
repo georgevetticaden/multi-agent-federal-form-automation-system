@@ -192,74 +192,224 @@ User Data Schema:           Wizard Data:
 
 **Goal:** Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication
 
+**Detailed Requirements Documentation:**
+- 📘 **`requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`** ← FastAPI server implementation (REQ-SERVER-001 through REQ-SERVER-009)
+- 📘 **`requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md`** ← Auth0 setup (REQ-AUTH0-001 through REQ-AUTH0-008)
+- 📘 **`requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md`** ← Dockerfile + deployment (REQ-DEPLOY-001 through REQ-DEPLOY-007)
+
 **Reference Models:**
-- ✅ MDCalc server.py: `requirements/reference/mdcalc/server.py`
-- ✅ MDCalc auth.py: `requirements/reference/mdcalc/auth.py`
-- ✅ MDCalc deployment: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh`
-- ✅ Auth0 docs: `docs/auth0/AUTH0_CONCEPTS.md`, `docs/auth0/AUTH0_IMPLEMENTATION_GUIDE.md`
+- ✅ MDCalc server.py: `requirements/reference/mdcalc/server.py` (894 lines)
+- ✅ MDCalc auth.py: `requirements/reference/mdcalc/auth.py` (306 lines)
+- ✅ MDCalc deployment: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh` (337 lines)
+- ✅ Auth0 concepts: `docs/auth0/AUTH0_CONCEPTS.md`
 - ✅ MCP integration: `docs/mcp-integration/`
 
 **Skip Claude Desktop testing** - Go directly to Cloud Run deployment for testing in Claude.ai/mobile
 
 ---
 
-## ⬜ NOT STARTED: Phase 5 (Cloud Deployment)
+## 🔄 IN PROGRESS: Phase 5 (Cloud Deployment)
 
-**Status:** Will begin AFTER Phase 4 complete
+**Status:** Ready for implementation - detailed requirements complete
+
+**Demo Script:** `docs/blog-demo/federalrunner_demo_realistic.txt`
 
 ### Overview
 
-Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
+Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authentication, following the proven MDCalc deployment pattern.
 
-**Reference:**
-- **`requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md`** ← Primary deployment spec
-- `requirements/execution/EXECUTION_REQUIREMENTS.md` REQ-EXEC-011 through REQ-EXEC-015
-- `requirements/shared/AUTHENTICATION_REQUIREMENTS.md`
-- MDCalc reference: `requirements/reference/mdcalc/`
+### Step 5.1: FastAPI MCP Server with OAuth 2.1
 
-### Steps (High-Level)
+**📘 Detailed Requirements:** `requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`
 
-**5.1 OAuth 2.1 Authentication**
-- Auth0 API resource configuration
-- JWT token validation (JWKS-based)
-- Scope-based permissions (`federalrunner:read`, `federalrunner:execute`)
-- Reference: `requirements/shared/AUTHENTICATION_REQUIREMENTS.md`
+**Implementation checklist:**
+- [ ] Create `src/server.py` with FastAPI app (model after MDCalc server.py)
+- [ ] Implement lifespan management (PlaywrightClient init/cleanup)
+- [ ] Add CORS middleware (allow Claude.ai/mobile access)
+- [ ] Add request logging middleware (debugging)
+- [ ] Create health check endpoint (`GET /health`)
+- [ ] Implement MCP protocol endpoints:
+  - [ ] `HEAD /` - Protocol discovery
+  - [ ] `GET /` - 405 Method Not Allowed (POST-only transport)
+  - [ ] `POST /` - Main MCP handler (selective authentication)
+  - [ ] `DELETE /` - Session termination
+- [ ] Implement session management (create, validate, cleanup)
+- [ ] Define 3 FederalRunner tools in `get_tools()`:
+  - [ ] `federalrunner_list_wizards` (scope: federalrunner:read)
+  - [ ] `federalrunner_get_wizard_info` (scope: federalrunner:read)
+  - [ ] `federalrunner_execute_wizard` (scope: federalrunner:execute)
+- [ ] Implement `execute_tool()` function with scope validation
+- [ ] Copy `src/auth.py` from MDCalc (no changes needed)
+- [ ] Add OAuth metadata endpoint (`GET /.well-known/oauth-protected-resource`)
+- [ ] Update `src/config.py` with Auth0 environment variables
+- [ ] Test locally without OAuth
+- [ ] Test locally with M2M OAuth token
 
-**5.2 Dockerfile** (REQ-DEPLOY-002)
-- Multi-stage build
-- Playwright + WebKit dependencies (NOT Chromium - FSA compatibility)
-- Copy wizard files from shared location to `/app/wizards/`
-- Verify wizard-structures/ and data-schemas/ directories present
-- Set environment: `FEDERALRUNNER_WIZARDS_DIR=/app/wizards`, `BROWSER_TYPE=webkit`, `HEADLESS=true`
-- Reference: `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-002
+**Key patterns from MDCalc:**
+- MCP Protocol 2025-06-18 (Streamable HTTP, POST-only)
+- Selective authentication (initialize = no auth, tools = full auth)
+- Session management for MCP protocol compliance
+- Tool responses with text + image content blocks
+- JSON-RPC error format
 
-**5.3 Deployment Script** (REQ-DEPLOY-003)
-- Copy `../../wizards/` to build context before Docker build
-- Deploy to Cloud Run with environment variables
-- Clean up copied wizards after deployment
-- Reference: `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-003
+**Requirements:** REQ-SERVER-001 through REQ-SERVER-009 (9 requirements)
 
-**5.4 Cloud Run Configuration** (REQ-DEPLOY-005)
-- 2 CPU, 2Gi memory, 60s timeout
-- Environment variables for production
-- Health check endpoint
-- Reference: `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-005
+---
 
-**5.5 Update Deployment Guide**
-- Update `docs/deployment/DEPLOYMENT_GUIDE.md` with FederalRunner-specific steps
-- Remove MDCalc-specific content
-- Add FederalRunner deployment workflow
-- Document dual-mode path configuration
+### Step 5.2: Auth0 Configuration
 
-**5.6 Claude.ai Integration**
-- Remote MCP server configuration
-- Production testing from Claude.ai web
-- Mobile app testing (Android/iOS)
+**📘 Detailed Requirements:** `requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md`
 
-**5.7 Voice Demo (Samsung Galaxy Fold 7)**
-- "Three Moments" demo script
-- Rich context upfront pattern
-- Record video for blog
+**Configuration checklist:**
+- [ ] Create Auth0 API: "FederalRunner MCP Server"
+  - [ ] Set Identifier (placeholder initially, update after deployment)
+  - [ ] Set Signing Algorithm: RS256
+- [ ] Define OAuth scopes:
+  - [ ] `federalrunner:read` - List/get wizard info
+  - [ ] `federalrunner:execute` - Execute wizards
+- [ ] Enable Dynamic Client Registration (DCR):
+  - [ ] Toggle ON in API settings
+  - [ ] Policy: Open (public registration)
+- [ ] Create M2M test application:
+  - [ ] Name: "FederalRunner Test Client"
+  - [ ] Authorize for FederalRunner API
+  - [ ] Grant all scopes
+  - [ ] Save Client ID and Secret
+- [ ] Create test user:
+  - [ ] Email/password for OAuth flow testing
+  - [ ] Save credentials
+- [ ] Save all credentials to `~/auth0-credentials-federalrunner.txt`
+- [ ] Test M2M token request
+- [ ] After deployment: Update API Identifier with real Cloud Run URL
+
+**Important notes:**
+- M2M apps require manual pre-authorization (Applications → APIs → Machine To Machine Applications)
+- AUTH0_ISSUER must have trailing slash
+- DCR allows Claude Android to self-register OAuth clients
+
+**Requirements:** REQ-AUTH0-001 through REQ-AUTH0-008 (8 requirements)
+
+---
+
+### Step 5.3: Dockerfile
+
+**📘 Detailed Requirements:** `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-002
+
+**Implementation checklist:**
+- [ ] Create `Dockerfile` with multi-stage build
+- [ ] Install Playwright system dependencies
+- [ ] Install Playwright WebKit ONLY (FSA headless compatibility)
+- [ ] Copy application code (`src/`)
+- [ ] Copy wizard files (`wizards/`) to `/app/wizards/`
+- [ ] Verify wizard directories exist (`wizard-structures/`, `data-schemas/`)
+- [ ] Set environment variables:
+  - [ ] `FEDERALRUNNER_WIZARDS_DIR=/app/wizards`
+  - [ ] `FEDERALRUNNER_BROWSER_TYPE=webkit`
+  - [ ] `FEDERALRUNNER_HEADLESS=true`
+- [ ] Add health check
+- [ ] Test build locally: `docker build -t federalrunner-mcp .`
+- [ ] Test run locally: `docker run -p 8080:8080 federalrunner-mcp`
+
+**Critical:** Use WebKit, NOT Chromium - FSA blocks headless Chromium
+
+---
+
+### Step 5.4: Deployment Script
+
+**📘 Detailed Requirements:** `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-003
+
+**Implementation checklist:**
+- [ ] Create `scripts/deploy-to-cloud-run.sh` (model after MDCalc)
+- [ ] Create `.env.deployment.example` template
+- [ ] Implement deployment steps:
+  - [ ] Load configuration from `.env.deployment`
+  - [ ] Validate configuration (required vars, CPU/memory ratios)
+  - [ ] Set Google Cloud project
+  - [ ] Verify billing enabled
+  - [ ] Enable required APIs (run, cloudbuild)
+  - [ ] Copy `../../wizards/` to build context
+  - [ ] Verify wizard files exist
+  - [ ] Deploy to Cloud Run (initial with placeholder URLs)
+  - [ ] Get service URL
+  - [ ] Update Cloud Run env vars with real URLs
+  - [ ] Clean up build context
+  - [ ] Test health endpoint
+  - [ ] Test OAuth metadata endpoint
+- [ ] Make executable: `chmod +x scripts/deploy-to-cloud-run.sh`
+- [ ] Test deployment
+
+**Resource configuration:**
+- Memory: 2Gi (Playwright + WebKit)
+- CPU: 2 (parallel execution)
+- Timeout: 60s (FSA completes in 15-25s)
+- Min instances: 0 (scale to zero)
+- Max instances: 10 (concurrent requests)
+
+---
+
+### Step 5.5: Claude.ai Integration
+
+**Goal:** Add FederalRunner as custom connector and test complete flow
+
+**Steps:**
+- [ ] Deploy to Cloud Run (get actual URL)
+- [ ] Update Auth0 API Identifier with Cloud Run URL
+- [ ] Update Cloud Run env vars (AUTH0_API_AUDIENCE, MCP_SERVER_URL)
+- [ ] Add connector in Claude.ai:
+  - [ ] Settings → Connectors → Add Connector
+  - [ ] Name: FederalRunner
+  - [ ] Description: Federal Form Automation
+  - [ ] Server URL: Cloud Run URL
+- [ ] Test OAuth flow:
+  - [ ] Click "Connect"
+  - [ ] Auth0 login page
+  - [ ] Enter test user credentials
+  - [ ] Consent screen
+  - [ ] Click "Allow"
+  - [ ] Verify "Connected" status
+- [ ] Test in conversation:
+  - [ ] "Calculate my federal student aid"
+  - [ ] Verify `federalrunner_list_wizards()` called
+  - [ ] Verify `federalrunner_get_wizard_info()` called
+  - [ ] Provide complete user data
+  - [ ] Verify `federalrunner_execute_wizard()` called
+  - [ ] Verify results displayed with screenshots
+- [ ] Test visual validation loop:
+  - [ ] Provide invalid data (e.g., "Kerala, India" for state)
+  - [ ] Verify error screenshot captured
+  - [ ] Verify Claude analyzes screenshot and guides correction
+- [ ] Test on Claude Mobile (Android/iOS)
+- [ ] Verify OAuth sync to mobile (2 minutes)
+
+**Reference:** `docs/mcp-integration/MCP_INTEGRATION_SUCCESS_STORY.md`
+
+---
+
+### Step 5.6: Voice Demo Recording
+
+**Goal:** Record "Three Moments" technical demo for blog post
+
+**📘 Demo Script:** `docs/blog-demo/federalrunner_demo_realistic.txt`
+
+**Setup:**
+- Device: Samsung Galaxy Fold 7
+- App: Claude Mobile (Android)
+- Screen recording: Native Android screen recorder
+- Audio: Clear voice input
+
+**Demo flow:**
+- [ ] **Moment 1**: Natural voice query "Calculate my federal student aid"
+- [ ] **Moment 2**: Provide all data in natural language (rich context upfront)
+- [ ] **Moment 3**: Results displayed with interpretation
+- [ ] Capture complete flow in <30 seconds
+- [ ] Show hands-free operation
+- [ ] Highlight visual validation loop (if error occurs)
+
+**Post-production:**
+- [ ] Record multiple takes
+- [ ] Select best take
+- [ ] Add captions (optional)
+- [ ] Upload to blog assets
 
 ---
 
@@ -281,34 +431,33 @@ Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
 - ✅ 7 pages, 17 fields mapped
 - ✅ All selectors tested
 
-### 🚧 Phase 3.5: Schema Generation (IN PROGRESS)
-- [ ] Create `schemas/wizard-structure-v1.schema.json`
-- [ ] Add universal schema validation to `federalscout_complete_discovery()`
-- [ ] Implement `federalscout_save_schema()` tool
-- [ ] Create `wizards/wizard-schemas/` directory
-- [ ] Update FederalScout agent instructions
-- [ ] Write schema generation tests
-- [ ] Test in Claude Desktop (complete workflow)
+### ✅ Phase 3.5: Schema Generation (COMPLETE)
+- ✅ Schema-first approach designed
+- ✅ FederalScout generates User Data Schemas
+- ✅ Wizard Data + User Data Schema artifacts
 
-### ⬜ Phase 4: FederalRunner Execution (NOT STARTED)
-- [ ] Core infrastructure
-- [ ] Playwright execution client
-- [ ] Schema validator (no field_mapper.py)
-- [ ] Local pytest tests (non-headless + headless)
-- [ ] MCP tools (schema-first approach)
-- [ ] FastAPI server
-- [ ] Claude Desktop integration
+### ✅ Phase 4: FederalRunner Execution - Steps 1-4 (COMPLETE)
+- ✅ Core infrastructure (config, logging)
+- ✅ Playwright execution client (atomic, WebKit)
+- ✅ Schema validator (replaces field_mapper.py)
+- ✅ Local pytest tests (all 3 MCP tools + error handling)
+- ✅ MCP tools (schema-first approach)
+- ✅ Agent instructions (comprehensive, 619 lines)
 
-### ⬜ Phase 5: Cloud Deployment (NOT STARTED)
-- [ ] Create Dockerfile (REQ-DEPLOY-002)
-- [ ] Create deployment script (REQ-DEPLOY-003)
-- [ ] Configure Auth0 OAuth 2.1 (REQ-DEPLOY-006)
-- [ ] Implement FastAPI server with OAuth
-- [ ] Deploy to Cloud Run (REQ-DEPLOY-005)
-- [ ] Update `docs/deployment/DEPLOYMENT_GUIDE.md` (remove MDCalc-specific content, add FederalRunner workflow)
-- [ ] Test Cloud Run deployment (REQ-DEPLOY-007)
-- [ ] Claude.ai integration
-- [ ] Voice demo recording
+### 🔄 Phase 5: Cloud Deployment (IN PROGRESS - Requirements Complete)
+- 📘 **Detailed requirements created:**
+  - ✅ FASTAPI_MCP_SERVER_REQUIREMENTS.md (9 requirements)
+  - ✅ AUTH0_CONFIGURATION_REQUIREMENTS.md (8 requirements)
+  - ✅ EXECUTION_DEPLOYMENT_REQUIREMENTS.md (7 requirements)
+- ⬜ **Implementation pending:**
+  - [ ] FastAPI MCP Server (REQ-SERVER-001 through REQ-SERVER-009)
+  - [ ] Auth0 Configuration (REQ-AUTH0-001 through REQ-AUTH0-008)
+  - [ ] Dockerfile (REQ-DEPLOY-002)
+  - [ ] Deployment Script (REQ-DEPLOY-003)
+  - [ ] Deploy to Cloud Run (REQ-DEPLOY-005)
+  - [ ] Test Cloud Run deployment (REQ-DEPLOY-007)
+  - [ ] Claude.ai integration and testing
+  - [ ] Voice demo recording
 
 ---
 
@@ -319,26 +468,31 @@ Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
 2. ✅ `fsa-student-aid-estimator.json` validates
 3. ✅ All selectors tested via Claude Desktop
 
-### 🚧 Schema Generation Phase (IN PROGRESS)
-4. ⏳ Universal Wizard Structure Schema created
-5. ⏳ FederalScout generates User Data Schema for FSA
-6. ⏳ Both artifacts (wizard-data + wizard-schemas) exist
-7. ⏳ Schema is valid JSON Schema (draft-07)
-8. ⏳ Schema field_ids match wizard field_ids
+### ✅ Schema Generation Phase (COMPLETE)
+4. ✅ Schema-first approach designed and validated
+5. ✅ FederalScout generates User Data Schema for FSA
+6. ✅ Both artifacts exist (wizard-data + wizard-schemas)
+7. ✅ Schema is valid JSON Schema (draft-07)
+8. ✅ Schema field_ids match wizard field_ids
 
-### ⬜ Execution Phase (NOT STARTED)
-9. ⬜ FederalRunner loads and returns schema to Claude
-10. ⬜ FederalRunner validates user_data before execution
-11. ⬜ field_id correctly maps to selectors
-12. ⬜ Pytest tests pass (non-headless + headless)
-13. ⬜ Claude Desktop execution works
+### ✅ Execution Phase - Local (COMPLETE)
+9. ✅ FederalRunner loads and returns schema to Claude
+10. ✅ FederalRunner validates user_data before execution
+11. ✅ field_id correctly maps to selectors
+12. ✅ Pytest tests pass (all 3 MCP tools + error handling)
+13. ✅ Visual validation loop pattern validated
+14. ✅ Agent instructions comprehensive and generic
 
-### ⬜ Deployment Phase (NOT STARTED)
-14. ⬜ Cloud Run deployment successful
-15. ⬜ OAuth authentication works
-16. ⬜ Claude.ai execution works
-17. ⬜ Mobile voice demo successful
-18. ⬜ Universal design verified (ready for SSA, IRS forms)
+### 🔄 Deployment Phase (IN PROGRESS - Requirements Ready)
+15. 📘 Detailed requirements documentation complete
+16. ⬜ FastAPI MCP Server implemented with OAuth 2.1
+17. ⬜ Auth0 configured with DCR enabled
+18. ⬜ Cloud Run deployment successful
+19. ⬜ OAuth authentication works (M2M + user flow)
+20. ⬜ Claude.ai integration successful
+21. ⬜ Claude Mobile integration successful
+22. ⬜ Voice demo recorded
+23. ⬜ Universal design verified (ready for SSA, IRS forms)
 
 ---
 
@@ -369,22 +523,82 @@ Deploy FederalRunner to Google Cloud Run with OAuth 2.1 authentication.
 
 ## Next Steps
 
-**Focus: Complete Phase 3.5 (Schema Generation)**
+**Focus: Phase 5 - Cloud Run Deployment with OAuth 2.1**
 
-1. Create `schemas/wizard-structure-v1.schema.json`
-2. Implement `federalscout_save_schema()` tool
-3. Update FederalScout agent instructions
-4. Write and run tests
-5. Test end-to-end in Claude Desktop
+### Immediate Next Steps (in order):
 
-**DO NOT proceed to FederalRunner until schema generation is complete and tested.**
+1. **Implement FastAPI MCP Server** (`requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`)
+   - Create `src/server.py` modeled after MDCalc
+   - Copy `src/auth.py` from MDCalc (no changes needed)
+   - Define 3 FederalRunner tools with proper scopes
+   - Test locally with and without OAuth
+
+2. **Configure Auth0** (`requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md`)
+   - Create API: FederalRunner MCP Server
+   - Define scopes: federalrunner:read, federalrunner:execute
+   - Enable Dynamic Client Registration
+   - Create M2M test application and test user
+   - Test token requests
+
+3. **Create Dockerfile** (`requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md`)
+   - WebKit only (FSA compatibility)
+   - Copy wizards to /app/wizards/
+   - Test local Docker build and run
+
+4. **Create Deployment Script**
+   - Model after MDCalc deployment script
+   - Copy wizards, deploy, update env vars, cleanup
+   - Test deployment to Cloud Run
+
+5. **Test in Claude.ai and Mobile**
+   - Add custom connector
+   - Test OAuth flow
+   - Test all 3 tools end-to-end
+   - Record voice demo on Samsung Galaxy Fold 7
+
+### Ready to Begin Implementation
+
+All requirements documentation is complete. Each step has:
+- ✅ Detailed requirements (REQ-XXX-###)
+- ✅ Implementation checklists
+- ✅ Reference to working MDCalc examples
+- ✅ Success criteria
+- ✅ Troubleshooting guidance
 
 ---
 
 ## References
 
+### Core Documentation
 - **Contract-First Pattern:** `requirements/shared/CONTRACT_FIRST_FORM_AUTOMATION.md`
 - **Wizard Structure Schema:** `requirements/shared/WIZARD_STRUCTURE_SCHEMA.md`
 - **Execution Requirements:** `requirements/execution/EXECUTION_REQUIREMENTS.md`
-- **JSON Schema Spec:** https://json-schema.org/draft-07/schema
+
+### Phase 5 Deployment Requirements (NEW)
+- **FastAPI MCP Server:** `requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md` (9 requirements)
+- **Auth0 Configuration:** `requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md` (8 requirements)
+- **Deployment Infrastructure:** `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` (7 requirements)
+
+### MDCalc Reference Implementation
+- **Server:** `requirements/reference/mdcalc/server.py` (894 lines - proven pattern)
+- **Auth:** `requirements/reference/mdcalc/auth.py` (306 lines - copy as-is)
+- **Deployment:** `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh` (337 lines - adapt for FederalRunner)
+
+### Auth0 & MCP Integration
+- **Auth0 Concepts:** `docs/auth0/AUTH0_CONCEPTS.md`
+- **Auth0 Implementation:** `docs/auth0/AUTH0_IMPLEMENTATION_GUIDE.md`
+- **MCP Success Story:** `docs/mcp-integration/MCP_INTEGRATION_SUCCESS_STORY.md`
+- **MCP Troubleshooting:** `docs/mcp-integration/MCP_TROUBLESHOOTING_GUIDE.md`
+- **MCP Handshake:** `docs/mcp-integration/MCP_HANDSHAKE_DIAGRAM.md`
+
+### External Specs
+- **JSON Schema Draft-07:** https://json-schema.org/draft-07/schema
+- **MCP Protocol 2025-06-18:** https://modelcontextprotocol.io/specification/2025-06-18
+- **OAuth 2.1:** https://oauth.net/2.1/
+- **RFC 7591 (DCR):** https://datatracker.ietf.org/doc/html/rfc7591
+- **RFC 9728 (OAuth Metadata):** https://datatracker.ietf.org/doc/html/rfc9728
+
+### Demo & Testing
 - **Blog Demo Script:** `docs/blog-demo/federalrunner_demo_realistic.txt`
+- **Test Instructions:** `docs/execution/TEST_INSTRUCTIONS.md`
+- **Agent Instructions:** `agents/federalrunner-instructions.md`
