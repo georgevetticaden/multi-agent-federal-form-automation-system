@@ -16,6 +16,35 @@ from pydantic_settings import BaseSettings
 class FederalRunnerConfig(BaseSettings):
     """Configuration for FederalRunner Execution Agent."""
 
+    # Server Configuration (for Cloud Run deployment)
+    mcp_server_url: str = Field(
+        default="http://localhost:8080",
+        description="URL where the MCP server is accessible (local or Cloud Run)"
+    )
+
+    port: int = Field(
+        default=8080,
+        ge=1024,
+        le=65535,
+        description="Port for HTTP server (Cloud Run uses PORT env var)"
+    )
+
+    # Auth0 OAuth 2.1 Configuration
+    auth0_domain: str = Field(
+        default="",
+        description="Auth0 domain (e.g., 'your-tenant.us.auth0.com')"
+    )
+
+    auth0_issuer: str = Field(
+        default="",
+        description="Auth0 issuer URL (MUST end with trailing slash!)"
+    )
+
+    auth0_api_audience: str = Field(
+        default="",
+        description="Auth0 API audience (e.g., Cloud Run URL)"
+    )
+
     # Browser Configuration
     browser_type: str = Field(
         default="chromium",
@@ -130,6 +159,20 @@ class FederalRunnerConfig(BaseSettings):
 
     def __init__(self, **kwargs):
         """Initialize configuration and create necessary directories."""
+        # Handle Cloud Run's PORT environment variable
+        if 'port' not in kwargs and os.getenv('PORT'):
+            kwargs['port'] = int(os.getenv('PORT'))
+
+        # Handle Auth0 environment variables (can be set with or without FEDERALRUNNER_ prefix)
+        if 'auth0_domain' not in kwargs and os.getenv('AUTH0_DOMAIN'):
+            kwargs['auth0_domain'] = os.getenv('AUTH0_DOMAIN')
+        if 'auth0_issuer' not in kwargs and os.getenv('AUTH0_ISSUER'):
+            kwargs['auth0_issuer'] = os.getenv('AUTH0_ISSUER')
+        if 'auth0_api_audience' not in kwargs and os.getenv('AUTH0_API_AUDIENCE'):
+            kwargs['auth0_api_audience'] = os.getenv('AUTH0_API_AUDIENCE')
+        if 'mcp_server_url' not in kwargs and os.getenv('MCP_SERVER_URL'):
+            kwargs['mcp_server_url'] = os.getenv('MCP_SERVER_URL')
+
         super().__init__(**kwargs)
 
         # Set default paths if not provided via environment

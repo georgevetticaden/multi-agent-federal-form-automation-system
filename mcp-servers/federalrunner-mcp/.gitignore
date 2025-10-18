@@ -4,6 +4,11 @@
 .env
 .env.local
 .env.*.local
+.env.deployment
+
+# Wizards (copied during deployment, not tracked in MCP server repo)
+# The canonical wizards directory is at project root: ../../wizards/
+wizards/
 
 # Python
 __pycache__/
