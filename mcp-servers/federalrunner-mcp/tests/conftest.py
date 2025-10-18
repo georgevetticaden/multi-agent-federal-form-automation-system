@@ -18,7 +18,7 @@ from config import get_test_config, set_config
 from logging_config import setup_logging
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='session', autouse=True)
 def test_config():
     """
     Set up test configuration for the entire test session.
