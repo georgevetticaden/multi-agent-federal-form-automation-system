@@ -239,6 +239,10 @@ async def federalrunner_execute_wizard(
 
     try:
         config = get_config()
+
+        # Log the actual config being used for execution
+        config._log_config()
+
         validator = SchemaValidator(config)
 
         # 1. Load User Data Schema

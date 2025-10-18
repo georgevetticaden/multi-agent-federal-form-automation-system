@@ -156,7 +156,6 @@ class FederalRunnerConfig(BaseSettings):
             self.screenshot_dir = self.workspace_root / "screenshots"
 
         self._create_directories()
-        self._log_config()
 
     def _log_config(self):
         """Log configuration settings for debugging."""
