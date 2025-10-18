@@ -186,7 +186,7 @@ class FederalRunnerConfig(BaseSettings):
             #    - FederalRunner READS them
             # 2. Cloud Run: Wizards copied into Docker image at /app/wizards/
             #    - Set via FEDERALRUNNER_WIZARDS_DIR=/app/wizards
-            #    - Deployment script copies ../../wizards/ → src/wizards/ before build
+            #    - Deployment script copies ../../wizards/ -> src/wizards/ before build
             project_root = Path(__file__).parent.parent.parent.parent
             self.wizards_dir = project_root / "wizards"
 

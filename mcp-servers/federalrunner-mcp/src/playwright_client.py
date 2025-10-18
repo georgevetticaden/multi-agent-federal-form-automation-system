@@ -2,12 +2,12 @@
 Playwright client for atomic wizard execution.
 
 This module implements the execution engine that takes pre-mapped field values
-(selector � value) and executes wizards atomically with Playwright.
+(selector -> value) and executes wizards atomically with Playwright.
 
 Key Design:
 - Receives field_values dict with SELECTORS as keys (not field_ids)
-- Mapping from field_id � selector happens in execution_tools.py
-- Each execution is atomic: launch � fill all pages � extract � close
+- Mapping from field_id -> selector happens in execution_tools.py
+- Each execution is atomic: launch -> fill all pages -> extract -> close
 - Supports both Chromium (non-headless, debugging) and WebKit (headless, production)
 
 Critical Patterns from FederalScout Discovery:
@@ -74,11 +74,11 @@ class PlaywrightClient:
         Execute wizard atomically with pre-mapped field values.
 
         CRITICAL: field_values keys are SELECTORS (not field_ids).
-        The mapping from field_id � selector happens in execution_tools.py.
+        The mapping from field_id -> selector happens in execution_tools.py.
 
         Args:
             wizard_structure: Loaded wizard structure (from wizard-structures/)
-            field_values: Dict mapping selector � value
+            field_values: Dict mapping selector -> value
                          e.g., {"#fsa_Input_DateOfBirthMonth": "05"}
 
         Returns:
@@ -96,24 +96,24 @@ class PlaywrightClient:
         pages_completed = 0
 
         try:
-            logger.info("─" * 70)
-            logger.info(f"🎭 Starting atomic execution: {wizard_structure.wizard_id}")
+            logger.info("=" * 70)
+            logger.info(f" Starting atomic execution: {wizard_structure.wizard_id}")
             logger.info(f"   URL: {wizard_structure.url}")
             logger.info(f"   Total pages: {wizard_structure.total_pages}")
-            logger.info("─" * 70)
+            logger.info("=" * 70)
 
             # 1. Launch browser
             await self._launch_browser()
 
             # 2. Navigate to wizard URL
-            logger.info(f"🌐 Navigating to: {wizard_structure.url}")
+            logger.info(f" Navigating to: {wizard_structure.url}")
             await self.page.goto(wizard_structure.url, wait_until='networkidle')
             await self.page.wait_for_timeout(1000)  # Let page settle
             screenshots.append(await self._take_screenshot("initial_page"))
 
             # 3. Execute start action (if exists)
             if wizard_structure.start_action:
-                logger.info(f"�  Executing start action: {wizard_structure.start_action.selector}")
+                logger.info(f"->  Executing start action: {wizard_structure.start_action.selector}")
                 await self._execute_start_action(wizard_structure.start_action)
                 await self.page.wait_for_load_state('networkidle')
                 await self.page.wait_for_timeout(1000)
@@ -121,7 +121,7 @@ class PlaywrightClient:
 
             # 4. Fill all pages sequentially
             for page_structure in wizard_structure.pages:
-                logger.info(f"=� Page {page_structure.page_number}/{wizard_structure.total_pages}: {page_structure.page_title}")
+                logger.info(f"=-> Page {page_structure.page_number}/{wizard_structure.total_pages}: {page_structure.page_title}")
 
                 # Fill all fields on this page
                 for field in page_structure.fields:
@@ -147,7 +147,7 @@ class PlaywrightClient:
                 screenshots.append(await self._take_screenshot(screenshot_label))
 
                 # Click continue button to go to next page
-                logger.info(f"�  Clicking continue button")
+                logger.info(f"->  Clicking continue button")
                 await self._click_continue(page_structure.continue_button)
                 await self.page.wait_for_load_state('networkidle')
                 await self.page.wait_for_timeout(1500)  # Wait for next page to load
@@ -155,7 +155,7 @@ class PlaywrightClient:
                 pages_completed += 1
 
             # 5. Extract results from final page
-            logger.info(f"=� Extracting results from final page")
+            logger.info(f"=-> Extracting results from final page")
             final_screenshot = await self._take_screenshot("final_results")
             screenshots.append(final_screenshot)
 
@@ -218,7 +218,7 @@ class PlaywrightClient:
             logger.info("< Using WebKit (FSA-compatible for headless)")
         elif self.config.browser_type == "firefox":
             browser_launcher = self.playwright.firefox
-            logger.info(">� Using Firefox")
+            logger.info(">-> Using Firefox")
         else:
             browser_launcher = self.playwright.chromium
             logger.info("=5 Using Chromium")
@@ -266,32 +266,32 @@ class PlaywrightClient:
             if field.interaction == InteractionType.FILL:
                 # Standard text/number input
                 await self.page.fill(field.selector, str(value))
-                logger.debug(f"    � Filled with standard fill()")
+                logger.debug(f"    -> Filled with standard fill()")
 
             elif field.interaction == InteractionType.FILL_ENTER:
                 # Typeahead: fill then press Enter
                 await self.page.fill(field.selector, str(value))
                 await self.page.press(field.selector, 'Enter')
                 await self.page.wait_for_timeout(500)  # Let dropdown close
-                logger.debug(f"    � Filled with fill_enter (typeahead)")
+                logger.debug(f"    -> Filled with fill_enter (typeahead)")
 
             elif field.interaction == InteractionType.CLICK:
                 # Standard click
                 await self.page.click(field.selector)
-                logger.debug(f"    � Clicked with standard click()")
+                logger.debug(f"    -> Clicked with standard click()")
 
             elif field.interaction == InteractionType.JAVASCRIPT_CLICK:
                 # JavaScript click for hidden elements (FSA radio buttons)
                 await self.page.evaluate(f"document.querySelector('{field.selector}').click()")
-                logger.debug(f"    � Clicked with JavaScript (hidden element)")
+                logger.debug(f"    -> Clicked with JavaScript (hidden element)")
 
             elif field.interaction == InteractionType.SELECT:
                 # Dropdown select
                 await self.page.select_option(field.selector, str(value))
-                logger.debug(f"    � Selected dropdown option")
+                logger.debug(f"    -> Selected dropdown option")
 
             else:
-                logger.warning(f"    �  Unknown interaction type: {field.interaction}")
+                logger.warning(f"    ->  Unknown interaction type: {field.interaction}")
 
         except Exception as e:
             logger.error(f"    L Failed to fill field {field.field_id}: {e}")
@@ -308,7 +308,7 @@ class PlaywrightClient:
         Args:
             continue_button: ContinueButton with selector and type
         """
-        logger.debug(f"  =�  Clicking continue: {continue_button.selector}")
+        logger.debug(f"  =->  Clicking continue: {continue_button.selector}")
 
         try:
             if continue_button.selector_type == SelectorType.TEXT:
@@ -364,14 +364,14 @@ class PlaywrightClient:
                 with open(screenshot_path, 'wb') as f:
                     f.write(screenshot_bytes)
 
-                logger.debug(f"  💾 Screenshot saved: {screenshot_path.name}")
+                logger.debug(f"  ->  Screenshot saved: {screenshot_path.name}")
 
-            logger.debug(f"  =� Screenshot captured: {label} ({size_kb:.1f}KB)")
+            logger.debug(f"  =-> Screenshot captured: {label} ({size_kb:.1f}KB)")
 
             return screenshot_b64
 
         except Exception as e:
-            logger.warning(f"  �  Screenshot failed for {label}: {e}")
+            logger.warning(f"  ->  Screenshot failed for {label}: {e}")
             return ""  # Return empty string on failure
 
     async def _extract_results(self) -> Dict[str, Any]:
@@ -430,7 +430,7 @@ class PlaywrightClient:
         Args:
             start_action: StartAction with selector and type
         """
-        logger.debug(f"  �  Start action: {start_action.selector}")
+        logger.debug(f"  ->  Start action: {start_action.selector}")
 
         try:
             if start_action.selector_type == SelectorType.TEXT:

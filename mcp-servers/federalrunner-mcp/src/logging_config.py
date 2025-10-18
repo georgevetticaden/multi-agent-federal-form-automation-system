@@ -148,7 +148,7 @@ def log_execution_action(
     if logger is None:
         logger = logging.getLogger()
 
-    status = "✓" if success else "✗"
+    status = "[OK]" if success else "[FAIL]"
     level = logging.INFO if success else logging.ERROR
     
     message = f"{status} {action:15s} | {details}"

@@ -13,8 +13,8 @@ TOKEN TYPES SUPPORTED:
 VALIDATION STRATEGY:
     1. Extract token from Authorization: Bearer <token> header
     2. Check if token has 'kid' (key ID) in header:
-       - If yes: JWT token ’ Validate signature with JWKS
-       - If no: JWE/opaque ’ Validate via userinfo endpoint
+       - If yes: JWT token -> Validate signature with JWKS
+       - If no: JWE/opaque -> Validate via userinfo endpoint
     3. Verify issuer, audience, and expiration
     4. Extract and return scopes for authorization
 

@@ -1,0 +1,76 @@
+# .gcloudignore for FederalRunner MCP Cloud Run deployment
+# Similar to .dockerignore but for Cloud Build source upload
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+.gcloudignore
+
+# Documentation
+*.md
+docs/
+README.md
+
+# Local development
+.env
+.env.local
+.env.*.local
+
+# Logs and screenshots (local debugging only)
+logs/
+screenshots/
+
+# Test files
+tests/
+test_*.py
+*_test.py
+pytest.ini
+requirements-test.txt
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Scripts (deployment scripts not needed in Cloud Build)
+scripts/
+
+# IMPORTANT: Do NOT ignore wizards/ directory
+# The deployment script copies wizards before upload, and we need them in the container
+# !wizards/  ← This syntax doesn't work reliably in gcloudignore
+
+# Keep these files/directories:
+# - src/ (application code)
+# - wizards/ (MUST be included - copied by deployment script)
+# - requirements.txt (Python dependencies)
+# - Dockerfile (used by Cloud Build)

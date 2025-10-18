@@ -3,53 +3,67 @@
 
 FROM python:3.11-slim as base
 
-# Install system dependencies for Playwright and WebKit
+# Install system dependencies for Playwright WebKit
 # CRITICAL: Use WebKit (NOT Chromium) - FSA website blocks headless Chromium
+# Installing all WebKit dependencies manually since Cloud Build doesn't support playwright install --with-deps
 RUN apt-get update && apt-get install -y \
+    # Basic tools
     wget \
     gnupg \
     ca-certificates \
-    fonts-liberation \
-    libasound2 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
-    libatspi2.0-0 \
-    libcups2 \
+    # WebKit-specific dependencies (from Playwright ubuntu20.04 dependency list)
+    libasound2t64 \
+    libatk-bridge2.0-0t64 \
+    libatk1.0-0t64 \
+    libatspi2.0-0t64 \
+    libcairo2 \
+    libcups2t64 \
     libdbus-1-3 \
     libdrm2 \
+    libegl1 \
     libgbm1 \
-    libgtk-3-0 \
+    libglib2.0-0t64 \
+    libgtk-3-0t64 \
     libnspr4 \
     libnss3 \
-    libwayland-client0 \
+    libpango-1.0-0 \
+    libx11-6 \
+    libx11-xcb1 \
+    libxcb1 \
     libxcomposite1 \
     libxdamage1 \
+    libxext6 \
     libxfixes3 \
-    libxkbcommon0 \
     libxrandr2 \
-    xdg-utils \
+    libxshmfence1 \
+    libxkbcommon0 \
+    # GStreamer (required for video/audio in WebKit)
     libgstreamer1.0-0 \
     libgstreamer-plugins-base1.0-0 \
-    libgstreamer-gl1.0-0 \
     libgstreamer-plugins-bad1.0-0 \
     libopus0 \
-    libwoff1 \
+    libharfbuzz0b \
     libharfbuzz-icu0 \
     libhyphen0 \
     libmanette-0.2-0 \
     libflite1 \
-    libgles2 \
-    gstreamer1.0-libav \
-    libicu72 \
+    libwoff1 \
     libxslt1.1 \
-    libevent-2.1-7 \
+    libevent-2.1-7t64 \
+    libgles2 \
+    # Additional libraries WebKit needs (from Playwright warnings)
+    libicu76 \
     libwebpdemux2 \
     libjpeg62-turbo \
+    libwebpmux3 \
     libwebp7 \
     libenchant-2-2 \
     libsecret-1-0 \
     libffi8 \
     libjson-glib-1.0-0 \
+    # Fonts
+    fonts-liberation \
+    fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -61,7 +75,7 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright WebKit (NOT Chromium!)
+# Install Playwright WebKit browser binaries only (dependencies already installed above)
 # CRITICAL: FSA website only works in headless mode with WebKit
 RUN playwright install webkit
 

@@ -4,9 +4,9 @@ Schema-first validation for user data.
 This module REPLACES traditional field_mapper.py approaches.
 
 The User Data Schema IS the contract:
-- FederalScout generates it (vision → schema)
-- Claude reads it (schema → data collection)
-- FederalRunner validates it (schema → validation)
+- FederalScout generates it (vision -> schema)
+- Claude reads it (schema -> data collection)
+- FederalRunner validates it (schema -> validation)
 
 NO field mapping code is needed here - Claude does the mapping naturally
 by reading the schema and collecting data in the correct format.
@@ -32,7 +32,7 @@ class SchemaValidator:
     - Claude collects data naturally (no hardcoded mapping)
     - This class validates the data Claude collected
     - field_id in schema matches field_id in wizard structure
-    - Execution tools map field_id → selector
+    - Execution tools map field_id -> selector
     """
 
     def __init__(self, config: FederalRunnerConfig):
@@ -62,7 +62,7 @@ class SchemaValidator:
         schema_path = self.config.wizards_dir / "data-schemas" / f"{wizard_id}-schema.json"
 
         if not schema_path.exists():
-            logger.error(f"❌ Schema not found: {schema_path}")
+            logger.error(f"[FAIL] Schema not found: {schema_path}")
             raise FileNotFoundError(
                 f"Schema not found for wizard '{wizard_id}'. "
                 f"Expected at: {schema_path}. "
@@ -73,11 +73,11 @@ class SchemaValidator:
             with open(schema_path, 'r') as f:
                 schema = json.load(f)
 
-            logger.info(f"✅ Schema loaded: {schema_path}")
+            logger.info(f"[OK] Schema loaded: {schema_path}")
             return schema
 
         except json.JSONDecodeError as e:
-            logger.error(f"❌ Invalid JSON in schema file: {e}")
+            logger.error(f"[FAIL] Invalid JSON in schema file: {e}")
             raise
 
     def validate_user_data(
@@ -91,7 +91,7 @@ class SchemaValidator:
         This is where we ensure Claude collected the data correctly.
 
         Args:
-            user_data: Data collected by Claude (field_id → value)
+            user_data: Data collected by Claude (field_id -> value)
                       e.g., {"birth_month": "05", "parent_income": 85000}
             schema: User Data Schema (from load_schema)
 
@@ -107,7 +107,7 @@ class SchemaValidator:
             # Validate against JSON Schema (draft-07)
             validate(user_data, schema)
 
-            logger.info("✅ User data validation passed")
+            logger.info("[OK] User data validation passed")
 
             return {
                 'valid': True,
@@ -115,7 +115,7 @@ class SchemaValidator:
             }
 
         except ValidationError as e:
-            logger.error(f"❌ User data validation failed: {e.message}")
+            logger.error(f"[FAIL] User data validation failed: {e.message}")
 
             # Extract helpful error information for Claude
             missing_fields = self._extract_missing_fields(e, schema, user_data)
@@ -290,23 +290,23 @@ class SchemaValidator:
                 'common_transforms': {
                     'dates': {
                         'pattern': 'Convert month names to zero-padded numbers',
-                        'examples': ['May → "05"', 'January → "01"', 'December → "12"']
+                        'examples': ['May -> "05"', 'January -> "01"', 'December -> "12"']
                     },
                     'currency': {
                         'pattern': 'Remove $ and commas, convert k/m to numbers',
-                        'examples': ['$120k → 120000', '$1.5M → 1500000', '$85,000 → 85000']
+                        'examples': ['$120k -> 120000', '$1.5M -> 1500000', '$85,000 -> 85000']
                     },
                     'states': {
                         'pattern': 'Use full state name (check enum for exact match)',
-                        'examples': ['IL → Illinois', 'CA → California']
+                        'examples': ['IL -> Illinois', 'CA -> California']
                     },
                     'boolean_synonyms': {
                         'pattern': 'Convert natural language to enum values',
                         'examples': [
-                            'single/unmarried → "unmarried"',
-                            'married/remarried → "married"',
-                            'yes/yep/yeah → "yes"',
-                            'no/nope → "no"'
+                            'single/unmarried -> "unmarried"',
+                            'married/remarried -> "married"',
+                            'yes/yep/yeah -> "yes"',
+                            'no/nope -> "no"'
                         ]
                     }
                 }

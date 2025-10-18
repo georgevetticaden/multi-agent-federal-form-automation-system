@@ -29,14 +29,14 @@ ENDPOINTS:
     DELETE / - Session termination (session validation only)
 
 SUCCESSFUL CONNECTION SEQUENCE:
-    1. HEAD / ’ 200 with MCP-Protocol-Version header
-    2. GET /.well-known/oauth-protected-resource ’ OAuth config
-    3. POST / initialize ’ Session created (no auth required)
-    4. POST / notifications/initialized ’ 202 Accepted (session validation only)
-    5. GET / ’ 405 Method Not Allowed (transport detection)
+    1. HEAD / -> 200 with MCP-Protocol-Version header
+    2. GET /.well-known/oauth-protected-resource -> OAuth config
+    3. POST / initialize -> Session created (no auth required)
+    4. POST / notifications/initialized -> 202 Accepted (session validation only)
+    5. GET / -> 405 Method Not Allowed (transport detection)
     6. User authenticates via Auth0 OAuth flow
-    7. POST / tools/list ’ 200 with tools (OAuth + session validated)
-    8. POST / tools/call ’ Wizard execution (OAuth + session validated)
+    7. POST / tools/list -> 200 with tools (OAuth + session validated)
+    8. POST / tools/call -> Wizard execution (OAuth + session validated)
 
 For deployment instructions, see requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md
 For Auth0 setup, see requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md
@@ -138,7 +138,7 @@ app.add_middleware(
 @app.middleware("http")
 async def log_all_requests(request: Request, call_next):
     """Log all incoming requests to debug Claude.ai connectivity."""
-    logger.info(f"=è Incoming request: {request.method} {request.url.path}")
+    logger.info(f"==> Incoming request: {request.method} {request.url.path}")
 
     # Log critical MCP headers at INFO level (not DEBUG)
     protocol_version = request.headers.get('mcp-protocol-version') or request.headers.get('MCP-Protocol-Version')
@@ -163,7 +163,7 @@ async def log_all_requests(request: Request, call_next):
         request = Request(request.scope, receive)
 
     response = await call_next(request)
-    logger.info(f"=ä Response: {response.status_code}")
+    logger.info(f"==> Response: {response.status_code}")
 
     # Log MCP headers in response
     response_protocol = response.headers.get('MCP-Protocol-Version')
