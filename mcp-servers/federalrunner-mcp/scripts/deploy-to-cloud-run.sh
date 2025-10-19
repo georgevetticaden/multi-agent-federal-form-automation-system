@@ -88,9 +88,9 @@ MEMORY_GB="${MEMORY%Gi}"
 if [ "$CPU" -gt "$MEMORY_GB" ]; then
     echo "L ERROR: CPU ($CPU) cannot exceed memory in Gi ($MEMORY_GB)"
     echo "   Valid combinations:"
-    echo "     1Gi ’ max 1 CPU"
-    echo "     2Gi ’ max 2 CPUs"
-    echo "     4Gi ’ max 4 CPUs"
+    echo "     1Gi -> max 1 CPU"
+    echo "     2Gi -> max 2 CPUs"
+    echo "     4Gi -> max 4 CPUs"
     exit 1
 fi
 
@@ -166,7 +166,7 @@ if [ -d "$MCP_SERVER_DIR/wizards" ]; then
 fi
 
 # Copy wizards to build context (required by Dockerfile COPY command)
-echo "Copying wizards: $WIZARDS_SOURCE ’ $MCP_SERVER_DIR/wizards"
+echo "Copying wizards: $WIZARDS_SOURCE -> $MCP_SERVER_DIR/wizards"
 cp -r "$WIZARDS_SOURCE" "$MCP_SERVER_DIR/wizards"
 
 # Verify copy succeeded
@@ -212,9 +212,11 @@ echo "      if it doesn't already exist in your project."
 echo ""
 
 # Deploy with placeholder environment variables (will be updated in Step 9)
-# Set temporary placeholders for AUTH0_API_AUDIENCE and MCP_SERVER_URL (will be updated after deployment)
+# Capture the deployment output to extract the actual service URL
 cd "$MCP_SERVER_DIR"
-gcloud run deploy $SERVICE_NAME \
+
+# Run deployment and capture output
+DEPLOY_OUTPUT=$(gcloud run deploy $SERVICE_NAME \
     --source . \
     --region $REGION \
     --allow-unauthenticated \
@@ -227,27 +229,50 @@ gcloud run deploy $SERVICE_NAME \
     --set-env-vars="AUTH0_ISSUER=$AUTH0_ISSUER" \
     --set-env-vars="AUTH0_API_AUDIENCE=https://placeholder-will-be-updated.run.app" \
     --set-env-vars="MCP_SERVER_URL=https://placeholder-will-be-updated.run.app" \
-    --project=$PROJECT_ID
+    --project=$PROJECT_ID 2>&1)
+
+# Display the deployment output
+echo "$DEPLOY_OUTPUT"
 
 echo ""
-echo "Step 7: Get service URL"
-echo "-----------------------"
-SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
-    --region $REGION \
-    --project=$PROJECT_ID \
-    --format='value(status.url)')
+echo "Step 7: Extract service URL from deployment output"
+echo "---------------------------------------------------"
 
-echo " Service deployed!"
+# Extract the service URL from the deployment output
+# The deploy command outputs: "Service URL: https://..."
+SERVICE_URL=$(echo "$DEPLOY_OUTPUT" | grep "Service URL:" | tail -1 | sed 's/Service URL: //')
+
+# Validate we got a URL
+if [ -z "$SERVICE_URL" ]; then
+    echo "ERROR: Could not extract service URL from deployment output"
+    echo "Trying to get URL using gcloud describe..."
+    SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
+        --region $REGION \
+        --project=$PROJECT_ID \
+        --format='value(status.url)')
+fi
+
+echo " Service URL extracted: $SERVICE_URL"
 echo ""
-echo "Service URL: $SERVICE_URL"
-echo ""
+
+# Validate the URL matches the project-number format
+# Expected format: https://SERVICE_NAME-PROJECT_NUMBER.REGION.run.app
+if [[ ! "$SERVICE_URL" =~ -[0-9]+\. ]]; then
+    echo "WARNING: Service URL does not match expected project-number format"
+    echo "         Expected: https://$SERVICE_NAME-<PROJECT_NUMBER>.$REGION.run.app"
+    echo "         Got:      $SERVICE_URL"
+    echo ""
+    echo "This may cause Auth0 audience validation to fail."
+    echo "Please verify the URL in Google Cloud Console and update Auth0 accordingly."
+    echo ""
+fi
 
 echo "Step 8: Update Auth0 API Audience"
 echo "----------------------------------"
 echo "IMPORTANT: You must update Auth0 with the deployed URL:"
 echo ""
 echo "  1. Go to: https://manage.auth0.com/dashboard/"
-echo "  2. Navigate to: Applications ’ APIs ’ federalrunner-mcp-server"
+echo "  2. Navigate to: Applications -> APIs -> FederalRunner MCP Server"
 echo "  3. Update Identifier to: $SERVICE_URL"
 echo ""
 
@@ -294,7 +319,7 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
 done
 
 if [ "$HEALTH_OK" = false ]; then
-    echo "   Warning: Health check did not respond after $MAX_RETRIES attempts"
+    echo "ï¿½  Warning: Health check did not respond after $MAX_RETRIES attempts"
     echo "   Service may still be starting up. Check logs:"
     echo "   gcloud run services logs tail $SERVICE_NAME --region $REGION"
     echo ""
@@ -304,7 +329,7 @@ else
     if oauth_response=$(curl -s -f "$SERVICE_URL/.well-known/oauth-protected-resource" 2>&1); then
         echo "$oauth_response" | jq .
     else
-        echo "   Warning: OAuth metadata endpoint not responding"
+        echo "ï¿½  Warning: OAuth metadata endpoint not responding"
     fi
     echo ""
 fi
@@ -316,7 +341,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Update Auth0 API Identifier to: $SERVICE_URL"
 echo "  2. Enable Dynamic Client Registration (DCR) in Auth0"
-echo "  3. Add connector in Claude.ai: Settings ’ Connectors"
+echo "  3. Add connector in Claude.ai: Settings ï¿½ Connectors"
 echo "  4. Test in Claude web interface"
 echo "  5. Verify sync to Claude Android (wait 2 minutes)"
 echo ""
