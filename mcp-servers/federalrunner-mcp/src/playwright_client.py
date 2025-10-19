@@ -24,7 +24,7 @@ import logging
 import time
 import asyncio
 
-from models import (
+from .models import (
     WizardStructure,
     PageStructure,
     FieldStructure,
@@ -34,7 +34,7 @@ from models import (
     StartAction,
     ContinueButton
 )
-from config import FederalRunnerConfig
+from .config import FederalRunnerConfig
 
 logger = logging.getLogger(__name__)
 

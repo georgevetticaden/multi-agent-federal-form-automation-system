@@ -17,7 +17,7 @@ from typing import Dict, Any, List
 import json
 from jsonschema import validate, ValidationError, Draft7Validator
 
-from config import FederalRunnerConfig
+from .config import FederalRunnerConfig
 
 import logging
 logger = logging.getLogger(__name__)

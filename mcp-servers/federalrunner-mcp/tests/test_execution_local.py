@@ -22,9 +22,10 @@ import logging
 from pathlib import Path
 import sys
 
-# No sys.path manipulation needed - package installed via pip install -e .
+# Add parent directory to path so we can import src as a package
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from execution_tools import (
+from src.execution_tools import (
     federalrunner_list_wizards,
     federalrunner_get_wizard_info,
     federalrunner_execute_wizard
@@ -233,7 +234,7 @@ async def test_federalrunner_execute_wizard_headless(test_config):
         os.environ['FEDERALRUNNER_SLOW_MO'] = '0'
 
         # Reload config to pick up new environment variables
-        from config import reload_config, get_config
+        from src.config import reload_config, get_config
         new_config = reload_config()
 
         # Override screenshot_dir to use test output directory (same as conftest.py)

@@ -14,10 +14,10 @@ from typing import Dict, Any
 import json
 from pathlib import Path
 
-from config import get_config, FederalRunnerConfig
-from models import WizardStructure
-from schema_validator import SchemaValidator
-from playwright_client import PlaywrightClient
+from .config import get_config, FederalRunnerConfig
+from .models import WizardStructure
+from .schema_validator import SchemaValidator
+from .playwright_client import PlaywrightClient
 
 import logging
 logger = logging.getLogger(__name__)

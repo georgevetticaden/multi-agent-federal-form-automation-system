@@ -50,11 +50,11 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import get_config
-from auth import verify_token_manual, get_token_scopes, require_scope
-from execution_tools import federalrunner_list_wizards, federalrunner_get_wizard_info, federalrunner_execute_wizard
-from playwright_client import PlaywrightClient
-from logging_config import get_logger
+from .config import get_config
+from .auth import verify_token_manual, get_token_scopes, require_scope
+from .execution_tools import federalrunner_list_wizards, federalrunner_get_wizard_info, federalrunner_execute_wizard
+from .playwright_client import PlaywrightClient
+from .logging_config import get_logger
 
 # Setup logger for this module
 logger = get_logger(__name__)
