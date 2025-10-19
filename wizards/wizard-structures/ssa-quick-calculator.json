@@ -1,0 +1,112 @@
+{
+  "wizard_id": "ssa-quick-calculator",
+  "name": "Social Security Quick Calculator",
+  "url": "https://www.ssa.gov/cgi-bin/benefit6.cgi",
+  "discovered_at": "2025-10-19T21:11:58.508840",
+  "discovery_version": "1.0.0",
+  "total_pages": 1,
+  "pages": [
+    {
+      "page_number": 1,
+      "page_title": "Social Security Quick Calculator",
+      "url_pattern": "https://www.ssa.gov/OACT/quickcalc/",
+      "fields": [
+        {
+          "label": "Date of birth - Month",
+          "field_id": "birth_month",
+          "selector": "#month",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "06",
+          "notes": "Two-digit month (01-12)"
+        },
+        {
+          "label": "Date of birth - Day",
+          "field_id": "birth_day",
+          "selector": "#day",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "15",
+          "notes": "Two-digit day (01-31)"
+        },
+        {
+          "label": "Date of birth - Year",
+          "field_id": "birth_year",
+          "selector": "#year",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "1980",
+          "notes": "Four-digit year"
+        },
+        {
+          "label": "Enter earnings in the current year",
+          "field_id": "current_earnings",
+          "selector": "#earnings",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": true,
+          "example_value": "75000",
+          "notes": "Annual earnings in dollars (numeric value without $ symbol)"
+        },
+        {
+          "label": "Last year you had covered earnings - Year",
+          "field_id": "last_year_worked",
+          "selector": "#lastyear",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": false,
+          "example_value": "2020",
+          "notes": "Optional: Four-digit year for retired individuals"
+        },
+        {
+          "label": "Last year you had covered earnings - Earnings",
+          "field_id": "last_year_earnings",
+          "selector": "#lastearnings",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": false,
+          "example_value": "65000",
+          "notes": "Optional: Earnings amount for that year (if retired)"
+        },
+        {
+          "label": "Future retirement date - Month",
+          "field_id": "retirement_month",
+          "selector": "#retiremonth",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": false,
+          "example_value": "01",
+          "notes": "Optional: Month number (1-12) for planned retirement"
+        },
+        {
+          "label": "Future retirement date - Year",
+          "field_id": "retirement_year",
+          "selector": "#retireyear",
+          "field_type": "text",
+          "interaction": "fill",
+          "required": false,
+          "example_value": "2047",
+          "notes": "Optional: Four-digit year for planned retirement"
+        },
+        {
+          "label": "Select to see your benefit estimate in",
+          "field_id": "dollar_type",
+          "selector": "#constant",
+          "field_type": "radio",
+          "interaction": "click",
+          "required": true,
+          "example_value": "constant",
+          "notes": "Radio buttons: #constant for 'today's dollars', #nominal for 'inflated (future) dollars'"
+        }
+      ],
+      "continue_button": {
+        "text": "Submit request",
+        "selector": "input[type='submit'][value='Submit request']",
+        "selector_type": "css"
+      }
+    }
+  ]
+}

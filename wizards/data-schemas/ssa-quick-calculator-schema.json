@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Social Security Quick Calculator - User Data",
+  "description": "User data required to calculate Social Security retirement, disability, and survivor benefit estimates",
+  "type": "object",
+  "required": [
+    "birth_month",
+    "birth_day",
+    "birth_year",
+    "current_earnings",
+    "dollar_type"
+  ],
+  "properties": {
+    "birth_month": {
+      "type": "string",
+      "description": "Birth month (2 digits: 01-12)",
+      "pattern": "^(0[1-9]|1[0-2])$"
+    },
+    "birth_day": {
+      "type": "string",
+      "description": "Birth day (2 digits: 01-31)",
+      "pattern": "^(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "birth_year": {
+      "type": "string",
+      "description": "Birth year (4 digits)",
+      "pattern": "^[0-9]{4}$"
+    },
+    "current_earnings": {
+      "type": "number",
+      "description": "Current year annual earnings in dollars",
+      "minimum": 0
+    },
+    "dollar_type": {
+      "type": "string",
+      "description": "Whether to show benefits in today's dollars or inflated (future) dollars",
+      "enum": [
+        "constant",
+        "nominal"
+      ]
+    },
+    "last_year_worked": {
+      "type": "string",
+      "description": "Optional: Last year you had covered earnings (4 digits, for retired individuals)",
+      "pattern": "^[0-9]{4}$"
+    },
+    "last_year_earnings": {
+      "type": "number",
+      "description": "Optional: Earnings in the last year you worked (for retired individuals)",
+      "minimum": 0
+    },
+    "retirement_month": {
+      "type": "string",
+      "description": "Optional: Planned retirement month (1-12)",
+      "pattern": "^(0?[1-9]|1[0-2])$"
+    },
+    "retirement_year": {
+      "type": "string",
+      "description": "Optional: Planned retirement year (4 digits)",
+      "pattern": "^[0-9]{4}$"
+    }
+  }
+}
