@@ -240,7 +240,8 @@ echo "---------------------------------------------------"
 
 # Extract the service URL from the deployment output
 # The deploy command outputs: "Service URL: https://..."
-SERVICE_URL=$(echo "$DEPLOY_OUTPUT" | grep "Service URL:" | tail -1 | sed 's/Service URL: //')
+# Strip ANSI escape codes (color/formatting) from the URL
+SERVICE_URL=$(echo "$DEPLOY_OUTPUT" | grep "Service URL:" | tail -1 | sed 's/Service URL: //' | sed 's/\x1b\[[0-9;]*m//g')
 
 # Validate we got a URL
 if [ -z "$SERVICE_URL" ]; then
