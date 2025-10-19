@@ -74,10 +74,11 @@ session_initialized: Dict[str, bool] = {}  # session_id -> initialization status
 async def lifespan(app: FastAPI):
     """
     Lifespan context manager for FastAPI.
-    Initialize and cleanup resources.
-    """
-    global playwright_client
+    Log startup information and handle shutdown.
 
+    Note: PlaywrightClient uses atomic execution (browser launched per request),
+    so no global initialization needed.
+    """
     # Startup
     logger.info("="*60)
     logger.info("FederalRunner MCP Server Starting")
@@ -89,17 +90,8 @@ async def lifespan(app: FastAPI):
     logger.info(f"Port: {config.port}")
     logger.info(f"Wizards Directory: {config.wizards_dir}")
     logger.info(f"Browser: {config.browser_type} (headless={config.headless})")
-
-    logger.info("Initializing Playwright client...")
-    playwright_client = PlaywrightClient(config)
-
-    try:
-        await playwright_client.initialize()
-        logger.info(" Playwright client initialized successfully")
-        logger.info(" FederalRunner MCP Server ready to accept requests")
-    except Exception as e:
-        logger.error(f"L Failed to initialize Playwright client: {e}")
-        raise
+    logger.info("FederalRunner MCP Server ready to accept requests")
+    logger.info("="*60)
 
     yield
 
@@ -107,11 +99,7 @@ async def lifespan(app: FastAPI):
     logger.info("="*60)
     logger.info("FederalRunner MCP Server Shutting Down")
     logger.info("="*60)
-    if playwright_client:
-        logger.info("Cleaning up Playwright client...")
-        await playwright_client.cleanup()
-        logger.info(" Playwright client cleaned up")
-    logger.info(" FederalRunner MCP Server stopped")
+    logger.info("FederalRunner MCP Server stopped")
 
 
 # Create FastAPI app
