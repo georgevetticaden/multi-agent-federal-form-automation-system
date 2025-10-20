@@ -103,10 +103,10 @@ class FederalRunnerConfig(BaseSettings):
 
     # Timeouts (in milliseconds)
     navigation_timeout: int = Field(
-        default=30000,
+        default=60000,
         ge=5000,
-        le=60000,
-        description="Navigation timeout in milliseconds"
+        le=120000,
+        description="Navigation timeout in milliseconds (FSA can be slow)"
     )
 
     element_timeout: int = Field(
