@@ -317,12 +317,13 @@ class PlaywrightClient:
                             await self.page.fill(sub_field.selector, str(sub_field_value))
                         elif sub_field.interaction == InteractionType.SELECT:
                             # Use the same Unicode handling strategy as main SELECT
+                            # OPTIMIZED: 5-second timeout per strategy (fast failure)
                             value_str = str(sub_field_value)
                             try:
-                                await self.page.select_option(sub_field.selector, value_str)
+                                await self.page.select_option(sub_field.selector, value_str, timeout=5000)
                             except Exception:
                                 # Try Unicode apostrophe version
-                                await self.page.select_option(sub_field.selector, value_str.replace("'", "\u2019"))
+                                await self.page.select_option(sub_field.selector, value_str.replace("'", "\u2019"), timeout=5000)
                         else:
                             logger.warning(f"          Unsupported interaction type for sub_field: {sub_field.interaction}")
 
@@ -368,27 +369,48 @@ class PlaywrightClient:
                 # Dropdown select with Unicode apostrophe handling
                 # FSA dropdowns use Unicode right single quotation mark (\u2019) instead of ASCII apostrophe (')
                 # Strategy: Try multiple variations to handle Unicode mismatches
+                # OPTIMIZED: Use 5-second timeout per strategy (instead of default 30s)
+                # This makes Unicode fallback fast: 5s fail + immediate success = ~6s total
 
                 value_str = str(value)
                 selection_successful = False
                 last_error = None
+
+                # Timeout per strategy (5 seconds instead of default 30 seconds)
+                # Worst case: 4 strategies × 5s = 20s (vs 120s with default timeout)
+                # Best case with Unicode: ~6s (first fails at 5s, second succeeds immediately)
+                STRATEGY_TIMEOUT_MS = 5000
 
                 # Try 4 strategies in order:
                 # 1. Original value (ASCII apostrophe if user provided it)
                 # 2. Unicode apostrophe version (replace ' with \u2019)
                 # 3. Label matching (use label= parameter)
                 # 4. Label matching with Unicode
+                # Each strategy has format: (name, value_arg, label_arg)
 
                 strategies = [
-                    ("original value", lambda: self.page.select_option(field.selector, value_str)),
-                    ("unicode apostrophe", lambda: self.page.select_option(field.selector, value_str.replace("'", "\u2019"))),
-                    ("label (original)", lambda: self.page.select_option(field.selector, label=value_str)),
-                    ("label (unicode)", lambda: self.page.select_option(field.selector, label=value_str.replace("'", "\u2019")))
+                    ("original value", value_str, None),
+                    ("unicode apostrophe", value_str.replace("'", "\u2019"), None),
+                    ("label (original)", None, value_str),
+                    ("label (unicode)", None, value_str.replace("'", "\u2019"))
                 ]
 
-                for strategy_name, strategy_func in strategies:
+                for strategy_name, value_arg, label_arg in strategies:
                     try:
-                        await strategy_func()
+                        if label_arg is not None:
+                            # Label-based selection
+                            await self.page.select_option(
+                                field.selector,
+                                label=label_arg,
+                                timeout=STRATEGY_TIMEOUT_MS
+                            )
+                        else:
+                            # Value-based selection
+                            await self.page.select_option(
+                                field.selector,
+                                value_arg,
+                                timeout=STRATEGY_TIMEOUT_MS
+                            )
                         selection_successful = True
                         logger.debug(f"    -> Selected dropdown option using strategy: {strategy_name}")
                         break

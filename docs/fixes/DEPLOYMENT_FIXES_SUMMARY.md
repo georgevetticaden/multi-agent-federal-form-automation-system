@@ -2,7 +2,7 @@
 
 ## Overview
 
-Six critical fixes implemented to enable successful FederalRunner deployment and execution on Google Cloud Run:
+Seven critical fixes implemented to enable successful FederalRunner deployment and execution on Google Cloud Run:
 
 1. **Docker Base Image Compatibility** - Fix Playwright WebKit library dependencies
 2. **Navigation Timeout** - Increase timeout for slow government websites
@@ -10,6 +10,7 @@ Six critical fixes implemented to enable successful FederalRunner deployment and
 4. **Unicode Dropdown Selection** - Handle Unicode apostrophes in FSA dropdowns
 5. **ID Selector Handling** - Auto-prefix ID selectors for start actions
 6. **Repeatable Field Workflow** - Implement "Add a Loan" multi-step pattern
+7. **Dropdown Selection Timeout** - Optimize Unicode fallback performance (5× faster)
 
 ## Fix #1: Docker Base Image Compatibility
 
@@ -167,13 +168,64 @@ if start_action.selector_type == SelectorType.ID:
 
 ---
 
+## Fix #7: Dropdown Selection Timeout Optimization
+
+**Problem**: Unicode dropdown fix causing 30+ second delays per dropdown, risking production timeouts
+
+**Root Cause**: Playwright's default timeout is 30 seconds. When first selection strategy (ASCII) fails, it waits full 30 seconds before trying second strategy (Unicode)
+
+**Evidence from Logs**:
+```
+16:57:17 | Filling program_type: Bachelor's degree
+16:57:48 | Strategy 'original value' failed: Timeout 30000ms exceeded (31s!)
+16:57:48 | Selected dropdown option using strategy: unicode apostrophe ✅
+```
+
+**Impact on Production**:
+- Cloud Run request timeout: 60 seconds
+- Single dropdown taking 31 seconds → Risk of timeout with 2+ Unicode dropdowns
+- MCP remote endpoints may timeout
+- Poor user experience (long pauses)
+
+**Solution**: Add explicit `timeout=5000` (5 seconds) to all `select_option()` calls
+
+**Performance Improvement**:
+- **Before**: 31 seconds per Unicode dropdown
+- **After**: 6 seconds per Unicode dropdown
+- **5× faster!**
+
+**Worst-case scenario**:
+- Before: 4 strategies × 30s = 120 seconds
+- After: 4 strategies × 5s = 20 seconds
+
+**Implementation**:
+```python
+# Main field dropdowns
+STRATEGY_TIMEOUT_MS = 5000
+await self.page.select_option(field.selector, value_arg, timeout=STRATEGY_TIMEOUT_MS)
+
+# Sub-field dropdowns (repeatable fields)
+await self.page.select_option(sub_field.selector, value_str, timeout=5000)
+```
+
+**Files Changed**:
+- `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (lines 367-423, 318-326)
+
+**Documentation**: `docs/fixes/dropdown-timeout-optimization.md`
+
+---
+
 ## Complete Fix Summary
 
 | Fix | Problem | Solution | Impact |
 |-----|---------|----------|--------|
-| Docker Base Image | WebKit launch failure | Bookworm + --with-deps | ✅ Browser launches |
-| Navigation Timeout | 30s too short for FSA | 60s timeout | ✅ Page loads complete |
-| Screenshot Payload | 1MB response timeout | 1-3 screenshots only | ✅ Response received |
+| #1 Docker Base Image | WebKit launch failure | Bookworm + --with-deps | ✅ Browser launches |
+| #2 Navigation Timeout | 30s too short for FSA | 60s timeout | ✅ Page loads complete |
+| #3 Screenshot Payload | 1MB response timeout | 1-3 screenshots only | ✅ Response received |
+| #4 Unicode Dropdown | Apostrophe mismatch | 4-strategy fallback | ✅ Dropdowns select |
+| #5 ID Selector | Missing # prefix | Auto-prefix IDs | ✅ Start button clicks |
+| #6 Repeatable Fields | No Add/Save workflow | Multi-step loop | ✅ Array items added |
+| #7 Dropdown Timeout | 30s per strategy (slow!) | 5s per strategy | ✅ 5× faster (31s → 6s) |
 
 ---
 

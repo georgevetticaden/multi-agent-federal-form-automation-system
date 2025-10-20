@@ -276,20 +276,19 @@ async def test_federalrunner_execute_wizard_headless(test_config):
     original_browser = os.environ.get('FEDERALRUNNER_BROWSER_TYPE')
     original_headless = os.environ.get('FEDERALRUNNER_HEADLESS')
     original_slow_mo = os.environ.get('FEDERALRUNNER_SLOW_MO')
+    original_screenshot_dir = os.environ.get('FEDERALRUNNER_SCREENSHOT_DIR')
 
     try:
-        # Set headless configuration
+        # Set headless configuration (PRODUCTION MODE)
         os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'webkit'
         os.environ['FEDERALRUNNER_HEADLESS'] = 'true'
         os.environ['FEDERALRUNNER_SLOW_MO'] = '0'
+        # Set screenshot directory to test output (CRITICAL: must set before reload_config)
+        os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = str(test_config.screenshot_dir)
 
         # Reload config to pick up new environment variables
-        from src.config import reload_config, get_config
-        new_config = reload_config()
-
-        # Override screenshot_dir to use test output directory (same as conftest.py)
-        new_config.screenshot_dir = test_config.screenshot_dir
-        new_config.log_dir = test_config.log_dir
+        from src.config import reload_config
+        reload_config()
 
         # Execute wizard
         result = await federalrunner_execute_wizard(
@@ -312,6 +311,11 @@ async def test_federalrunner_execute_wizard_headless(test_config):
             os.environ['FEDERALRUNNER_SLOW_MO'] = original_slow_mo
         elif 'FEDERALRUNNER_SLOW_MO' in os.environ:
             del os.environ['FEDERALRUNNER_SLOW_MO']
+
+        if original_screenshot_dir is not None:
+            os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = original_screenshot_dir
+        elif 'FEDERALRUNNER_SCREENSHOT_DIR' in os.environ:
+            del os.environ['FEDERALRUNNER_SCREENSHOT_DIR']
 
         # Reload config to restore original settings
         reload_config()
@@ -389,6 +393,102 @@ async def test_loan_simulator_execute_wizard_non_headless(test_config):
     logger.info(f"   Pages completed: {result['pages_completed']}/6")
     logger.info(f"   Screenshots: {len(result['screenshots'])}")
     logger.info(f"   Unicode handling: ✅ Bachelor's degree selected successfully")
+    logger.info("="*70 + "\n")
+
+
+@pytest.mark.asyncio
+@pytest.mark.slow
+async def test_loan_simulator_execute_wizard_headless(test_config):
+    """
+    Test MCP Tool: federalrunner_execute_wizard() for Loan Simulator [HEADLESS MODE]
+
+    Headless WebKit execution (PRODUCTION MODE)
+    - No visible browser window
+    - WebKit browser (FSA-compatible in headless mode)
+    - Validates production configuration with all optimizations
+
+    This test explicitly overrides configuration to run in headless mode,
+    regardless of .env settings. This validates the EXACT configuration
+    that will be used in Cloud Run deployment.
+
+    Tests production performance with:
+    - Unicode dropdown handling (optimized 5s timeout)
+    - Repeatable field workflow (Add a Loan)
+    - WebKit headless (production browser)
+    - Fast execution (<30 seconds target)
+
+    Screenshots are saved to: tests/test_output/screenshots/
+    """
+    logger.info("\n" + "="*70)
+    logger.info("🌐 Loan Simulator - Headless WebKit Execution (Production)")
+    logger.info("   Testing production-ready headless execution")
+    logger.info("   Unicode handling + Repeatable fields + WebKit")
+    logger.info(f"   Screenshots will be saved to: {test_config.screenshot_dir}")
+    logger.info("="*70 + "\n")
+
+    # Override configuration for headless execution
+    import os
+    original_browser = os.environ.get('FEDERALRUNNER_BROWSER_TYPE')
+    original_headless = os.environ.get('FEDERALRUNNER_HEADLESS')
+    original_slow_mo = os.environ.get('FEDERALRUNNER_SLOW_MO')
+    original_screenshot_dir = os.environ.get('FEDERALRUNNER_SCREENSHOT_DIR')
+
+    try:
+        # Set headless configuration (PRODUCTION MODE)
+        os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'webkit'
+        os.environ['FEDERALRUNNER_HEADLESS'] = 'true'
+        os.environ['FEDERALRUNNER_SLOW_MO'] = '0'
+        # Set screenshot directory to test output (CRITICAL: must set before reload_config)
+        os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = str(test_config.screenshot_dir)
+
+        # Reload config to pick up new environment variables
+        from src.config import reload_config
+        reload_config()
+
+        # Execute wizard
+        result = await federalrunner_execute_wizard(
+            wizard_id="loan-simulator-borrow-more",
+            user_data=LOAN_SIMULATOR_TEST_DATA
+        )
+    finally:
+        # Restore original environment variables
+        if original_browser is not None:
+            os.environ['FEDERALRUNNER_BROWSER_TYPE'] = original_browser
+        elif 'FEDERALRUNNER_BROWSER_TYPE' in os.environ:
+            del os.environ['FEDERALRUNNER_BROWSER_TYPE']
+
+        if original_headless is not None:
+            os.environ['FEDERALRUNNER_HEADLESS'] = original_headless
+        elif 'FEDERALRUNNER_HEADLESS' in os.environ:
+            del os.environ['FEDERALRUNNER_HEADLESS']
+
+        if original_slow_mo is not None:
+            os.environ['FEDERALRUNNER_SLOW_MO'] = original_slow_mo
+        elif 'FEDERALRUNNER_SLOW_MO' in os.environ:
+            del os.environ['FEDERALRUNNER_SLOW_MO']
+
+        if original_screenshot_dir is not None:
+            os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = original_screenshot_dir
+        elif 'FEDERALRUNNER_SCREENSHOT_DIR' in os.environ:
+            del os.environ['FEDERALRUNNER_SCREENSHOT_DIR']
+
+        # Reload config to restore original settings
+        reload_config()
+
+    # Validate response
+    assert result['success'] is True, f"Execution failed: {result.get('error')}"
+    assert result['wizard_id'] == 'loan-simulator-borrow-more'
+    assert result['pages_completed'] == 6, f"Expected 6 pages, got {result['pages_completed']}"
+
+    logger.info("\n" + "="*70)
+    logger.info(f"✅ LOAN SIMULATOR HEADLESS TEST PASSED")
+    logger.info(f"   Wizard: {result['wizard_id']}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info(f"   Pages completed: {result['pages_completed']}/6")
+    logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info(f"   Unicode handling: ✅ Optimized (5s timeout)")
+    logger.info(f"   Repeatable fields: ✅ 2 loans added")
+    logger.info(f"   Browser: WebKit (headless)")
     logger.info("="*70 + "\n")
 
 

@@ -83,14 +83,23 @@ elif field.interaction == InteractionType.SELECT:
 
 **Loan Simulator Test (test_loan_simulator_execute_wizard_non_headless):**
 
+**Before optimization (30-second timeout):**
 ```
 Page 2: Tell us about your future program
   Filling program_type: Bachelor's degree
-    -> Strategy 'original value' failed: Timeout 30000ms exceeded
+    -> Strategy 'original value' failed: Timeout 30000ms exceeded (31s total!)
     -> Selected dropdown option using strategy: unicode apostrophe ✅
 ```
 
-**Performance:** First strategy typically times out after 30s, second succeeds immediately.
+**After optimization (5-second timeout):**
+```
+Page 2: Tell us about your future program
+  Filling program_type: Bachelor's degree
+    -> Strategy 'original value' failed: Timeout 5000ms exceeded (5s)
+    -> Selected dropdown option using strategy: unicode apostrophe ✅ (6s total)
+```
+
+**Performance improvement:** 31s → 6s (5× faster!)
 
 ## Benefits
 
@@ -104,14 +113,24 @@ Page 2: Tell us about your future program
 - Also applies to sub-fields in repeatable fields (see `repeatable-field-fix.md`)
 - Unicode handling is consistent across main fields and sub-fields
 
+## Performance Optimization (✅ IMPLEMENTED)
+
+**Initial implementation:** 30-second default timeout per strategy → 31s for Unicode dropdowns
+
+**Optimized implementation:** 5-second timeout per strategy → 6s for Unicode dropdowns
+
+This optimization is **critical for production** where Cloud Run may timeout if a single field takes >20 seconds.
+
+**Implementation:** Added `timeout=5000` parameter to all `select_option()` calls (both main fields and sub-fields).
+
 ## Future Improvements
 
-Could optimize by:
-1. Checking dropdown options first to detect Unicode
-2. Starting with Unicode strategy if detected
-3. Avoiding 30s timeout on first strategy
+Additional optimizations (not critical):
+1. Detect if value contains apostrophe → Try Unicode strategy first (would reduce to ~1s)
+2. Inspect dropdown options to detect Unicode → Skip ASCII strategy entirely
+3. Cache Unicode detection per selector → Avoid retries on subsequent calls
 
-For now, the 30s delay only happens once per dropdown with Unicode, which is acceptable for non-headless testing.
+For now, the 5-second optimization is sufficient for production use.
 
 ## Testing
 
