@@ -107,7 +107,11 @@ class PlaywrightClient:
 
             # 2. Navigate to wizard URL
             logger.info(f" Navigating to: {wizard_structure.url}")
-            await self.page.goto(wizard_structure.url, wait_until='networkidle')
+            await self.page.goto(
+                wizard_structure.url,
+                wait_until='networkidle',
+                timeout=self.config.navigation_timeout  # Use configured timeout (60s, not default 30s)
+            )
             await self.page.wait_for_timeout(1000)  # Let page settle
             screenshots.append(await self._take_screenshot("initial_page"))
 

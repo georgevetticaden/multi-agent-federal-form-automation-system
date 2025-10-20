@@ -46,7 +46,7 @@
 **DEMO SCRIPT:**
 
 **YOU (speaking naturally, providing rich context upfront):**
-> "Hey Claude, I just finished touring Northwestern and I need to figure out if we can afford it. Can you calculate my federal student aid? I'm 17, born May 15th, 2007, single, from Illinois, and I'll be a freshman in fall 2026. My parents are married, also in Illinois, and our family is four people - me, my parents, and my little brother. My parents' income last year was $120,000, and we have about $30,000 in savings. I didn't have any income. Northwestern costs like $85,000 a year."
+> "Hey Runner Agent, I just finished touring Northwestern and I need to figure out if we can afford it. Can you calculate my federal student aid? I'm 17, born May 15th, 2007, single, from Illinois, and I'll be a freshman in fall 2026. My parents are married, also in Illinois, and our family is five people - me, my parents, and my little brother and sister. My parents' income last year was $120K, and we have about $30K in savings. I didn't have any income. Northwestern costs like $85K a year."
 
 **CLAUDE (processing rich context):**
 ```
