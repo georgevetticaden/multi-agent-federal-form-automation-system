@@ -2,11 +2,14 @@
 
 ## Overview
 
-Three critical fixes implemented to enable successful FederalRunner deployment and execution on Google Cloud Run:
+Six critical fixes implemented to enable successful FederalRunner deployment and execution on Google Cloud Run:
 
 1. **Docker Base Image Compatibility** - Fix Playwright WebKit library dependencies
 2. **Navigation Timeout** - Increase timeout for slow government websites
 3. **Screenshot Payload Reduction** - Optimize MCP response size for Claude.ai
+4. **Unicode Dropdown Selection** - Handle Unicode apostrophes in FSA dropdowns
+5. **ID Selector Handling** - Auto-prefix ID selectors for start actions
+6. **Repeatable Field Workflow** - Implement "Add a Loan" multi-step pattern
 
 ## Fix #1: Docker Base Image Compatibility
 
@@ -84,6 +87,83 @@ Implements Visual Validation Loop pattern (REQ-EXEC-007):
 - `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (lines 168-180, 197-216)
 
 **Documentation**: `docs/fixes/screenshot-payload-reduction.md`
+
+---
+
+## Fix #4: Unicode Dropdown Selection
+
+**Problem**: Dropdown selections failing with "did not find some options" error
+
+**Root Cause**: FSA website uses Unicode right single quotation mark (`\u2019` aka `'`) instead of ASCII apostrophe (`'`) in dropdown options like "Bachelor's degree"
+
+**Solution**: Multi-strategy selection approach
+1. Try original value (ASCII)
+2. Try Unicode apostrophe version
+3. Try label matching (original)
+4. Try label matching (Unicode)
+
+**Impact**: ✅ Loan Simulator dropdown selections work
+
+**Files Changed**:
+- `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (lines 303-338)
+
+**Documentation**: `docs/fixes/unicode-dropdown-fix.md`
+
+---
+
+## Fix #5: ID Selector Handling
+
+**Problem**: Start action failing with timeout when `selector_type: "id"` used without `#` prefix
+
+**Root Cause**: `_execute_start_action()` and `_click_continue()` only handled TEXT selectors, treating ID selectors as CSS (which requires `#` prefix)
+
+**Solution**: Auto-prefix ID selectors
+```python
+if start_action.selector_type == SelectorType.ID:
+    selector = start_action.selector
+    if not selector.startswith('#'):
+        selector = f'#{selector}'
+    await self.page.click(selector)
+```
+
+**Impact**: ✅ Loan Simulator start button clicks successfully
+
+**Files Changed**:
+- `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (lines 358-370, 463-475)
+
+**Documentation**: `docs/fixes/id-selector-fix.md`
+
+---
+
+## Fix #6: Repeatable Field Workflow
+
+**Problem**: "Add a Loan" workflow not implemented - execution tried to click `#loan_table` instead of following multi-step pattern
+
+**Root Cause**: Repeatable fields (`field_type: "group"`) require:
+1. Click "Add" button
+2. Fill sub-fields (loan type, interest rate, balance)
+3. Click "Save" button
+4. Repeat for each item in array
+
+**Solution**: Implemented complete repeatable field workflow in `_fill_field()`
+- Detects `field_type: "group"` and array values
+- Empty array `[]` → Skip field entirely
+- Non-empty array → Loop through items, add each one
+- Handles sub-field dropdowns with Unicode support
+
+**Use Case**: Multi-wizard financial aid workflow
+1. FSA Estimator → Calculate aid ($15k)
+2. Calculate gap: $30k (school) - $15k (aid) = $15k
+3. Loan Simulator → Add optimized loan mix to cover gap
+4. User sees realistic borrowing scenarios
+
+**Impact**: ✅ Complete Loan Simulator wizard execution ✅ Enables financial aid gap analysis
+
+**Files Changed**:
+- `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (lines 281-342)
+- `/tests/test_execution_local.py` (lines 103-114) - Test data with 2 loans
+
+**Documentation**: `docs/fixes/repeatable-field-fix.md`
 
 ---
 

@@ -80,8 +80,8 @@ LOAN_SIMULATOR_TEST_DATA = {
     # Page 1: Enrollment Information
     "program_timing": "future",
 
-    # Page 2: Program Information
-    "program_type": "Bachelor's degree",
+    # Page 2: Program Information (TESTS UNICODE!)
+    "program_type": "Bachelor's degree",  # Unicode apostrophe test
     "program_length": "4 years",
     "dependency_status": "dependent",
     "school_location": "Illinois",
@@ -97,8 +97,21 @@ LOAN_SIMULATOR_TEST_DATA = {
     "expected_salary": 55000,
     "income_growth_rate": 3,
 
-    # Page 6: Current Loans (optional - can be empty array)
-    "current_loans": []
+    # Page 6: Current Loans (TESTS REPEATABLE FIELD / ARRAY HANDLING)
+    # Simulating a student who already has some loans and wants to borrow more
+    # This tests the "Add a Loan" workflow: click Add → fill fields → click Save → repeat
+    "current_loans": [
+        {
+            "loan_type": "Direct Subsidized Loan",
+            "loan_interest_rate": 6.39,
+            "loan_balance": 10000
+        },
+        {
+            "loan_type": "Direct PLUS Loan for Graduate/Professionals",
+            "loan_interest_rate": 8.94,
+            "loan_balance": 40000
+        }
+    ]
 }
 
 

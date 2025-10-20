@@ -270,12 +270,76 @@ class PlaywrightClient:
         - fill_enter: For typeahead fields (fill + Enter key)
         - fill: For standard text/number inputs
         - select: For dropdown menus
+        - group/array: Repeatable fields (e.g., adding loans)
 
         Args:
             field: FieldStructure with selector and interaction type
             value: Value to fill (type depends on field_type)
         """
         logger.debug(f"    Filling {field.field_id}: {field.selector} = {value}")
+
+        # Special handling for array/group fields (repeatable fields)
+        # If field_type is "group" and value is a list, this is a repeatable field
+        if field.field_type == FieldType.GROUP and isinstance(value, list):
+            if len(value) == 0:
+                # Empty array means user doesn't want to add any items
+                # Skip this field entirely (don't click anything)
+                logger.debug(f"    -> Skipped group field (empty array - no items to add)")
+                return
+            else:
+                # Repeatable field with items - add each one
+                logger.debug(f"    -> Repeatable field: adding {len(value)} item(s)")
+
+                # Each item in the list is a dict with values for sub_fields
+                for index, item_data in enumerate(value):
+                    logger.debug(f"       Adding item {index + 1}/{len(value)}")
+
+                    # Click the "Add" button to show the form
+                    add_button_selector = field.add_button_selector
+                    if not add_button_selector:
+                        raise ValueError(f"Repeatable field '{field.field_id}' is missing add_button_selector")
+
+                    await self.page.click(add_button_selector)
+                    await self.page.wait_for_timeout(500)  # Wait for form to appear
+
+                    # Fill each sub-field with the corresponding value from item_data
+                    for sub_field in field.sub_fields:
+                        sub_field_value = item_data.get(sub_field.field_id)
+
+                        if sub_field_value is None:
+                            logger.warning(f"          Missing value for sub_field: {sub_field.field_id}")
+                            continue
+
+                        logger.debug(f"          Filling {sub_field.field_id}: {sub_field.selector} = {sub_field_value}")
+
+                        # Fill sub-field based on its interaction type
+                        if sub_field.interaction == InteractionType.FILL:
+                            await self.page.fill(sub_field.selector, str(sub_field_value))
+                        elif sub_field.interaction == InteractionType.SELECT:
+                            # Use the same Unicode handling strategy as main SELECT
+                            value_str = str(sub_field_value)
+                            try:
+                                await self.page.select_option(sub_field.selector, value_str)
+                            except Exception:
+                                # Try Unicode apostrophe version
+                                await self.page.select_option(sub_field.selector, value_str.replace("'", "\u2019"))
+                        else:
+                            logger.warning(f"          Unsupported interaction type for sub_field: {sub_field.interaction}")
+
+                    # Click "Save" button to save this item
+                    # The save button is usually near the form, look for common patterns
+                    # From the screenshots, it's a "Save" button next to the fields
+                    try:
+                        # Try finding by text "Save" (most reliable)
+                        await self.page.get_by_text("Save", exact=True).click()
+                        await self.page.wait_for_timeout(500)  # Wait for item to be added to table
+                        logger.debug(f"          Item {index + 1} saved")
+                    except Exception as e:
+                        logger.error(f"          Failed to click Save button: {e}")
+                        raise ValueError(f"Could not save item {index + 1} for field '{field.field_id}'")
+
+                logger.debug(f"    -> Completed adding {len(value)} item(s) to {field.field_id}")
+                return
 
         try:
             if field.interaction == InteractionType.FILL:
@@ -301,9 +365,41 @@ class PlaywrightClient:
                 logger.debug(f"    -> Clicked with JavaScript (hidden element)")
 
             elif field.interaction == InteractionType.SELECT:
-                # Dropdown select
-                await self.page.select_option(field.selector, str(value))
-                logger.debug(f"    -> Selected dropdown option")
+                # Dropdown select with Unicode apostrophe handling
+                # FSA dropdowns use Unicode right single quotation mark (\u2019) instead of ASCII apostrophe (')
+                # Strategy: Try multiple variations to handle Unicode mismatches
+
+                value_str = str(value)
+                selection_successful = False
+                last_error = None
+
+                # Try 4 strategies in order:
+                # 1. Original value (ASCII apostrophe if user provided it)
+                # 2. Unicode apostrophe version (replace ' with \u2019)
+                # 3. Label matching (use label= parameter)
+                # 4. Label matching with Unicode
+
+                strategies = [
+                    ("original value", lambda: self.page.select_option(field.selector, value_str)),
+                    ("unicode apostrophe", lambda: self.page.select_option(field.selector, value_str.replace("'", "\u2019"))),
+                    ("label (original)", lambda: self.page.select_option(field.selector, label=value_str)),
+                    ("label (unicode)", lambda: self.page.select_option(field.selector, label=value_str.replace("'", "\u2019")))
+                ]
+
+                for strategy_name, strategy_func in strategies:
+                    try:
+                        await strategy_func()
+                        selection_successful = True
+                        logger.debug(f"    -> Selected dropdown option using strategy: {strategy_name}")
+                        break
+                    except Exception as e:
+                        last_error = e
+                        logger.debug(f"    -> Strategy '{strategy_name}' failed: {str(e)[:100]}")
+                        continue
+
+                if not selection_successful:
+                    # All strategies failed - raise the last error
+                    raise last_error
 
             else:
                 logger.warning(f"    ->  Unknown interaction type: {field.interaction}")
@@ -329,6 +425,12 @@ class PlaywrightClient:
             if continue_button.selector_type == SelectorType.TEXT:
                 # Click by text content
                 await self.page.get_by_text(continue_button.selector, exact=True).click()
+            elif continue_button.selector_type == SelectorType.ID:
+                # Click by ID selector - ensure it has # prefix
+                selector = continue_button.selector
+                if not selector.startswith('#'):
+                    selector = f'#{selector}'
+                await self.page.click(selector)
             else:
                 # Click by CSS selector (default)
                 await self.page.click(continue_button.selector)
@@ -451,8 +553,14 @@ class PlaywrightClient:
             if start_action.selector_type == SelectorType.TEXT:
                 # Click by text content
                 await self.page.get_by_text(start_action.selector, exact=True).click()
+            elif start_action.selector_type == SelectorType.ID:
+                # Click by ID selector - ensure it has # prefix
+                selector = start_action.selector
+                if not selector.startswith('#'):
+                    selector = f'#{selector}'
+                await self.page.click(selector)
             else:
-                # Click by CSS selector
+                # Click by CSS selector (default)
                 await self.page.click(start_action.selector)
 
         except Exception as e:
