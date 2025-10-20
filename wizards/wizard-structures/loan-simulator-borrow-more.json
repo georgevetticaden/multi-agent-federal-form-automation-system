@@ -1,7 +1,7 @@
 {
   "wizard_id": "loan-simulator-borrow-more",
   "name": "FSA Loan Simulator - Borrow More",
-  "url": "https://studentaid.gov/loan-simulator/borrow-more/results/(resultsPanel:results-panel//infoPanel:info-panel)",
+  "url": "https://studentaid.gov/loan-simulator/borrow-more/wizard/enrollment-info/program-info",
   "discovered_at": "2025-10-20T19:09:57.301098",
   "discovery_version": "1.0.0",
   "total_pages": 6,

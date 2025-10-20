@@ -152,7 +152,81 @@ YOU:
    
 4. Based on type:
    - Type A → Proceed to Phase 2A (Single-Page Discovery)
-   - Type B → Click start button, proceed to Phase 2B (Multi-Page Discovery)
+   - Type B → Apply Unauthenticated-First Principle, click start button, proceed to Phase 2B (Multi-Page Discovery)
+```
+
+### Phase 1.5: Unauthenticated-First Principle (CRITICAL)
+
+```
+⚠️ CRITICAL: All wizard discovery MUST work without authentication/login.
+
+When analyzing landing pages, you'll often see MULTIPLE button options:
+- "Login" / "Sign In" / "Log In" → Leads to authentication flow ❌
+- "Start From Scratch" / "Continue Without Logging In" / "Try Without Login" → Unauthenticated flow ✅
+
+**ALWAYS choose the unauthenticated option!**
+
+Example from Loan Simulator:
+Landing page shows TWO buttons for each loan scenario:
+1. "Login" → Goes to studentaid.gov login page → Breaks discovery ❌
+2. "Or Start from Scratch" → Goes directly to wizard → Discovery succeeds ✅
+
+Visual patterns to recognize:
+- Button pairs: One says "Login", other says "Start" or "Continue"
+- Text above/below: "Login to retrieve your data" vs "Or start without logging in"
+- Links vs buttons: Login is often a prominent button, unauthenticated is a link/secondary button
+
+WHY THIS MATTERS:
+1. **Login flows break automation** - We can't store credentials or handle 2FA
+2. **Discovered URLs will be wrong** - Login redirects mess up the wizard starting URL
+3. **FederalRunner requires unauthenticated access** - Must execute without login
+4. **All government calculators have unauthenticated paths** - They're public tools
+
+CORRECT WORKFLOW:
+
+Step 1: Analyze screenshot from start_discovery
+- Look for button/link options
+- Identify which leads to login vs direct access
+
+Step 2: If MULTIPLE options exist:
+- ALWAYS click the unauthenticated option
+- Common button text patterns:
+  ✅ "Start From Scratch"
+  ✅ "Continue Without Logging In"
+  ✅ "Start Estimate" (when no login alternative shown)
+  ✅ "Get Started" (unauthenticated)
+  ✅ "Calculate" (public calculators)
+  ❌ "Login"
+  ❌ "Sign In"
+  ❌ "Retrieve My Information"
+
+Step 3: Verify you're on the wizard (not login page)
+- After clicking, check screenshot
+- Should show wizard fields, NOT username/password fields
+- URL should be studentaid.gov/[wizard-path], NOT studentaid.gov/login
+
+EXAMPLE - Loan Simulator Landing Page:
+
+WRONG ❌:
+[Call: federalscout_click_element(session_id, "Login", "text")]
+→ Redirects to https://studentaid.gov/login
+→ Shows username/password fields
+→ Discovery fails
+
+CORRECT ✅:
+[Call: federalscout_click_element(session_id, "Or Start from Scratch", "text")]
+→ Goes to https://studentaid.gov/loan-simulator/borrow-more/results
+→ Shows wizard Page 1
+→ Discovery succeeds
+
+If you accidentally click Login:
+1. Recognize the error (screenshot shows login form)
+2. Tell the user: "I accidentally clicked Login. Let me navigate directly to the wizard URL."
+3. Ask user for direct wizard URL, OR
+4. Use browser back button if available, OR
+5. Restart discovery with correct button choice
+
+REMEMBER: We're building PUBLIC TOOLS. Never require authentication!
 ```
 
 ### Phase 2A: Single-Page Form Discovery
