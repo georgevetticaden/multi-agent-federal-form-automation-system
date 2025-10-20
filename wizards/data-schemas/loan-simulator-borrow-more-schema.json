@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FSA Loan Simulator - Borrow More - User Data",
+  "description": "User data required to execute the FSA Loan Simulator Borrow More calculator",
+  "type": "object",
+  "required": [
+    "enrollment_type",
+    "program_type",
+    "program_length",
+    "dependency_status",
+    "family_income",
+    "borrow_amount"
+  ],
+  "properties": {
+    "enrollment_type": {
+      "type": "string",
+      "description": "Whether borrowing for current or future program",
+      "enum": [
+        "current",
+        "future"
+      ]
+    },
+    "program_type": {
+      "type": "string",
+      "description": "Type of degree or certificate program",
+      "enum": [
+        "Undergraduate certificate or diploma program",
+        "Associate degree",
+        "Bachelor's degree",
+        "Post-baccalaureate certificate",
+        "Master's degree",
+        "Doctoral degree",
+        "First professional degree",
+        "Graduate/Professional certificate",
+        "Non-credential program (preparatory coursework/teacher certification)"
+      ]
+    },
+    "program_length": {
+      "type": "string",
+      "description": "Expected length of program in years",
+      "enum": [
+        "Less than 1 year",
+        "1 year",
+        "2 years",
+        "3 years",
+        "4 years",
+        "5 years",
+        "6 years"
+      ]
+    },
+    "dependency_status": {
+      "type": "string",
+      "description": "Student's dependency status for financial aid",
+      "enum": [
+        "independent",
+        "dependent"
+      ]
+    },
+    "school_location": {
+      "type": "string",
+      "description": "State where school is located (optional, helps with estimates)"
+    },
+    "school_name": {
+      "type": "string",
+      "description": "Name of school (optional, helps with cost estimates)"
+    },
+    "family_income": {
+      "type": "string",
+      "description": "Family's annual income range (for dependent students)",
+      "enum": [
+        "$0 - $30,000",
+        "$30,001 - $48,000",
+        "$48,001 - $75,000",
+        "$75,000 - $110,000",
+        "$110,001+",
+        "I don't know."
+      ]
+    },
+    "borrow_amount": {
+      "type": "string",
+      "description": "Amount student expects to need for school (in dollars, without $ symbol)",
+      "pattern": "^[0-9]+$"
+    },
+    "expected_yearly_salary": {
+      "type": "string",
+      "description": "Expected annual salary after graduation (optional, in dollars without $ symbol)",
+      "pattern": "^[0-9]+$"
+    },
+    "income_growth_rate": {
+      "type": "string",
+      "description": "Expected annual income growth rate (optional, percentage without % symbol, default 3)",
+      "pattern": "^[0-9]+(\\.[0-9]+)?$"
+    },
+    "current_loans": {
+      "type": "array",
+      "description": "Array of existing student loans (optional, 0 to unlimited)",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": [
+          "loan_type",
+          "loan_interest_rate",
+          "loan_balance"
+        ],
+        "properties": {
+          "loan_type": {
+            "type": "string",
+            "description": "Type of student loan",
+            "enum": [
+              "Direct Subsidized Loan",
+              "Direct Unsubsidized Loan",
+              "Direct Graduate Unsubsidized Loan",
+              "Direct Subsidized Consolidation Loan",
+              "Direct Unsubsidized Consolidation Loan",
+              "Direct PLUS Loan for Graduate/Professionals",
+              "Direct PLUS Loan for Parents",
+              "Private Loan"
+            ]
+          },
+          "loan_interest_rate": {
+            "type": "string",
+            "description": "Interest rate as percentage (without % symbol)",
+            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+          },
+          "loan_balance": {
+            "type": "string",
+            "description": "Current loan balance in dollars (without $ symbol)",
+            "pattern": "^[0-9]+$"
+          }
+        }
+      }
+    }
+  }
+}
