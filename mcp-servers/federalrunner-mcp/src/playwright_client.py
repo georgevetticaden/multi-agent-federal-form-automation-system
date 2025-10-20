@@ -174,7 +174,6 @@ class PlaywrightClient:
                 'wizard_id': wizard_structure.wizard_id,
                 'results': results,
                 'screenshots': response_screenshots,
-                'screenshot_count': len(screenshots),  # Total captured (for logging)
                 'pages_completed': pages_completed,
                 'execution_time_ms': execution_time_ms,
                 'timestamp': time.time()
@@ -209,7 +208,6 @@ class PlaywrightClient:
                 'error': str(e),
                 'error_type': type(e).__name__,
                 'screenshots': response_screenshots,
-                'screenshot_count': len(screenshots),  # Total captured (for logging)
                 'pages_completed': pages_completed,
                 'execution_time_ms': execution_time_ms,
                 'timestamp': time.time()

@@ -349,7 +349,7 @@ Response:
     "page_title": "Your Results",
     "body_text": "Student Aid Index: $8,245\n..."
   },
-  "screenshots": ["base64...", "base64...", ...],
+  "screenshots": ["base64..."],  // Only final screenshot in production
   "pages_completed": 7,
   "execution_time_ms": 28500
 }
@@ -366,13 +366,23 @@ This means:
 - **Federal Student Loans**: You qualify for $X,XXX in subsidized loans
 - **Additional Aid**: May be eligible for state grants and institutional aid
 
+## Official Results Page
+
+Here's the final screenshot showing your complete results:
+
+[Display screenshots[0] using image display - this will show the FSA results page inline]
+
 ## Next Steps
 1. Complete your FAFSA application at studentaid.gov
 2. Use this SAI estimate when planning your financial aid
-3. Contact your school's financial aid office for personalized guidance
-
-📸 **Audit Trail**: I have 10 screenshots documenting the entire calculation if you'd like to review them."
+3. Contact your school's financial aid office for personalized guidance"
 ```
+
+**CRITICAL: Display the screenshot inline**
+
+When execution succeeds, you MUST display the final screenshot inline in your response so users can see the official results page. Use the standard image display format that works in Claude.ai conversations.
+
+The screenshot is already base64-encoded in the response. Simply include it in your message using the appropriate format for displaying images in the conversation.
 
 #### VALIDATION ERROR Case (Schema Validation Failed):
 
@@ -691,10 +701,19 @@ Would you like me to retry with [corrected data]?"
 "✅ Calculation Complete! (completed in X seconds)
 
 **Your Results:**
-[Parse and present results clearly]
+[Parse and present results clearly from results.body_text]
 
-📸 **Audit Trail**: I have N screenshots if you'd like to review them."
+## Official Results Page
+
+Here's the final screenshot from the government website:
+
+[Display screenshots[0] inline - show the actual results page to the user]
+
+## Next Steps
+[Relevant next steps based on wizard type]"
 ```
+
+**Note**: Do NOT mention "audit trail" or "N screenshots" - only the final screenshot is returned in production.
 
 ## Your Mission
 
