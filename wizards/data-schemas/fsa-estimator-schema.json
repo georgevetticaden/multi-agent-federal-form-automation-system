@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "FSA Student Aid Estimator - User Data",
-  "description": "User data required to execute the FSA Student Aid Estimator wizard and calculate federal student aid eligibility",
+  "description": "User data required to execute the FSA Student Aid Estimator and calculate federal student aid eligibility",
   "type": "object",
   "required": [
     "birth_month",
@@ -11,7 +11,6 @@
     "state",
     "grade_level",
     "has_dependents",
-    "personal_circumstances",
     "parents_married",
     "parent_marital_status",
     "parent_state",
@@ -23,29 +22,17 @@
     "birth_month": {
       "type": "string",
       "description": "Student's birth month (2 digits: 01-12)",
-      "pattern": "^(0[1-9]|1[0-2])$",
-      "examples": [
-        "05",
-        "11"
-      ]
+      "pattern": "^(0[1-9]|1[0-2])$"
     },
     "birth_day": {
       "type": "string",
       "description": "Student's birth day (2 digits: 01-31)",
-      "pattern": "^(0[1-9]|[12][0-9]|3[01])$",
-      "examples": [
-        "15",
-        "28"
-      ]
+      "pattern": "^(0[1-9]|[12][0-9]|3[01])$"
     },
     "birth_year": {
       "type": "string",
       "description": "Student's birth year (4 digits)",
-      "pattern": "^[0-9]{4}$",
-      "examples": [
-        "2007",
-        "2006"
-      ]
+      "pattern": "^[0-9]{4}$"
     },
     "marital_status": {
       "type": "string",
@@ -54,19 +41,11 @@
         "unmarried",
         "married",
         "separated"
-      ],
-      "examples": [
-        "unmarried"
       ]
     },
     "state": {
       "type": "string",
-      "description": "Student's state of legal residence (full state name, e.g., 'Illinois', 'California')",
-      "examples": [
-        "Illinois",
-        "California",
-        "Texas"
-      ]
+      "description": "Student's state of legal residence (full name, e.g., 'Illinois')"
     },
     "grade_level": {
       "type": "string",
@@ -74,38 +53,47 @@
       "enum": [
         "freshman",
         "sophomore",
-        "other",
+        "other_undergraduate",
         "graduate"
-      ],
-      "examples": [
-        "freshman"
       ]
     },
     "has_dependents": {
       "type": "string",
-      "description": "Does the student have children or other dependents that they support?",
+      "description": "Does the student have children or other dependents they support?",
       "enum": [
         "yes",
         "no"
-      ],
-      "examples": [
-        "no"
       ]
     },
-    "personal_circumstances": {
-      "type": "string",
-      "description": "Student's personal circumstances (active duty military/veteran, orphan, foster care, emancipated minor, homeless, or none of these)",
-      "enum": [
-        "active_duty",
-        "orphan",
-        "foster_care",
-        "emancipated",
-        "homeless",
-        "none"
-      ],
-      "examples": [
-        "none"
-      ]
+    "circumstance_active_duty": {
+      "type": "boolean",
+      "description": "Is the student currently serving on active duty as a veteran of the U.S. armed forces?",
+      "default": false
+    },
+    "circumstance_orphan": {
+      "type": "boolean",
+      "description": "At any time since age 13, was the student an orphan?",
+      "default": false
+    },
+    "circumstance_foster_care": {
+      "type": "boolean",
+      "description": "At any time since age 13, was the student in foster care or a ward of the court?",
+      "default": false
+    },
+    "circumstance_emancipated": {
+      "type": "boolean",
+      "description": "Is or was the student a legally emancipated minor or in legal guardianship?",
+      "default": false
+    },
+    "circumstance_homeless": {
+      "type": "boolean",
+      "description": "Is the student unaccompanied and homeless?",
+      "default": false
+    },
+    "circumstance_none": {
+      "type": "boolean",
+      "description": "None of the special circumstances apply to the student",
+      "default": true
     },
     "parents_married": {
       "type": "string",
@@ -113,41 +101,25 @@
       "enum": [
         "yes",
         "no"
-      ],
-      "examples": [
-        "yes"
       ]
     },
     "parent_marital_status": {
       "type": "string",
-      "description": "Parent's marital status (usually pre-filled based on parents_married answer)",
+      "description": "Parent's current marital status",
       "enum": [
         "married",
         "unmarried",
-        "unmarried_together"
-      ],
-      "examples": [
-        "married"
+        "unmarried_living_together"
       ]
     },
     "parent_state": {
       "type": "string",
-      "description": "Parent's state of residence (full state name)",
-      "examples": [
-        "Illinois",
-        "New York",
-        "Florida"
-      ]
+      "description": "Parent's state of residence (full name, e.g., 'Illinois')"
     },
     "family_size": {
-      "type": "string",
-      "description": "Total number of people in the student's family, including the student",
-      "pattern": "^[0-9]+$",
-      "examples": [
-        "4",
-        "3",
-        "5"
-      ]
+      "type": "number",
+      "description": "Number of people in the student's family, including the student",
+      "minimum": 1
     },
     "parent_filed_taxes": {
       "type": "string",
@@ -155,40 +127,22 @@
       "enum": [
         "yes",
         "no"
-      ],
-      "examples": [
-        "yes"
       ]
     },
     "parent_income": {
-      "type": "string",
-      "description": "Parent's adjusted gross income (if parent filed taxes). Enter dollar amount without commas or dollar sign.",
-      "pattern": "^[0-9]+$",
-      "examples": [
-        "85000",
-        "65000",
-        "120000"
-      ]
+      "type": "number",
+      "description": "Parent's adjusted gross income from 2024 taxes (in dollars). Required if parent filed taxes.",
+      "minimum": 0
     },
     "parent_assets": {
-      "type": "string",
-      "description": "Parent's total assets including cash, savings, checking accounts, net worth of businesses/farms, and investments excluding primary home (if parent filed taxes). Enter dollar amount without commas or dollar sign.",
-      "pattern": "^[0-9]+$",
-      "examples": [
-        "12000",
-        "25000",
-        "0"
-      ]
+      "type": "number",
+      "description": "Parent's total assets including cash, savings, checking accounts, businesses/farms, and real estate (excluding primary home) in dollars. Required if parent filed taxes.",
+      "minimum": 0
     },
     "parent_child_support": {
-      "type": "string",
-      "description": "Annual child support received by parent (if parent filed taxes). Enter '0' if none received. Enter dollar amount without commas or dollar sign.",
-      "pattern": "^[0-9]+$",
-      "examples": [
-        "0",
-        "5000",
-        "12000"
-      ]
+      "type": "number",
+      "description": "Annual child support received by parent in the last complete calendar year (in dollars). Enter 0 if none. Required if parent filed taxes.",
+      "minimum": 0
     },
     "student_filed_taxes": {
       "type": "string",
@@ -196,83 +150,17 @@
       "enum": [
         "yes",
         "no"
-      ],
-      "examples": [
-        "no"
       ]
     },
     "student_income": {
-      "type": "string",
-      "description": "Student's adjusted gross income (if student filed taxes). Enter dollar amount without commas or dollar sign.",
-      "pattern": "^[0-9]+$",
-      "examples": [
-        "5000",
-        "0"
-      ]
+      "type": "number",
+      "description": "Student's adjusted gross income from 2024 taxes (in dollars). Required only if student filed taxes.",
+      "minimum": 0
     },
     "student_assets": {
-      "type": "string",
-      "description": "Student's total assets (if student filed taxes). Enter dollar amount without commas or dollar sign.",
-      "pattern": "^[0-9]+$",
-      "examples": [
-        "1000",
-        "0"
-      ]
-    }
-  },
-  "dependencies": {
-    "parent_filed_taxes": {
-      "oneOf": [
-        {
-          "properties": {
-            "parent_filed_taxes": {
-              "enum": [
-                "yes"
-              ]
-            }
-          },
-          "required": [
-            "parent_income",
-            "parent_assets",
-            "parent_child_support"
-          ]
-        },
-        {
-          "properties": {
-            "parent_filed_taxes": {
-              "enum": [
-                "no"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    "student_filed_taxes": {
-      "oneOf": [
-        {
-          "properties": {
-            "student_filed_taxes": {
-              "enum": [
-                "yes"
-              ]
-            }
-          },
-          "required": [
-            "student_income",
-            "student_assets"
-          ]
-        },
-        {
-          "properties": {
-            "student_filed_taxes": {
-              "enum": [
-                "no"
-              ]
-            }
-          }
-        }
-      ]
+      "type": "number",
+      "description": "Student's total assets (in dollars). Required only if student filed taxes.",
+      "minimum": 0
     }
   }
 }

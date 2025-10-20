@@ -75,14 +75,34 @@ class FieldStructure(BaseModel):
     field_type: FieldType = Field(..., description="Type of form field")
     interaction: InteractionType = Field(..., description="Method for interacting with field")
     required: bool = Field(default=False, description="Whether field is required")
-    example_value: Union[str, Dict[str, Any]] = Field(
+    example_value: Union[str, Dict[str, Any], List[Dict[str, Any]]] = Field(
         ...,
-        description="Example value for testing (string or object for grouped fields)"
+        description="Example value for testing (string, object for grouped fields, or array for repeatable groups)"
     )
     notes: Optional[str] = Field(None, description="Special handling instructions")
     sub_fields: Optional[List[SubFieldStructure]] = Field(
         default=None,
         description="Sub-fields for grouped fields (e.g., date components)"
+    )
+    repeatable: bool = Field(
+        default=False,
+        description="Whether this group can be repeated multiple times (e.g., 'Add a Loan' button)"
+    )
+    add_button_selector: Optional[str] = Field(
+        default=None,
+        description="Selector for the button to add a new instance of this repeatable group"
+    )
+    remove_button_selector: Optional[str] = Field(
+        default=None,
+        description="Selector pattern for the button to remove an instance (use {index} placeholder)"
+    )
+    min_instances: int = Field(
+        default=0,
+        description="Minimum number of instances required (0 = optional)"
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="Maximum number of instances allowed (None = unlimited)"
     )
 
     @field_validator('selector')
@@ -107,6 +127,23 @@ class FieldStructure(BaseModel):
         if self.field_type == FieldType.GROUP:
             if not self.sub_fields or len(self.sub_fields) == 0:
                 raise ValueError("Grouped fields must have at least one sub_field")
+
+            # If repeatable, ensure add_button_selector is provided
+            if self.repeatable and not self.add_button_selector:
+                raise ValueError(
+                    f"Repeatable grouped field '{self.field_id}' must have add_button_selector"
+                )
+
+            # Validate min/max instances
+            if self.min_instances < 0:
+                raise ValueError("min_instances cannot be negative")
+
+            if self.max_instances is not None and self.max_instances < self.min_instances:
+                raise ValueError(
+                    f"max_instances ({self.max_instances}) cannot be less than "
+                    f"min_instances ({self.min_instances})"
+                )
+
         return self
 
 
@@ -360,6 +397,21 @@ class WizardStructure(BaseModel):
                             f"Grouped field '{field.label}' on page {page.page_number} "
                             f"has no sub_fields"
                         )
+
+                    # Check repeatable fields
+                    if field.repeatable:
+                        if not field.add_button_selector:
+                            errors.append(
+                                f"Repeatable field '{field.label}' on page {page.page_number} "
+                                f"must have add_button_selector"
+                            )
+
+                        # Validate example_value is a list for repeatable fields
+                        if not isinstance(field.example_value, list):
+                            warnings.append(
+                                f"Repeatable field '{field.label}' on page {page.page_number} "
+                                f"should have example_value as a list of objects"
+                            )
 
         return {
             'valid': len(errors) == 0,

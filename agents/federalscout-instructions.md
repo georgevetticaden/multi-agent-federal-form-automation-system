@@ -558,19 +558,126 @@ Strategy:
 - Document which fields are optional in the metadata
 ```
 
-### Pattern 6: Multiple Forms on One Page
+### Pattern 6: Repeatable Field Groups (NEW - Contract-First Pattern)
 
 ```
-Problem: Page shows multiple distinct sections/forms
+Problem: Page allows adding multiple instances of the same field group (e.g., "Add a Loan", "Add a Dependent", "Add Employment")
 
-Example: Loan Simulator Page 2 lets you add multiple loans
-→ Each loan is a separate form instance with same fields
+Example: Loan Simulator Page 6 - "Add a Loan" button
+→ Each loan has the same 3 fields: loan_type, interest_rate, balance
+→ User can add multiple loans (0 to unlimited)
 
-Discovery approach:
-- Document the field pattern once
-- Note that fields can be repeated/added dynamically
-- Test adding at least one instance to verify the pattern
-- Document in notes: "Can add multiple instances"
+CORRECT Discovery Approach:
+
+Step 1: RECOGNIZE the repeatable pattern
+- Look for "Add" buttons: "Add a Loan", "Add a Dependent", "Add Another", "+ Add"
+- Look for table/list display showing added items
+- Look for Edit/Remove buttons for each instance
+
+Step 2: CLICK the "Add" button to reveal the sub-form
+[Call: federalscout_click_element(session_id, "#fsa_IconLinkButton_LoanSimulatorWizardLoansAddNewLoan", "id")]
+
+Step 3: DOCUMENT as a single GROUP field with repeatable=true
+
+IMPORTANT: This is NOT a new page - it's still the same page number!
+
+[Call: federalscout_save_page_metadata(session_id, {
+  "page_number": 6,  // SAME page number
+  "page_title": "Loan Information - Current Loans",
+  "fields": [
+    {
+      "label": "Current Loans",
+      "field_id": "current_loans",  // Singular container name
+      "selector": "#loan_table",  // Container selector
+      "field_type": "group",  // ALWAYS "group" for repeatable sections
+      "interaction": "click",
+      "required": true,  // If at least one instance required
+      "repeatable": true,  // NEW: Indicates this can repeat
+      "min_instances": 1,  // Minimum required (0 = optional)
+      "max_instances": null,  // null = unlimited
+      "add_button_selector": "#fsa_IconLinkButton_LoanSimulatorWizardLoansAddNewLoan",
+      "remove_button_selector": "#fsa_Button_LoanSimulatorAddLoanRemove_{index}",  // {index} = placeholder
+      "sub_fields": [
+        {
+          "field_id": "loan_type",  // NOT current_loans_loan_type
+          "selector": "#fsa_Select_LoanSimulatorUserAddedLoanType",
+          "field_type": "select",
+          "interaction": "select",
+          "example_value": "Direct Unsubsidized Loan",
+          "notes": "Dropdown with loan type options"
+        },
+        {
+          "field_id": "loan_interest_rate",
+          "selector": "#fsa_Input_LoanSimulatorUserAddedInterestRate",
+          "field_type": "number",
+          "interaction": "fill",
+          "example_value": "5.5"
+        },
+        {
+          "field_id": "loan_balance",
+          "selector": "#fsa_Input_LoanSimulatorUserAddedPrincipalBalance",
+          "field_type": "number",
+          "interaction": "fill",
+          "example_value": "10000"
+        }
+      ],
+      "example_value": [  // Array of example instances
+        {
+          "loan_type": "Direct Unsubsidized Loan",
+          "loan_interest_rate": "5.5",
+          "loan_balance": "10000"
+        }
+      ],
+      "notes": "Repeatable loan entry. Click 'Add a Loan' to add each loan. Can add multiple loans."
+    }
+  ],
+  "continue_button": {
+    "text": "Continue",
+    "selector": "#fsa_Button_WizardContinue"
+  }
+})]
+
+Step 4: TEST the pattern
+- Fill all sub-fields with dummy data
+- Click the Save/Add button to add the instance
+- Verify it appears in the list
+- You can test adding a second instance to confirm the pattern works
+
+Step 5: USER DATA SCHEMA will represent this as an array:
+{
+  "current_loans": {
+    "type": "array",
+    "minItems": 1,  // Maps to min_instances
+    "items": {
+      "type": "object",
+      "required": ["loan_type", "loan_interest_rate", "loan_balance"],
+      "properties": {
+        "loan_type": {...},
+        "loan_interest_rate": {...},
+        "loan_balance": {...}
+      }
+    }
+  }
+}
+
+CRITICAL RULES:
+✅ DO: Use field_type="group" with repeatable=true
+✅ DO: Document sub_fields with their individual selectors
+✅ DO: Include add_button_selector (required for repeatable groups)
+✅ DO: Set example_value as an array of objects
+✅ DO: Keep the SAME page_number (don't increment)
+✅ DO: Include min_instances/max_instances constraints
+
+❌ DON'T: Create a new page for the sub-form
+❌ DON'T: Document each instance separately
+❌ DON'T: Use field_type="text" as a workaround
+❌ DON'T: Increment page_number when you click "Add"
+
+WHY THIS MATTERS:
+- FederalRunner needs to know HOW to add multiple instances
+- The schema tells Claude to collect an ARRAY of data
+- The add_button_selector enables automated clicking
+- The sub_fields define what data each instance needs
 ```
 
 ### Pattern 7: Results Page Detection

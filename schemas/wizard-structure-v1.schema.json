@@ -3,7 +3,7 @@
   "$id": "https://formflow.io/schemas/wizard-structure-v1.json",
   "title": "Wizard Structure Schema",
   "description": "Universal schema for discovered government form wizards. Defines the structure that ALL wizard data files must conform to for Playwright execution.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "object",
   "required": ["wizard_id", "name", "url", "discovered_at", "discovery_version", "total_pages", "pages"],
   "properties": {
@@ -131,9 +131,10 @@
                 "example_value": {
                   "oneOf": [
                     {"type": "string"},
-                    {"type": "object"}
+                    {"type": "object"},
+                    {"type": "array"}
                   ],
-                  "description": "Example value for testing (string or object for grouped fields)"
+                  "description": "Example value for testing (string, object for grouped fields, or array for repeatable groups)"
                 },
                 "notes": {
                   "type": "string",
@@ -176,6 +177,30 @@
                       }
                     }
                   }
+                },
+                "repeatable": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether this group can be repeated multiple times (e.g., 'Add a Loan' button)"
+                },
+                "add_button_selector": {
+                  "type": "string",
+                  "description": "Selector for the button to add a new instance of this repeatable group"
+                },
+                "remove_button_selector": {
+                  "type": "string",
+                  "description": "Selector pattern for the button to remove an instance (use {index} placeholder)"
+                },
+                "min_instances": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "default": 0,
+                  "description": "Minimum number of instances required (0 = optional)"
+                },
+                "max_instances": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Maximum number of instances allowed (omit for unlimited)"
                 }
               }
             }
