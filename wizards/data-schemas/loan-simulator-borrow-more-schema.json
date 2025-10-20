@@ -1,18 +1,19 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "FSA Loan Simulator - Borrow More - User Data",
-  "description": "User data required to execute the FSA Loan Simulator Borrow More calculator",
+  "title": "Federal Loan Simulator - Simulate Borrowing More - User Data",
+  "description": "User data required to execute the Federal Student Aid Loan Simulator for borrowing more money for college",
   "type": "object",
   "required": [
-    "enrollment_type",
+    "program_timing",
     "program_type",
     "program_length",
     "dependency_status",
     "family_income",
-    "borrow_amount"
+    "borrow_amount",
+    "expected_salary"
   ],
   "properties": {
-    "enrollment_type": {
+    "program_timing": {
       "type": "string",
       "description": "Whether borrowing for current or future program",
       "enum": [
@@ -22,7 +23,7 @@
     },
     "program_type": {
       "type": "string",
-      "description": "Type of degree or certificate program",
+      "description": "Type of degree or program (e.g., Bachelor's degree, Master's degree)",
       "enum": [
         "Undergraduate certificate or diploma program",
         "Associate degree",
@@ -37,7 +38,7 @@
     },
     "program_length": {
       "type": "string",
-      "description": "Expected length of program in years",
+      "description": "Duration of the program",
       "enum": [
         "Less than 1 year",
         "1 year",
@@ -50,23 +51,23 @@
     },
     "dependency_status": {
       "type": "string",
-      "description": "Student's dependency status for financial aid",
+      "description": "Whether student is dependent (supported by parents) or independent",
       "enum": [
-        "independent",
-        "dependent"
+        "dependent",
+        "independent"
       ]
     },
     "school_location": {
       "type": "string",
-      "description": "State where school is located (optional, helps with estimates)"
+      "description": "State where the school is located (optional, full state name like 'Illinois')"
     },
     "school_name": {
       "type": "string",
-      "description": "Name of school (optional, helps with cost estimates)"
+      "description": "Name of the school or university (optional)"
     },
     "family_income": {
       "type": "string",
-      "description": "Family's annual income range (for dependent students)",
+      "description": "Annual family income range",
       "enum": [
         "$0 - $30,000",
         "$30,001 - $48,000",
@@ -77,23 +78,24 @@
       ]
     },
     "borrow_amount": {
-      "type": "string",
-      "description": "Amount student expects to need for school (in dollars, without $ symbol)",
-      "pattern": "^[0-9]+$"
+      "type": "number",
+      "description": "Amount needed to pay for school (dollar amount without formatting, e.g., 30000)",
+      "minimum": 1
     },
-    "expected_yearly_salary": {
-      "type": "string",
-      "description": "Expected annual salary after graduation (optional, in dollars without $ symbol)",
-      "pattern": "^[0-9]+$"
+    "expected_salary": {
+      "type": "number",
+      "description": "Expected yearly salary after completing program (dollar amount without formatting, e.g., 55000)",
+      "minimum": 0
     },
     "income_growth_rate": {
-      "type": "string",
-      "description": "Expected annual income growth rate (optional, percentage without % symbol, default 3)",
-      "pattern": "^[0-9]+(\\.[0-9]+)?$"
+      "type": "number",
+      "description": "Expected annual income growth rate as a percentage (e.g., 3 for 3%, default is 3)",
+      "minimum": 0,
+      "maximum": 100
     },
     "current_loans": {
       "type": "array",
-      "description": "Array of existing student loans (optional, 0 to unlimited)",
+      "description": "List of current student loans (optional, can be empty array)",
       "minItems": 0,
       "items": {
         "type": "object",
@@ -118,14 +120,15 @@
             ]
           },
           "loan_interest_rate": {
-            "type": "string",
-            "description": "Interest rate as percentage (without % symbol)",
-            "pattern": "^[0-9]+(\\.[0-9]+)?$"
+            "type": "number",
+            "description": "Interest rate as a percentage (e.g., 5.5 for 5.5%)",
+            "minimum": 0,
+            "maximum": 100
           },
           "loan_balance": {
-            "type": "string",
-            "description": "Current loan balance in dollars (without $ symbol)",
-            "pattern": "^[0-9]+$"
+            "type": "number",
+            "description": "Current principal balance of the loan (dollar amount without formatting, e.g., 10000)",
+            "minimum": 0
           }
         }
       }

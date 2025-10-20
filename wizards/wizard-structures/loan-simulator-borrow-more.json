@@ -1,25 +1,30 @@
 {
   "wizard_id": "loan-simulator-borrow-more",
-  "name": "FSA Loan Simulator - Borrow More",
-  "url": "https://studentaid.gov/loan-simulator/borrow-more/wizard/enrollment-info/program-info",
-  "discovered_at": "2025-10-20T19:09:57.301098",
+  "name": "Federal Loan Simulator - Simulate Borrowing More",
+  "url": "https://studentaid.gov/loan-simulator/borrow-more/results/(resultsPanel:results-panel//infoPanel:info-panel)",
+  "discovered_at": "2025-10-20T20:31:28.172191",
   "discovery_version": "1.0.0",
   "total_pages": 6,
+  "start_action": {
+    "description": "Click to start the Borrow More simulator without logging in",
+    "selector": "fsa_LinkButton_LoanSimulatorLandingRepayStrategyStartUnauth3",
+    "selector_type": "id"
+  },
   "pages": [
     {
       "page_number": 1,
-      "page_title": "Enrollment Information - Current or Future Program",
+      "page_title": "Current or Future Program",
       "url_pattern": "https://studentaid.gov/loan-simulator/borrow-more/wizard/enrollment-info/current-or-future",
       "fields": [
         {
           "label": "Are you borrowing more federal student loans for a current or future program of study?",
-          "field_id": "enrollment_type",
+          "field_id": "program_timing",
           "selector": "#fsa_Radio_WizardFutureProgram",
           "field_type": "radio",
           "interaction": "javascript_click",
           "required": true,
           "example_value": "future",
-          "notes": "For high school seniors, select 'future'. For current college students, select 'current'.",
+          "notes": "Radio button selection - use 'future' for students planning to attend college",
           "repeatable": false,
           "min_instances": 0
         }
@@ -32,7 +37,7 @@
     },
     {
       "page_number": 2,
-      "page_title": "Program Information - Future Program Details",
+      "page_title": "Tell us about your future program",
       "url_pattern": "https://studentaid.gov/loan-simulator/borrow-more/wizard/enrollment-info/program-info",
       "fields": [
         {
@@ -42,8 +47,8 @@
           "field_type": "select",
           "interaction": "select",
           "required": true,
-          "example_value": "Associate degree",
-          "notes": "Note: Some options contain special characters (') that may require exact text matching",
+          "example_value": "Bachelor's degree",
+          "notes": "Dropdown selection for degree type",
           "repeatable": false,
           "min_instances": 0
         },
@@ -55,6 +60,7 @@
           "interaction": "select",
           "required": true,
           "example_value": "4 years",
+          "notes": "Dropdown selection for program duration",
           "repeatable": false,
           "min_instances": 0
         },
@@ -66,7 +72,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "dependent",
-          "notes": "Most high school seniors are dependent students",
+          "notes": "Radio button - dependent for students supported by parents",
           "repeatable": false,
           "min_instances": 0
         },
@@ -74,11 +80,11 @@
           "label": "School Location",
           "field_id": "school_location",
           "selector": "#fsa_Typeahead_LoanSimulatorBorrowMoreWizardIncomeSchoolState",
-          "field_type": "typeahead",
+          "field_type": "text",
           "interaction": "fill_enter",
           "required": false,
           "example_value": "Illinois",
-          "notes": "Optional - helps provide more accurate estimates",
+          "notes": "Typeahead field for state selection (optional)",
           "repeatable": false,
           "min_instances": 0
         },
@@ -86,11 +92,11 @@
           "label": "School Name",
           "field_id": "school_name",
           "selector": "#fsa_Typeahead_LoanSimulatorBorrowMoreWizardSchoolName",
-          "field_type": "typeahead",
+          "field_type": "text",
           "interaction": "fill_enter",
           "required": false,
           "example_value": "University of Illinois",
-          "notes": "Optional - typeahead search for school names",
+          "notes": "Typeahead field for school name (optional)",
           "repeatable": false,
           "min_instances": 0
         }
@@ -103,7 +109,7 @@
     },
     {
       "page_number": 3,
-      "page_title": "Family Income - Dependent Student",
+      "page_title": "Family Income",
       "url_pattern": "https://studentaid.gov/loan-simulator/borrow-more/wizard/enrollment-info/family-income",
       "fields": [
         {
@@ -114,7 +120,7 @@
           "interaction": "select",
           "required": true,
           "example_value": "$75,000 - $110,000",
-          "notes": "This question appears only for dependent students. Income range helps estimate federal loan eligibility.",
+          "notes": "Dropdown selection for family income range",
           "repeatable": false,
           "min_instances": 0
         }
@@ -127,18 +133,18 @@
     },
     {
       "page_number": 4,
-      "page_title": "Borrow Amount - Expected Cost",
+      "page_title": "Program Cost - Borrow Amount",
       "url_pattern": "https://studentaid.gov/loan-simulator/borrow-more/wizard/enrollment-info/borrow-amount",
       "fields": [
         {
           "label": "How much do you think you will need to pay for school?",
           "field_id": "borrow_amount",
           "selector": "#fsa_Input_BorrowAmount",
-          "field_type": "text",
+          "field_type": "number",
           "interaction": "fill",
           "required": true,
-          "example_value": "25000",
-          "notes": "Dollar amount without $ symbol. Typical range: $5,000-$50,000 per year",
+          "example_value": "30000",
+          "notes": "Dollar amount without formatting (e.g., 30000 not $30,000)",
           "repeatable": false,
           "min_instances": 0
         }
@@ -151,18 +157,18 @@
     },
     {
       "page_number": 5,
-      "page_title": "Personal Information - Income Info",
+      "page_title": "Income Information",
       "url_pattern": "https://studentaid.gov/loan-simulator/borrow-more/wizard/personal-info/income-info",
       "fields": [
         {
           "label": "What is your expected yearly salary?",
-          "field_id": "expected_yearly_salary",
+          "field_id": "expected_salary",
           "selector": "#fsa_Input_YearlySalary",
-          "field_type": "text",
+          "field_type": "number",
           "interaction": "fill",
-          "required": false,
-          "example_value": "45000",
-          "notes": "Dollar amount without $ symbol. Can use school data to estimate. This step is optional (Skip This Step link available)",
+          "required": true,
+          "example_value": "55000",
+          "notes": "Expected salary after completing program, or current salary if employed",
           "repeatable": false,
           "min_instances": 0
         },
@@ -170,11 +176,11 @@
           "label": "How much do you expect your income to grow by each year?",
           "field_id": "income_growth_rate",
           "selector": "#fsa_Input_IncomeGrowth",
-          "field_type": "text",
+          "field_type": "number",
           "interaction": "fill",
           "required": false,
           "example_value": "3",
-          "notes": "Percentage without % symbol. Default is 3% (national average). This step is optional",
+          "notes": "Percentage value - default is 3%",
           "repeatable": false,
           "min_instances": 0
         }
@@ -187,7 +193,7 @@
     },
     {
       "page_number": 6,
-      "page_title": "Loan Information - Current Loans",
+      "page_title": "Confirm Current Loan Situation",
       "url_pattern": "https://studentaid.gov/loan-simulator/borrow-more/wizard/loan-info/confirm-current-loan/current",
       "fields": [
         {
@@ -204,7 +210,7 @@
               "loan_balance": "10000"
             }
           ],
-          "notes": "Repeatable loan entry. Click 'Add a Loan' to add each loan. Can add multiple loans (0 to unlimited). Each loan can be edited or removed after saving.",
+          "notes": "Repeatable loan entry. Click 'Add a Loan' to add each loan. Can add multiple loans (0 to unlimited). Each loan requires loan type, interest rate, and balance.",
           "sub_fields": [
             {
               "field_id": "loan_type",
@@ -212,23 +218,23 @@
               "field_type": "select",
               "interaction": "select",
               "example_value": "Direct Unsubsidized Loan",
-              "notes": "Type of federal or private student loan"
+              "notes": "Dropdown with loan type options"
             },
             {
               "field_id": "loan_interest_rate",
               "selector": "#fsa_Input_LoanSimulatorUserAddedInterestRate",
-              "field_type": "text",
+              "field_type": "number",
               "interaction": "fill",
               "example_value": "5.5",
-              "notes": "Interest rate as percentage without % symbol"
+              "notes": "Percentage value (e.g., 5.5 for 5.5%)"
             },
             {
               "field_id": "loan_balance",
               "selector": "#fsa_Input_LoanSimulatorUserAddedPrincipalBalance",
-              "field_type": "text",
+              "field_type": "number",
               "interaction": "fill",
               "example_value": "10000",
-              "notes": "Loan balance in dollars without $ symbol"
+              "notes": "Dollar amount without formatting (e.g., 10000)"
             }
           ],
           "repeatable": true,

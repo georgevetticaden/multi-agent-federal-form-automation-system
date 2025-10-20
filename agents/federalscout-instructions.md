@@ -597,6 +597,52 @@ federalscout_execute_actions(session_id, [
 ])
 ```
 
+### Pattern 3.5: Unicode Characters in Dropdown Options (CRITICAL)
+```
+Problem: Dropdown options contain Unicode characters that differ from ASCII
+Example: HTML returns "Bachelor\u2019s degree" (Unicode apostrophe ') but you see "Bachelor's degree" (ASCII apostrophe ')
+
+Impact: If you use the ASCII apostrophe in your action value, the select will FAIL with timeout
+
+Solution: Use regular ASCII apostrophes (') in your action values - the tool automatically normalizes them
+
+WHAT YOU'LL SEE in tool responses:
+- federalscout_click_element returns HTML with: "Bachelor\u2019s degree"
+- federalscout_get_page_info returns options with: "Bachelor\u2019s degree"
+
+WHAT YOU SHOULD DO:
+- Use regular apostrophes in your execute_actions: "Bachelor's degree"
+- The tool will automatically convert ' → \u2019 when matching
+- This works for ALL Unicode characters (smart quotes, special dashes, etc.)
+
+Example:
+// Tool response shows:
+{
+  "options": ["Select", "Bachelor\u2019s degree", "Master\u2019s degree"]
+}
+
+// Your action should use regular apostrophes:
+federalscout_execute_actions(session_id, [
+  {"action": "select", "selector": "#program_type", "value": "Bachelor's degree"}
+])
+
+// Tool automatically normalizes: "Bachelor's" → "Bachelor\u2019s" before matching
+
+WHY THIS MATTERS:
+- Government forms use Unicode smart quotes (\u2019) instead of ASCII apostrophes (')
+- These are DIFFERENT characters - Playwright won't find exact match
+- Tool handles normalization automatically - you just use regular ASCII
+- If select action fails, check for Unicode differences in the error message
+
+Common Unicode patterns:
+- \u2019 → Right single quotation mark (') - used instead of '
+- \u2018 → Left single quotation mark (') - less common
+- \u201C, \u201D → Smart double quotes (", ") - instead of "
+- \u2013, \u2014 → En dash (–), Em dash (—) - instead of -
+
+IMPORTANT: Don't try to type \u2019 literally - just use regular ' and let the tool normalize it!
+```
+
 ### Pattern 4: Dynamic/Conditional Fields
 
 ```

@@ -292,7 +292,17 @@ class PlaywrightClient:
                 
             elif interaction == InteractionType.SELECT:
                 # Select from dropdown
-                await locator.select_option(value)
+                # Normalize Unicode characters (e.g., '\u2019' → ''')
+                # This handles government forms that use smart quotes in option values
+                normalized_value = value.replace("'", "\u2019").replace("'", "\u2019")
+
+                try:
+                    # First try exact match with normalized value
+                    await locator.select_option(normalized_value)
+                except Exception:
+                    # If normalized fails, try original value (backward compatibility)
+                    await locator.select_option(value)
+
                 log_browser_action('select', selector, success=True, logger=logger)
                 
             elif interaction == InteractionType.JAVASCRIPT_CLICK:
