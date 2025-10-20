@@ -60,13 +60,13 @@ FSA_TEST_DATA = {
     "parent_state": "Illinois",
 
     # Page 5: Family Size
-    "family_size": "4",
+    "family_size": 4,
 
     # Page 6: Parent Income and Assets
     "parent_filed_taxes": "yes",
-    "parent_income": "85000",
-    "parent_assets": "12000",
-    "parent_child_support": "0",
+    "parent_income": 85000,
+    "parent_assets": 12000,
+    "parent_child_support": 0,
 
     # Page 7: Student Income and Assets
     "student_filed_taxes": "no"
