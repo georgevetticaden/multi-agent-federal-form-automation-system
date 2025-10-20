@@ -207,6 +207,13 @@ echo "Step 6: Deploy to Cloud Run"
 echo "----------------------------"
 echo "This will take 3-5 minutes (building Docker image with WebKit)..."
 echo ""
+echo "Production Environment Variables:"
+echo "  - Browser: webkit (headless mode compatible)"
+echo "  - Headless: true (required for Cloud Run)"
+echo "  - Save Screenshots: false (no disk persistence in production)"
+echo "  - Execution Timeout: 60s"
+echo "  - Wizards Dir: /app/wizards (from Docker image)"
+echo ""
 echo "Note: This will automatically create the Compute Engine default service account"
 echo "      if it doesn't already exist in your project."
 echo ""
@@ -229,6 +236,11 @@ DEPLOY_OUTPUT=$(gcloud run deploy $SERVICE_NAME \
     --set-env-vars="AUTH0_ISSUER=$AUTH0_ISSUER" \
     --set-env-vars="AUTH0_API_AUDIENCE=https://placeholder-will-be-updated.run.app" \
     --set-env-vars="MCP_SERVER_URL=https://placeholder-will-be-updated.run.app" \
+    --set-env-vars="FEDERALRUNNER_BROWSER_TYPE=webkit" \
+    --set-env-vars="FEDERALRUNNER_HEADLESS=true" \
+    --set-env-vars="FEDERALRUNNER_SAVE_SCREENSHOTS=false" \
+    --set-env-vars="FEDERALRUNNER_EXECUTION_TIMEOUT=60" \
+    --set-env-vars="FEDERALRUNNER_WIZARDS_DIR=/app/wizards" \
     --project=$PROJECT_ID 2>&1)
 
 # Display the deployment output
@@ -283,7 +295,7 @@ echo "Updating AUTH0_API_AUDIENCE and MCP_SERVER_URL with real deployed URL..."
 # Note: Must include ALL env vars when updating, not just the ones being changed
 gcloud run services update $SERVICE_NAME \
     --region $REGION \
-    --set-env-vars="AUTH0_DOMAIN=$AUTH0_DOMAIN,AUTH0_ISSUER=$AUTH0_ISSUER,AUTH0_API_AUDIENCE=$SERVICE_URL,MCP_SERVER_URL=$SERVICE_URL" \
+    --set-env-vars="AUTH0_DOMAIN=$AUTH0_DOMAIN,AUTH0_ISSUER=$AUTH0_ISSUER,AUTH0_API_AUDIENCE=$SERVICE_URL,MCP_SERVER_URL=$SERVICE_URL,FEDERALRUNNER_BROWSER_TYPE=webkit,FEDERALRUNNER_HEADLESS=true,FEDERALRUNNER_SAVE_SCREENSHOTS=false,FEDERALRUNNER_EXECUTION_TIMEOUT=60,FEDERALRUNNER_WIZARDS_DIR=/app/wizards" \
     --project=$PROJECT_ID
 echo " Environment variables updated"
 
