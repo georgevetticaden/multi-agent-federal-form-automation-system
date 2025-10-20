@@ -50,7 +50,7 @@ FSA_TEST_DATA = {
 
     # Page 2: Student Personal Circumstances
     "has_dependents": "no",
-    "personal_circumstances": "none",
+    "personal_circumstances_none": True,
 
     # Page 3: Parent Marital Status
     "parents_married": "yes",
@@ -64,9 +64,9 @@ FSA_TEST_DATA = {
 
     # Page 6: Parent Income and Assets
     "parent_filed_taxes": "yes",
-    "parent_income": 85000,
-    "parent_assets": 12000,
-    "parent_child_support": 0,
+    "parent_income": "85000",
+    "parent_assets": "50000",
+    "parent_child_support": "0",
 
     # Page 7: Student Income and Assets
     "student_filed_taxes": "no"

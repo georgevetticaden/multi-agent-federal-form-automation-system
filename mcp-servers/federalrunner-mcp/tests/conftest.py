@@ -27,19 +27,30 @@ def test_config():
     Uses tests/test_output/ for logs and screenshots.
     Uses shared wizards/ directory for wizard data (where FederalScout saves).
     """
-    # Don't pass temp_dir - let get_test_config() use shared wizards directory
-    # We'll manually override log_dir and screenshot_dir for test isolation
+    # Set environment variables for test-specific paths BEFORE creating config
+    # This ensures get_test_config() creates the config with the right paths
     test_output_dir = Path(__file__).parent / 'test_output'
 
+    import os
+    os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = str(test_output_dir / 'screenshots')
+
+    # Now create config - it will pick up the screenshot_dir from environment
     config = get_test_config(temp_dir=None)
 
-    # Override only log_dir and screenshot_dir to use test_output
-    # IMPORTANT: Do this before set_config() so the global config has correct paths
-    config.log_dir = test_output_dir / 'logs'
-    config.screenshot_dir = test_output_dir / 'screenshots'
-    config._create_directories()  # Create the new directories
+    # Manually override log_dir (it doesn't read from environment)
+    # Use model_copy to create a new instance with the updated value
+    config = config.model_copy(update={'log_dir': test_output_dir / 'logs'})
+
+    # Create directories
+    config._create_directories()
 
     set_config(config)
+
+    # Verify the global config was actually set correctly
+    from config import get_config
+    active_config = get_config()
+    assert active_config.screenshot_dir == config.screenshot_dir, \
+        f"Config not properly set! Expected {config.screenshot_dir}, got {active_config.screenshot_dir}"
 
     # Set up logging
     log_file = config.get_log_path('test_execution.log')
