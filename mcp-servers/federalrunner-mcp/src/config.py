@@ -420,7 +420,9 @@ def get_test_config(temp_dir: Optional[Path] = None) -> FederalRunnerConfig:
         project_root = Path(__file__).parent.parent.parent.parent
         wizards_dir = project_root / "wizards"
         log_dir = Path.cwd() / "logs"
-        screenshot_dir = Path.cwd() / "screenshots"
+        # Check for screenshot_dir from environment (used by conftest.py)
+        screenshot_dir_env = os.getenv('FEDERALRUNNER_SCREENSHOT_DIR')
+        screenshot_dir = Path(screenshot_dir_env) if screenshot_dir_env else Path.cwd() / "screenshots"
     else:
         wizards_dir = temp_dir / "wizards"
         log_dir = temp_dir / "logs"

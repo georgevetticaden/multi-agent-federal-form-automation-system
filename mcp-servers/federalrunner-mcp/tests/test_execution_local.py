@@ -272,23 +272,25 @@ async def test_federalrunner_execute_wizard_headless(test_config):
     logger.info("="*70 + "\n")
 
     # Override configuration for headless execution
-    import os
-    original_browser = os.environ.get('FEDERALRUNNER_BROWSER_TYPE')
-    original_headless = os.environ.get('FEDERALRUNNER_HEADLESS')
-    original_slow_mo = os.environ.get('FEDERALRUNNER_SLOW_MO')
-    original_screenshot_dir = os.environ.get('FEDERALRUNNER_SCREENSHOT_DIR')
+    # Use the same pattern as non-headless tests: modify the global config directly
+    from src.config import get_config, set_config
+
+    # Save original config
+    original_config = get_config()
 
     try:
-        # Set headless configuration (PRODUCTION MODE)
-        os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'webkit'
-        os.environ['FEDERALRUNNER_HEADLESS'] = 'true'
-        os.environ['FEDERALRUNNER_SLOW_MO'] = '0'
-        # Set screenshot directory to test output (CRITICAL: must set before reload_config)
-        os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = str(test_config.screenshot_dir)
+        # Create a new config with headless settings (keep test screenshot_dir!)
+        headless_config = original_config.model_copy(update={
+            'browser_type': 'webkit',
+            'headless': True,
+            'slow_mo': 0,
+            # Keep the test screenshot directory from the fixture
+            'screenshot_dir': test_config.screenshot_dir,
+            'log_dir': test_config.log_dir
+        })
 
-        # Reload config to pick up new environment variables
-        from src.config import reload_config
-        reload_config()
+        # Set the modified config globally
+        set_config(headless_config)
 
         # Execute wizard
         result = await federalrunner_execute_wizard(
@@ -296,29 +298,8 @@ async def test_federalrunner_execute_wizard_headless(test_config):
             user_data=FSA_TEST_DATA
         )
     finally:
-        # Restore original environment variables
-        if original_browser is not None:
-            os.environ['FEDERALRUNNER_BROWSER_TYPE'] = original_browser
-        elif 'FEDERALRUNNER_BROWSER_TYPE' in os.environ:
-            del os.environ['FEDERALRUNNER_BROWSER_TYPE']
-
-        if original_headless is not None:
-            os.environ['FEDERALRUNNER_HEADLESS'] = original_headless
-        elif 'FEDERALRUNNER_HEADLESS' in os.environ:
-            del os.environ['FEDERALRUNNER_HEADLESS']
-
-        if original_slow_mo is not None:
-            os.environ['FEDERALRUNNER_SLOW_MO'] = original_slow_mo
-        elif 'FEDERALRUNNER_SLOW_MO' in os.environ:
-            del os.environ['FEDERALRUNNER_SLOW_MO']
-
-        if original_screenshot_dir is not None:
-            os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = original_screenshot_dir
-        elif 'FEDERALRUNNER_SCREENSHOT_DIR' in os.environ:
-            del os.environ['FEDERALRUNNER_SCREENSHOT_DIR']
-
-        # Reload config to restore original settings
-        reload_config()
+        # Restore original config
+        set_config(original_config)
 
     # Validate response
     assert result['success'] is True, f"Execution failed: {result.get('error')}"
@@ -427,23 +408,25 @@ async def test_loan_simulator_execute_wizard_headless(test_config):
     logger.info("="*70 + "\n")
 
     # Override configuration for headless execution
-    import os
-    original_browser = os.environ.get('FEDERALRUNNER_BROWSER_TYPE')
-    original_headless = os.environ.get('FEDERALRUNNER_HEADLESS')
-    original_slow_mo = os.environ.get('FEDERALRUNNER_SLOW_MO')
-    original_screenshot_dir = os.environ.get('FEDERALRUNNER_SCREENSHOT_DIR')
+    # Use the same pattern as non-headless tests: modify the global config directly
+    from src.config import get_config, set_config
+
+    # Save original config
+    original_config = get_config()
 
     try:
-        # Set headless configuration (PRODUCTION MODE)
-        os.environ['FEDERALRUNNER_BROWSER_TYPE'] = 'webkit'
-        os.environ['FEDERALRUNNER_HEADLESS'] = 'true'
-        os.environ['FEDERALRUNNER_SLOW_MO'] = '0'
-        # Set screenshot directory to test output (CRITICAL: must set before reload_config)
-        os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = str(test_config.screenshot_dir)
+        # Create a new config with headless settings (keep test screenshot_dir!)
+        headless_config = original_config.model_copy(update={
+            'browser_type': 'webkit',
+            'headless': True,
+            'slow_mo': 0,
+            # Keep the test screenshot directory from the fixture
+            'screenshot_dir': test_config.screenshot_dir,
+            'log_dir': test_config.log_dir
+        })
 
-        # Reload config to pick up new environment variables
-        from src.config import reload_config
-        reload_config()
+        # Set the modified config globally
+        set_config(headless_config)
 
         # Execute wizard
         result = await federalrunner_execute_wizard(
@@ -451,29 +434,8 @@ async def test_loan_simulator_execute_wizard_headless(test_config):
             user_data=LOAN_SIMULATOR_TEST_DATA
         )
     finally:
-        # Restore original environment variables
-        if original_browser is not None:
-            os.environ['FEDERALRUNNER_BROWSER_TYPE'] = original_browser
-        elif 'FEDERALRUNNER_BROWSER_TYPE' in os.environ:
-            del os.environ['FEDERALRUNNER_BROWSER_TYPE']
-
-        if original_headless is not None:
-            os.environ['FEDERALRUNNER_HEADLESS'] = original_headless
-        elif 'FEDERALRUNNER_HEADLESS' in os.environ:
-            del os.environ['FEDERALRUNNER_HEADLESS']
-
-        if original_slow_mo is not None:
-            os.environ['FEDERALRUNNER_SLOW_MO'] = original_slow_mo
-        elif 'FEDERALRUNNER_SLOW_MO' in os.environ:
-            del os.environ['FEDERALRUNNER_SLOW_MO']
-
-        if original_screenshot_dir is not None:
-            os.environ['FEDERALRUNNER_SCREENSHOT_DIR'] = original_screenshot_dir
-        elif 'FEDERALRUNNER_SCREENSHOT_DIR' in os.environ:
-            del os.environ['FEDERALRUNNER_SCREENSHOT_DIR']
-
-        # Reload config to restore original settings
-        reload_config()
+        # Restore original config
+        set_config(original_config)
 
     # Validate response
     assert result['success'] is True, f"Execution failed: {result.get('error')}"
