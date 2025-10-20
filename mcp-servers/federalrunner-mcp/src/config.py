@@ -65,10 +65,10 @@ class FederalRunnerConfig(BaseSettings):
 
     # Execution Settings
     execution_timeout: int = Field(
-        default=60,
+        default=180,
         ge=10,
-        le=120,
-        description="Maximum execution time for a wizard in seconds"
+        le=300,
+        description="Maximum execution time for a wizard in seconds (must be > navigation_timeout)"
     )
 
     # Screenshot Configuration
@@ -103,10 +103,10 @@ class FederalRunnerConfig(BaseSettings):
 
     # Timeouts (in milliseconds)
     navigation_timeout: int = Field(
-        default=60000,
+        default=120000,
         ge=5000,
-        le=120000,
-        description="Navigation timeout in milliseconds (FSA can be slow)"
+        le=180000,
+        description="Navigation timeout in milliseconds (FSA website is VERY slow - often >60s)"
     )
 
     element_timeout: int = Field(
