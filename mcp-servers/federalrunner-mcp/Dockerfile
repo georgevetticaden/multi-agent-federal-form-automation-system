@@ -1,7 +1,8 @@
 # Multi-stage Dockerfile for FederalRunner MCP Server
 # Optimized for Google Cloud Run deployment with WebKit browser
+# CRITICAL: Use Bookworm (Debian 12 stable) for Playwright WebKit compatibility
 
-FROM python:3.11-slim as base
+FROM python:3.11-slim-bookworm as base
 
 # Install system dependencies for Playwright WebKit
 # CRITICAL: Use WebKit (NOT Chromium) - FSA website blocks headless Chromium
@@ -12,18 +13,18 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     ca-certificates \
     # WebKit-specific dependencies (from Playwright ubuntu20.04 dependency list)
-    libasound2t64 \
-    libatk-bridge2.0-0t64 \
-    libatk1.0-0t64 \
-    libatspi2.0-0t64 \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libatspi2.0-0 \
     libcairo2 \
-    libcups2t64 \
+    libcups2 \
     libdbus-1-3 \
     libdrm2 \
     libegl1 \
     libgbm1 \
-    libglib2.0-0t64 \
-    libgtk-3-0t64 \
+    libglib2.0-0 \
+    libgtk-3-0 \
     libnspr4 \
     libnss3 \
     libpango-1.0-0 \
@@ -49,10 +50,10 @@ RUN apt-get update && apt-get install -y \
     libflite1 \
     libwoff1 \
     libxslt1.1 \
-    libevent-2.1-7t64 \
+    libevent-2.1-7 \
     libgles2 \
-    # Additional libraries WebKit needs (from Playwright warnings)
-    libicu76 \
+    # Additional libraries WebKit needs (Bookworm versions)
+    libicu72 \
     libwebpdemux2 \
     libjpeg62-turbo \
     libwebpmux3 \
@@ -75,9 +76,10 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright WebKit browser binaries only (dependencies already installed above)
+# Install Playwright WebKit browser binaries and system dependencies
 # CRITICAL: FSA website only works in headless mode with WebKit
-RUN playwright install webkit
+# Use --with-deps to ensure all required system libraries are installed
+RUN playwright install --with-deps webkit
 
 # Copy application code
 COPY src/ ./src/
