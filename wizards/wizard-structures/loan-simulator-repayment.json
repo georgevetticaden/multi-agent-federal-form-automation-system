@@ -1,0 +1,241 @@
+{
+  "wizard_id": "loan-simulator-repayment",
+  "name": "Federal Student Loan Simulator - Repayment Strategy",
+  "url": "https://studentaid.gov/loan-simulator/repayment/results/plan/(resultsPanel:consolidation-results-panel//infoPanel:info-panel)",
+  "discovered_at": "2025-10-20T12:14:07.670313",
+  "discovery_version": "1.0.0",
+  "total_pages": 4,
+  "start_action": {
+    "description": "Click 'Start From Scratch' link to begin wizard without logging in",
+    "selector": "#fsa_LinkButton_LoanSimulatorLandingRepayStrategyStartUnauth1",
+    "selector_type": "id"
+  },
+  "pages": [
+    {
+      "page_number": 1,
+      "page_title": "Personal Information - Which applies to you",
+      "url_pattern": "https://studentaid.gov/loan-simulator/repayment/wizard/personal-info/select-what-applies",
+      "fields": [
+        {
+          "label": "I have a job or plan to get one soon",
+          "field_id": "has_job",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_0",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Personal financial status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I filed taxes in the last two years",
+          "field_id": "filed_taxes",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_1",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Tax filing status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I'm married (or will be soon)",
+          "field_id": "marital_status_married",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_2",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Marital status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I have children or other dependents",
+          "field_id": "has_dependents",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_3",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Dependent status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I save for retirement but will pay tax on it later",
+          "field_id": "retirement_savings_taxable",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_4",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Retirement savings status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I have additional taxable income",
+          "field_id": "additional_taxable_income",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_5",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Additional income status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I pay/will pay health insurance premiums through my paycheck",
+          "field_id": "health_insurance_paycheck",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_6",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "Health insurance status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "I contribute to a health savings account or a flexible spending account",
+          "field_id": "health_savings_account",
+          "selector": "#fsa_Checkbox_SelectWhatApplies_7",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "unchecked",
+          "notes": "HSA/FSA contribution status checkbox",
+          "repeatable": false,
+          "min_instances": 0
+        },
+        {
+          "label": "None of these apply to me",
+          "field_id": "none_apply",
+          "selector": "#fsa_Checkbox_NoneOfTheseApply",
+          "field_type": "checkbox",
+          "interaction": "javascript_click",
+          "required": false,
+          "example_value": "checked",
+          "notes": "Negative selection - mutually exclusive with other options",
+          "repeatable": false,
+          "min_instances": 0
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_WizardContinue",
+        "selector_type": "css"
+      }
+    },
+    {
+      "page_number": 2,
+      "page_title": "Loan Information - Current Loans",
+      "url_pattern": "https://studentaid.gov/loan-simulator/repayment/wizard/loan-info/confirm-current-loan/current",
+      "fields": [
+        {
+          "label": "Current Loans",
+          "field_id": "current_loans",
+          "selector": "#loan_table",
+          "field_type": "group",
+          "interaction": "click",
+          "required": true,
+          "example_value": [
+            {
+              "loan_type": "Direct Unsubsidized Loan",
+              "loan_interest_rate": "5.5",
+              "loan_balance": "10000"
+            }
+          ],
+          "notes": "Repeatable loan entry group. Click 'Add a Loan' to add each loan instance. Users can add multiple loans (0 to unlimited). Each loan has Edit/Remove actions.",
+          "sub_fields": [
+            {
+              "field_id": "loan_type",
+              "selector": "#fsa_Select_LoanSimulatorUserAddedLoanType",
+              "field_type": "select",
+              "interaction": "select",
+              "example_value": "Direct Unsubsidized Loan",
+              "notes": "Dropdown with federal and private loan type options"
+            },
+            {
+              "field_id": "loan_interest_rate",
+              "selector": "#fsa_Input_LoanSimulatorUserAddedInterestRate",
+              "field_type": "number",
+              "interaction": "fill",
+              "example_value": "5.5",
+              "notes": "Interest rate as percentage (e.g., 5.5 for 5.5%)"
+            },
+            {
+              "field_id": "loan_balance",
+              "selector": "#fsa_Input_LoanSimulatorUserAddedPrincipalBalance",
+              "field_type": "number",
+              "interaction": "fill",
+              "example_value": "10000",
+              "notes": "Loan principal balance in dollars"
+            }
+          ],
+          "repeatable": true,
+          "add_button_selector": "#fsa_IconLinkButton_LoanSimulatorWizardLoansAddNewLoan",
+          "remove_button_selector": "#fsa_Button_LoanSimulatorAddLoanRemove_{index}",
+          "min_instances": 1
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_WizardContinue",
+        "selector_type": "css"
+      }
+    },
+    {
+      "page_number": 3,
+      "page_title": "Repayment Goal - PSLF Interest",
+      "url_pattern": "https://studentaid.gov/loan-simulator/repayment/wizard/repayment-goals/pslf-interest",
+      "fields": [
+        {
+          "label": "Would you like to see repayment options if you maintain eligibility for Public Service Loan Forgiveness (PSLF)?",
+          "field_id": "pslf_interest",
+          "selector": "#fsa_Radio_PslfNo",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "no",
+          "notes": "Binary choice: Yes (#fsa_Radio_PslfYes) or No (#fsa_Radio_PslfNo). PSLF requires 120 qualifying payments while working full-time for qualifying employer.",
+          "repeatable": false,
+          "min_instances": 0
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_WizardContinue",
+        "selector_type": "css"
+      }
+    },
+    {
+      "page_number": 4,
+      "page_title": "Repayment Goal - Primary Goal",
+      "url_pattern": "https://studentaid.gov/loan-simulator/repayment/wizard/repayment-goals/primary-goal",
+      "fields": [
+        {
+          "label": "What is your primary repayment goal?",
+          "field_id": "primary_repayment_goal",
+          "selector": "#fsa_Radio_RepaymentGoal_1",
+          "field_type": "radio",
+          "interaction": "javascript_click",
+          "required": true,
+          "example_value": "low_monthly_payment",
+          "notes": "6 options: Pay Off As Fast As Possible (#fsa_Radio_RepaymentGoal_0 = fast_payoff), Have a Low Monthly Payment (#fsa_Radio_RepaymentGoal_1 = low_monthly_payment), Pay the Lowest Total Amount Over Time (#fsa_Radio_RepaymentGoal_2 = lowest_total), Choose My Monthly Payment (#fsa_Radio_RepaymentGoal_3 = choose_payment), Pay Off by a Certain Date (#fsa_Radio_RepaymentGoal_4 = payoff_by_date), I Don't Have a Specific Goal (#fsa_Radio_RepaymentGoal_5 = no_specific_goal)",
+          "repeatable": false,
+          "min_instances": 0
+        }
+      ],
+      "continue_button": {
+        "text": "Continue",
+        "selector": "#fsa_Button_WizardContinue",
+        "selector_type": "css"
+      }
+    }
+  ]
+}

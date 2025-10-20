@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Federal Student Loan Simulator - Repayment Strategy - User Data",
+  "description": "User data required to execute Federal Student Loan Simulator repayment strategy wizard",
+  "type": "object",
+  "required": [
+    "pslf_interest",
+    "primary_repayment_goal",
+    "current_loans"
+  ],
+  "properties": {
+    "has_job": {
+      "type": "boolean",
+      "description": "Whether the borrower has a job or plans to get one soon"
+    },
+    "filed_taxes": {
+      "type": "boolean",
+      "description": "Whether the borrower filed taxes in the last two years"
+    },
+    "marital_status_married": {
+      "type": "boolean",
+      "description": "Whether the borrower is married or will be soon"
+    },
+    "has_dependents": {
+      "type": "boolean",
+      "description": "Whether the borrower has children or other dependents"
+    },
+    "retirement_savings_taxable": {
+      "type": "boolean",
+      "description": "Whether the borrower saves for retirement but will pay tax on it later"
+    },
+    "additional_taxable_income": {
+      "type": "boolean",
+      "description": "Whether the borrower has additional taxable income"
+    },
+    "health_insurance_paycheck": {
+      "type": "boolean",
+      "description": "Whether the borrower pays or will pay health insurance premiums through their paycheck"
+    },
+    "health_savings_account": {
+      "type": "boolean",
+      "description": "Whether the borrower contributes to a health savings account or flexible spending account"
+    },
+    "none_apply": {
+      "type": "boolean",
+      "description": "Whether none of the personal information options apply to the borrower (mutually exclusive with other checkboxes)"
+    },
+    "current_loans": {
+      "type": "array",
+      "description": "List of current student loans the borrower has",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "loan_type",
+          "loan_interest_rate",
+          "loan_balance"
+        ],
+        "properties": {
+          "loan_type": {
+            "type": "string",
+            "description": "Type of student loan",
+            "enum": [
+              "Direct Subsidized Loan",
+              "Direct Unsubsidized Loan",
+              "Direct Graduate Unsubsidized Loan",
+              "Direct Subsidized Consolidation Loan",
+              "Direct Unsubsidized Consolidation Loan",
+              "Direct PLUS Loan for Graduate/Professionals",
+              "Direct PLUS Loan for Parents",
+              "Private Loan"
+            ]
+          },
+          "loan_interest_rate": {
+            "type": "number",
+            "description": "Annual interest rate as a percentage (e.g., 5.5 for 5.5%)",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "loan_balance": {
+            "type": "number",
+            "description": "Current principal balance in dollars",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "pslf_interest": {
+      "type": "string",
+      "description": "Whether the borrower wants to see repayment options for Public Service Loan Forgiveness eligibility",
+      "enum": [
+        "yes",
+        "no"
+      ]
+    },
+    "primary_repayment_goal": {
+      "type": "string",
+      "description": "The borrower's primary goal for loan repayment",
+      "enum": [
+        "fast_payoff",
+        "low_monthly_payment",
+        "lowest_total",
+        "choose_payment",
+        "payoff_by_date",
+        "no_specific_goal"
+      ]
+    }
+  }
+}
