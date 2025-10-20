@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "FSA Student Aid Estimator - User Data",
-  "description": "User data required to execute the FSA Student Aid Estimator and calculate federal student aid eligibility",
+  "description": "User data required to execute FSA Student Aid Estimator and get federal student aid estimate",
   "type": "object",
   "required": [
     "birth_month",
@@ -49,11 +49,11 @@
     },
     "grade_level": {
       "type": "string",
-      "description": "Student's grade level for the 2026-27 school year",
+      "description": "Student's grade level for 2026-27 school year",
       "enum": [
         "freshman",
         "sophomore",
-        "other_undergraduate",
+        "other_undergrad",
         "graduate"
       ]
     },
@@ -65,35 +65,9 @@
         "no"
       ]
     },
-    "circumstance_active_duty": {
+    "personal_circumstances_none": {
       "type": "boolean",
-      "description": "Is the student currently serving on active duty as a veteran of the U.S. armed forces?",
-      "default": false
-    },
-    "circumstance_orphan": {
-      "type": "boolean",
-      "description": "At any time since age 13, was the student an orphan?",
-      "default": false
-    },
-    "circumstance_foster_care": {
-      "type": "boolean",
-      "description": "At any time since age 13, was the student in foster care or a ward of the court?",
-      "default": false
-    },
-    "circumstance_emancipated": {
-      "type": "boolean",
-      "description": "Is or was the student a legally emancipated minor or in legal guardianship?",
-      "default": false
-    },
-    "circumstance_homeless": {
-      "type": "boolean",
-      "description": "Is the student unaccompanied and homeless?",
-      "default": false
-    },
-    "circumstance_none": {
-      "type": "boolean",
-      "description": "None of the special circumstances apply to the student",
-      "default": true
+      "description": "Check if none of the special circumstances apply to the student (conditional field, only if has_dependents is 'no')"
     },
     "parents_married": {
       "type": "string",
@@ -105,11 +79,11 @@
     },
     "parent_marital_status": {
       "type": "string",
-      "description": "Parent's current marital status",
+      "description": "Parent's marital status",
       "enum": [
         "married",
         "unmarried",
-        "unmarried_living_together"
+        "unmarried_together"
       ]
     },
     "parent_state": {
@@ -118,7 +92,7 @@
     },
     "family_size": {
       "type": "number",
-      "description": "Number of people in the student's family, including the student",
+      "description": "Total number of people in student's family, including the student",
       "minimum": 1
     },
     "parent_filed_taxes": {
@@ -130,19 +104,16 @@
       ]
     },
     "parent_income": {
-      "type": "number",
-      "description": "Parent's adjusted gross income from 2024 taxes (in dollars). Required if parent filed taxes.",
-      "minimum": 0
+      "type": "string",
+      "description": "Parent's adjusted gross income (required if parent_filed_taxes is 'yes'). Enter dollar amount without commas or symbols."
     },
     "parent_assets": {
-      "type": "number",
-      "description": "Parent's total assets including cash, savings, checking accounts, businesses/farms, and real estate (excluding primary home) in dollars. Required if parent filed taxes.",
-      "minimum": 0
+      "type": "string",
+      "description": "Parent's total assets including cash, savings, checking, investments, real estate excluding primary residence (required if parent_filed_taxes is 'yes'). Enter dollar amount without commas or symbols."
     },
     "parent_child_support": {
-      "type": "number",
-      "description": "Annual child support received by parent in the last complete calendar year (in dollars). Enter 0 if none. Required if parent filed taxes.",
-      "minimum": 0
+      "type": "string",
+      "description": "Annual child support received by parent (required if parent_filed_taxes is 'yes'). Enter dollar amount without commas or symbols, or '0' if none."
     },
     "student_filed_taxes": {
       "type": "string",
@@ -151,16 +122,6 @@
         "yes",
         "no"
       ]
-    },
-    "student_income": {
-      "type": "number",
-      "description": "Student's adjusted gross income from 2024 taxes (in dollars). Required only if student filed taxes.",
-      "minimum": 0
-    },
-    "student_assets": {
-      "type": "number",
-      "description": "Student's total assets (in dollars). Required only if student filed taxes.",
-      "minimum": 0
     }
   }
 }

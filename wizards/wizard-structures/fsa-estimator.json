@@ -2,7 +2,7 @@
   "wizard_id": "fsa-estimator",
   "name": "FSA Student Aid Estimator",
   "url": "https://studentaid.gov/aid-estimator/estimate/results",
-  "discovered_at": "2025-10-20T11:43:22.737623",
+  "discovered_at": "2025-10-20T13:27:07.716185",
   "discovery_version": "1.0.0",
   "total_pages": 7,
   "start_action": {
@@ -24,7 +24,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "05",
-          "notes": "Part of 3-field birthdate group (MM/DD/YYYY)",
+          "notes": "2-digit month (01-12)",
           "repeatable": false,
           "min_instances": 0
         },
@@ -36,7 +36,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "15",
-          "notes": "Part of 3-field birthdate group (MM/DD/YYYY)",
+          "notes": "2-digit day (01-31)",
           "repeatable": false,
           "min_instances": 0
         },
@@ -48,7 +48,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "2007",
-          "notes": "Part of 3-field birthdate group (MM/DD/YYYY)",
+          "notes": "4-digit year",
           "repeatable": false,
           "min_instances": 0
         },
@@ -60,7 +60,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "unmarried",
-          "notes": "Options: unmarried, married/remarried, separated. Radio buttons are hidden behind labels.",
+          "notes": "Options: unmarried (#fsa_Radio_MaritalStatusUnmarried), married (#fsa_Radio_MaritalStatusMarriedReMarried), separated (#fsa_Radio_MaritalStatusSeparated)",
           "repeatable": false,
           "min_instances": 0
         },
@@ -84,7 +84,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "freshman",
-          "notes": "Options: freshman, sophomore, other undergraduate, graduate. Radio buttons are hidden behind labels.",
+          "notes": "Options: freshman (#fsa_Radio_CollegeLevelFreshman), sophomore (#fsa_Radio_CollegeLevelSophomore), other_undergrad (#fsa_Radio_CollegeLevelOther), graduate (#fsa_Radio_CollegeLevelGraduate)",
           "repeatable": false,
           "min_instances": 0
         }
@@ -108,79 +108,19 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "no",
-          "notes": "Options: yes, no. Triggers conditional checkboxes section when answered.",
+          "notes": "Options: yes (#fsa_Radio_HaveDependentsYes), no (#fsa_Radio_HaveDependentsNo). Selecting 'No' reveals the personal circumstances checkboxes below.",
           "repeatable": false,
           "min_instances": 0
         },
         {
-          "label": "Personal circumstances - Active duty veteran",
-          "field_id": "circumstance_active_duty",
-          "selector": "#fsa_Checkbox_ActiveDuty",
-          "field_type": "checkbox",
-          "interaction": "javascript_click",
-          "required": false,
-          "example_value": "false",
-          "notes": "Part of multi-select personal circumstances group. Conditional field that appears after answering has_dependents.",
-          "repeatable": false,
-          "min_instances": 0
-        },
-        {
-          "label": "Personal circumstances - Orphan since age 13",
-          "field_id": "circumstance_orphan",
-          "selector": "#fsa_Checkbox_ParentsDeceased",
-          "field_type": "checkbox",
-          "interaction": "javascript_click",
-          "required": false,
-          "example_value": "false",
-          "notes": "Part of multi-select personal circumstances group.",
-          "repeatable": false,
-          "min_instances": 0
-        },
-        {
-          "label": "Personal circumstances - Foster care or ward of court",
-          "field_id": "circumstance_foster_care",
-          "selector": "#fsa_Checkbox_WasInFosterCare",
-          "field_type": "checkbox",
-          "interaction": "javascript_click",
-          "required": false,
-          "example_value": "false",
-          "notes": "Part of multi-select personal circumstances group.",
-          "repeatable": false,
-          "min_instances": 0
-        },
-        {
-          "label": "Personal circumstances - Emancipated minor or legal guardianship",
-          "field_id": "circumstance_emancipated",
-          "selector": "#fsa_Checkbox_EmancipatedMinor",
-          "field_type": "checkbox",
-          "interaction": "javascript_click",
-          "required": false,
-          "example_value": "false",
-          "notes": "Part of multi-select personal circumstances group.",
-          "repeatable": false,
-          "min_instances": 0
-        },
-        {
-          "label": "Personal circumstances - Unaccompanied and homeless",
-          "field_id": "circumstance_homeless",
-          "selector": "#fsa_Checkbox_Homeless",
-          "field_type": "checkbox",
-          "interaction": "javascript_click",
-          "required": false,
-          "example_value": "false",
-          "notes": "Part of multi-select personal circumstances group.",
-          "repeatable": false,
-          "min_instances": 0
-        },
-        {
-          "label": "Personal circumstances - None of these apply",
-          "field_id": "circumstance_none",
+          "label": "Student personal circumstances - None of these apply",
+          "field_id": "personal_circumstances_none",
           "selector": "#fsa_Checkbox_none",
           "field_type": "checkbox",
           "interaction": "javascript_click",
           "required": false,
           "example_value": "true",
-          "notes": "Part of multi-select personal circumstances group. Select this if no special circumstances apply.",
+          "notes": "Conditional field - appears after selecting 'No' for dependents. Other available checkboxes: active_duty (#fsa_Checkbox_ActiveDuty), parents_deceased (#fsa_Checkbox_ParentsDeceased), foster_care (#fsa_Checkbox_WasInFosterCare), emancipated (#fsa_Checkbox_EmancipatedMinor), homeless (#fsa_Checkbox_Homeless). Multiple selections allowed except 'none' excludes others.",
           "repeatable": false,
           "min_instances": 0
         }
@@ -204,7 +144,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "yes",
-          "notes": "Options: yes, no. Determines whether both parents' financial info is needed. If yes, both parents' income/assets are collected on next pages.",
+          "notes": "Options: yes (#fsa_Radio_parentMaritalInformation-question1-yes), no (#fsa_Radio_parentMaritalInformation-question1-no). Determines whether both parents' information is needed.",
           "repeatable": false,
           "min_instances": 0
         }
@@ -228,7 +168,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "married",
-          "notes": "Options: married/remarried, unmarried (single/divorced/widowed), unmarried and both legal parents living together. This is pre-filled based on previous answer about whether parents are married.",
+          "notes": "Options: married (#fsa_Radio_ParenFamilyInfoMarried), unmarried (#fsa_Radio_ParenFamilyInfoUnmarried), unmarried_together (#fsa_Radio_ParenFamilyInfoUnmarriedTogether)",
           "repeatable": false,
           "min_instances": 0
         },
@@ -264,7 +204,7 @@
           "interaction": "fill",
           "required": true,
           "example_value": "4",
-          "notes": "Number of people in household. Must include the student in the count.",
+          "notes": "Number input - total family size including the student",
           "repeatable": false,
           "min_instances": 0
         }
@@ -288,7 +228,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "yes",
-          "notes": "Options: yes, no. If yes, reveals Parent Income, Assets, and Child Support fields. If no, different fields may appear.",
+          "notes": "Options: yes (#fsa_Radio_FamilySizeChangeYes), no (#fsa_Radio_FamilySizeChangeNo). Selecting 'Yes' reveals income and asset fields below.",
           "repeatable": false,
           "min_instances": 0
         },
@@ -296,11 +236,11 @@
           "label": "Parent's Adjusted Gross Income",
           "field_id": "parent_income",
           "selector": "#fsa_Input_ParentIncome",
-          "field_type": "number",
+          "field_type": "text",
           "interaction": "fill",
           "required": true,
           "example_value": "85000",
-          "notes": "Conditional field that appears if parent filed taxes. Include stepparent if student's primary parent is married or remarried. Dollar amount.",
+          "notes": "Conditional field - appears after selecting 'Yes' for filing taxes. Includes wages, alimony, Social Security, and business income. Format: dollar amount without commas.",
           "repeatable": false,
           "min_instances": 0
         },
@@ -308,11 +248,11 @@
           "label": "Parent's Total Assets",
           "field_id": "parent_assets",
           "selector": "#fsa_Input_ParentAssets",
-          "field_type": "number",
+          "field_type": "text",
           "interaction": "fill",
           "required": true,
-          "example_value": "25000",
-          "notes": "Conditional field that appears if parent filed taxes. Cash, savings, checking accounts, net worth of businesses/farms, real estate excluding primary home. Dollar amount.",
+          "example_value": "50000",
+          "notes": "Conditional field - includes cash, savings, checking accounts, net worth of businesses/farms, investments, real estate (excluding primary residence). Format: dollar amount without commas.",
           "repeatable": false,
           "min_instances": 0
         },
@@ -320,11 +260,11 @@
           "label": "Annual Child Support Received",
           "field_id": "parent_child_support",
           "selector": "#fsa_Input_ParentChildSupport",
-          "field_type": "number",
+          "field_type": "text",
           "interaction": "fill",
           "required": true,
           "example_value": "0",
-          "notes": "Conditional field. Total amount received in child support for the last complete calendar year. Enter 0 if no child support received. Dollar amount.",
+          "notes": "Conditional field - total amount received in child support for last complete calendar year. Enter '0' if none received. Format: dollar amount without commas.",
           "repeatable": false,
           "min_instances": 0
         }
@@ -348,7 +288,7 @@
           "interaction": "javascript_click",
           "required": true,
           "example_value": "no",
-          "notes": "Options: yes, no. If yes, would reveal student income/assets fields similar to parent section. If no, no additional fields appear.",
+          "notes": "Options: yes (#fsa_Radio_StudentFiledYes), no (#fsa_Radio_StudentFiledNo). If 'Yes' is selected, additional income/asset fields would appear (similar to parent page). For most high school students, 'No' is typical.",
           "repeatable": false,
           "min_instances": 0
         }
