@@ -72,6 +72,35 @@ FSA_TEST_DATA = {
     "student_filed_taxes": "no"
 }
 
+# ============================================================================
+# TEST DATA - Valid Loan Simulator User Data (matches loan-simulator-borrow-more-schema.json)
+# ============================================================================
+
+LOAN_SIMULATOR_TEST_DATA = {
+    # Page 1: Enrollment Information
+    "program_timing": "future",
+
+    # Page 2: Program Information
+    "program_type": "Bachelor's degree",
+    "program_length": "4 years",
+    "dependency_status": "dependent",
+    "school_location": "Illinois",
+    "school_name": "University of Illinois",
+
+    # Page 3: Family Income
+    "family_income": "$75,000 - $110,000",
+
+    # Page 4: Borrowing Amount
+    "borrow_amount": 30000,
+
+    # Page 5: Expected Salary
+    "expected_salary": 55000,
+    "income_growth_rate": 3,
+
+    # Page 6: Current Loans (optional - can be empty array)
+    "current_loans": []
+}
+
 
 # ============================================================================
 # MCP TOOL TESTS
@@ -100,8 +129,16 @@ async def test_federalrunner_list_wizards():
     assert fsa_wizard['total_pages'] == 7
     assert 'discovered_at' in fsa_wizard
 
+    # Validate Loan Simulator wizard is in the list
+    loan_wizard = next((w for w in result['wizards'] if w['wizard_id'] == 'loan-simulator-borrow-more'), None)
+    assert loan_wizard is not None, "Loan Simulator wizard not found in list"
+    assert 'Loan Simulator' in loan_wizard['name']
+    assert loan_wizard['total_pages'] == 6
+    assert 'discovered_at' in loan_wizard
+
     logger.info(f"✅ PASSED: list_wizards found {result['count']} wizard(s)")
     logger.info(f"   FSA Wizard: {fsa_wizard['name']} ({fsa_wizard['total_pages']} pages)")
+    logger.info(f"   Loan Simulator: {loan_wizard['name']} ({loan_wizard['total_pages']} pages)")
 
 
 @pytest.mark.asyncio
@@ -277,6 +314,68 @@ async def test_federalrunner_execute_wizard_headless(test_config):
     logger.info(f"   Execution time: {result['execution_time_ms']}ms")
     logger.info(f"   Pages completed: {result['pages_completed']}/7")
     logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info("="*70 + "\n")
+
+
+@pytest.mark.asyncio
+@pytest.mark.slow
+async def test_loan_simulator_execute_wizard_non_headless(test_config):
+    """
+    Test MCP Tool: federalrunner_execute_wizard() for Loan Simulator [NON-HEADLESS MODE]
+
+    Tests the Loan Simulator "Borrow More" wizard execution.
+    This wizard tests:
+    - Unicode dropdown handling (Bachelor's degree with smart quote)
+    - Optional fields (school_location, school_name)
+    - Array fields (current_loans - can be empty)
+    - Number fields (borrow_amount, expected_salary, income_growth_rate)
+    - Enum dropdowns (program_type, program_length, dependency_status, family_income)
+
+    Non-headless Chromium execution (VISUAL DEBUGGING)
+    - Watch the browser fill out the Loan Simulator form step by step
+    - Perfect for debugging and verifying the Unicode fix works
+
+    This test uses configuration from .env file:
+      FEDERALRUNNER_BROWSER_TYPE=chromium (recommended for visual debugging)
+      FEDERALRUNNER_HEADLESS=false (shows browser window)
+      FEDERALRUNNER_SLOW_MO=500 (slows down actions to watch)
+
+    Wizard structure:
+    - Total pages: 6
+    - Tests Unicode handling in dropdown options (Bachelor's degree)
+    - Tests optional typeahead fields (school location/name)
+    - Tests array fields (current loans - empty array in this test)
+
+    Screenshots are saved to: tests/test_output/screenshots/
+    """
+    logger.info("\n" + "="*70)
+    logger.info("🔵 Loan Simulator - Non-Headless Chromium Execution (Visual Debugging)")
+    logger.info("   Watch the browser execute the Loan Simulator wizard visually")
+    logger.info("   Testing: Unicode dropdowns, optional fields, arrays")
+    logger.info(f"   Screenshots will be saved to: {test_config.screenshot_dir}")
+    logger.info("="*70 + "\n")
+
+    # Execute wizard using the MCP tool (what Claude calls!)
+    # Config loads from .env file automatically
+    result = await federalrunner_execute_wizard(
+        wizard_id="loan-simulator-borrow-more",
+        user_data=LOAN_SIMULATOR_TEST_DATA
+    )
+
+    # Validate response
+    assert result['success'] is True, f"Execution failed: {result.get('error')}"
+    assert result['wizard_id'] == 'loan-simulator-borrow-more'
+    assert result['pages_completed'] == 6, f"Expected 6 pages, got {result['pages_completed']}"
+    assert len(result['screenshots']) > 0, "No screenshots captured"
+    assert result['execution_time_ms'] > 0
+
+    logger.info("\n" + "="*70)
+    logger.info(f"✅ LOAN SIMULATOR NON-HEADLESS TEST PASSED")
+    logger.info(f"   Wizard: {result['wizard_id']}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info(f"   Pages completed: {result['pages_completed']}/6")
+    logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info(f"   Unicode handling: ✅ Bachelor's degree selected successfully")
     logger.info("="*70 + "\n")
 
 

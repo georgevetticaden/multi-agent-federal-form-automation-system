@@ -1,7 +1,7 @@
 {
   "wizard_id": "loan-simulator-borrow-more",
   "name": "Federal Loan Simulator - Simulate Borrowing More",
-  "url": "https://studentaid.gov/loan-simulator/borrow-more/results/(resultsPanel:results-panel//infoPanel:info-panel)",
+  "url": "https://studentaid.gov/loan-simulator",
   "discovered_at": "2025-10-20T20:31:28.172191",
   "discovery_version": "1.0.0",
   "total_pages": 6,
