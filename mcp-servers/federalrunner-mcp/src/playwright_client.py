@@ -165,11 +165,16 @@ class PlaywrightClient:
 
             logger.info(f" Execution completed in {execution_time_ms}ms")
 
+            # For production (headless mode), only include final screenshot to reduce response size
+            # This prevents timeout issues with Claude.ai's MCP client
+            response_screenshots = screenshots if not self.config.headless else [final_screenshot]
+
             return {
                 'success': True,
                 'wizard_id': wizard_structure.wizard_id,
                 'results': results,
-                'screenshots': screenshots,
+                'screenshots': response_screenshots,
+                'screenshot_count': len(screenshots),  # Total captured (for logging)
                 'pages_completed': pages_completed,
                 'execution_time_ms': execution_time_ms,
                 'timestamp': time.time()
@@ -179,6 +184,7 @@ class PlaywrightClient:
             logger.error(f"L Execution failed: {type(e).__name__}: {e}")
 
             # Capture error screenshot if possible
+            error_screenshot = None
             try:
                 if self.page:
                     error_screenshot = await self._take_screenshot("error")
@@ -188,11 +194,22 @@ class PlaywrightClient:
 
             execution_time_ms = int((time.time() - start_time) * 1000)
 
+            # For production (headless mode), only include last few screenshots to reduce response size
+            # CRITICAL: Always include the error screenshot (where execution failed) for Visual Validation Loop
+            # Include up to 3 screenshots: the page before error, the filled page, and the error screenshot
+            if self.config.headless and len(screenshots) > 3:
+                # Keep last 3 screenshots: shows context before error + error itself
+                response_screenshots = screenshots[-3:]
+            else:
+                # Local dev or <3 screenshots: include all
+                response_screenshots = screenshots
+
             return {
                 'success': False,
                 'error': str(e),
                 'error_type': type(e).__name__,
-                'screenshots': screenshots,
+                'screenshots': response_screenshots,
+                'screenshot_count': len(screenshots),  # Total captured (for logging)
                 'pages_completed': pages_completed,
                 'execution_time_ms': execution_time_ms,
                 'timestamp': time.time()
