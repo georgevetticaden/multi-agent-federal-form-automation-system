@@ -194,9 +194,15 @@ class PlaywrightClient:
 
             logger.info(f" Execution completed in {execution_time_ms}ms")
 
-            # For production (headless mode), only include final screenshot to reduce response size
-            # This prevents timeout issues with Claude.ai's MCP client
-            response_screenshots = screenshots if not self.config.headless else [final_screenshot]
+            # For production (headless mode), include last 2 screenshots to reduce response size
+            # This shows both the constructed data (e.g., loan mix) and final results
+            # Example: Loan Simulator shows page 6 (3 loans added) + results page
+            if self.config.headless:
+                # Return last 2 screenshots (or all if less than 2)
+                response_screenshots = screenshots[-2:] if len(screenshots) >= 2 else screenshots
+            else:
+                # Local dev: include all screenshots for debugging
+                response_screenshots = screenshots
 
             return {
                 'success': True,
@@ -222,12 +228,12 @@ class PlaywrightClient:
 
             execution_time_ms = int((time.time() - start_time) * 1000)
 
-            # For production (headless mode), only include the last screenshot to reduce response size
+            # For production (headless mode), include last 2 screenshots to reduce response size
             # CRITICAL: Always include the error screenshot (where execution failed) for Visual Validation Loop
-            # The error screenshot shows the error message and provides sufficient context for Claude Vision
+            # Last 2 screenshots show context + error for better debugging
             if self.config.headless and len(screenshots) > 0:
-                # Keep only the last screenshot (error screenshot) - minimal payload, prevents timeouts
-                response_screenshots = [screenshots[-1]]
+                # Return last 2 screenshots (or all if less than 2)
+                response_screenshots = screenshots[-2:] if len(screenshots) >= 2 else screenshots
             else:
                 # Local dev: include all screenshots for complete debugging
                 response_screenshots = screenshots
