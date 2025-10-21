@@ -75,24 +75,24 @@ Eight critical fixes implemented to enable successful FederalRunner deployment a
 
 ### Error Path (Visual Validation Loop)
 - **Local dev (headless=False)**: Returns all screenshots (complete debugging)
-- **Production (headless=True)**: Returns last 3 screenshots:
-  1. Page before error (context)
-  2. Page filled (what was attempted)
-  3. Error screenshot (where it failed) ← **CRITICAL for Claude Vision**
+- **Production (headless=True)**: Returns only 1 screenshot (the error screenshot) ← **CRITICAL for Claude Vision**
 
-**Why Last 3 for Errors?**
+**Why Only 1 Screenshot for Errors?**
 
 Implements Visual Validation Loop pattern (REQ-EXEC-007):
 1. Schema validation passes ✅
 2. Runtime execution fails ❌ (form shows validation error)
 3. Error screenshot captured 📸
-4. Claude Vision analyzes screenshot + error
+4. Claude Vision analyzes screenshot + error message
 5. Claude guides user to fix issue
 6. Re-execute with corrected data
 
+The error screenshot itself contains sufficient context (error message + page state).
+
 **Response Size Impact**:
 - Success: ~1MB → ~100KB (90% reduction)
-- Error: Variable → ~300KB (60-70% reduction)
+- Error: Variable → ~100KB (80-90% reduction)
+- **Consistent payload size** prevents timeout issues
 
 **Files Changed**:
 - `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (lines 168-180, 197-216)

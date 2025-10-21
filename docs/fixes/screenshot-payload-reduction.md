@@ -99,14 +99,11 @@ return {
 - Enables complete step-by-step debugging
 
 **Production (headless=True)**:
-- Returns last 3 screenshots:
-  1. Page before error (context)
-  2. Page filled (what was attempted)
-  3. Error screenshot (where it failed) ← **CRITICAL for Claude Vision**
-- `screenshots`: [3 base64 strings]
+- Returns only 1 screenshot (the error screenshot)
+- `screenshots`: [1 base64 string]
 - `screenshot_count`: Total captured
 
-**Why Last 3 Screenshots for Errors?**
+**Why Only 1 Screenshot for Errors?**
 
 From test_execution_local.py (test_execute_wizard_runtime_error_with_screenshot):
 > "This test validates the same self-correcting pattern used in the MDCalc agent:
@@ -117,10 +114,15 @@ From test_execution_local.py (test_execute_wizard_runtime_error_with_screenshot)
 > 5. Claude guides user to correct the issue
 > 6. Re-execute with corrected data"
 
-Claude needs to SEE the error just like a human would. The last 3 screenshots provide:
-- **Context**: What page we were on
-- **Action**: What we tried to do
-- **Result**: What error occurred (visible in screenshot)
+Claude needs to SEE the error just like a human would. The error screenshot provides:
+- **Error Message**: Visible in the screenshot (the most critical information)
+- **Page Context**: Shows which page and field caused the error
+- **Minimal Payload**: ~50-100KB, prevents timeout issues
+
+**Originally considered returning 3 screenshots** (context, action, error), but simplified to 1 to:
+- Prevent payload timeout issues (experienced in production)
+- Maintain consistency: 1 screenshot for both success and error
+- The error screenshot itself contains sufficient context for Claude Vision
 
 ### Response Size Reduction
 
@@ -131,12 +133,12 @@ Claude needs to SEE the error just like a human would. The last 3 screenshots pr
 
 #### Error Path
 **Before**: Variable (all screenshots up to error point)
-**After**: ~150-300KB (last 3 screenshots)
-**Reduction**: Still significant while preserving Visual Validation Loop
+**After**: ~50-100KB (1 screenshot - the error screenshot)
+**Reduction**: ~80-90% smaller payload, same as success path
 
 **Example**: Error on page 5 (7 screenshots total)
-- Local dev: Returns 7 screenshots (~700KB)
-- Production: Returns last 3 screenshots (~300KB) - page 4 filled, page 5 before error, error screenshot
+- Local dev: Returns 7 screenshots (~700KB) - complete debugging
+- Production: Returns 1 screenshot (~100KB) - the error screenshot only
 
 ## Expected Results After Fix
 

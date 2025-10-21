@@ -197,14 +197,14 @@ class PlaywrightClient:
 
             execution_time_ms = int((time.time() - start_time) * 1000)
 
-            # For production (headless mode), only include last few screenshots to reduce response size
+            # For production (headless mode), only include the last screenshot to reduce response size
             # CRITICAL: Always include the error screenshot (where execution failed) for Visual Validation Loop
-            # Include up to 3 screenshots: the page before error, the filled page, and the error screenshot
-            if self.config.headless and len(screenshots) > 3:
-                # Keep last 3 screenshots: shows context before error + error itself
-                response_screenshots = screenshots[-3:]
+            # The error screenshot shows the error message and provides sufficient context for Claude Vision
+            if self.config.headless and len(screenshots) > 0:
+                # Keep only the last screenshot (error screenshot) - minimal payload, prevents timeouts
+                response_screenshots = [screenshots[-1]]
             else:
-                # Local dev or <3 screenshots: include all
+                # Local dev: include all screenshots for complete debugging
                 response_screenshots = screenshots
 
             return {
