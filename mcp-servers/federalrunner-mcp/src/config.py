@@ -375,13 +375,13 @@ def get_test_config(temp_dir: Optional[Path] = None) -> FederalRunnerConfig:
       - FEDERALRUNNER_BROWSER_TYPE=chromium|firefox|webkit
       - FEDERALRUNNER_HEADLESS=true|false
       - FEDERALRUNNER_SLOW_MO=500 (milliseconds)
-      - FEDERALRUNNER_EXECUTION_TIMEOUT=60 (seconds)
+      - FEDERALRUNNER_EXECUTION_TIMEOUT=180 (seconds)
 
     Defaults (if not specified):
       - browser_type=chromium
       - headless=False
       - slow_mo=500 (non-headless) or 0 (headless)
-      - execution_timeout=60
+      - execution_timeout=180
 
     Args:
         temp_dir: Temporary directory for test files (optional, uses shared wizards/ if None)
@@ -411,7 +411,7 @@ def get_test_config(temp_dir: Optional[Path] = None) -> FederalRunnerConfig:
     headless_env = os.getenv('FEDERALRUNNER_HEADLESS', 'false').lower()
     headless = headless_env in ('true', '1', 'yes')
     slow_mo = int(os.getenv('FEDERALRUNNER_SLOW_MO', '500' if not headless else '0'))
-    execution_timeout = int(os.getenv('FEDERALRUNNER_EXECUTION_TIMEOUT', '60'))
+    execution_timeout = int(os.getenv('FEDERALRUNNER_EXECUTION_TIMEOUT', '180'))
 
     # Use shared wizards directory if temp_dir not specified
     # This allows tests to use actual wizard data
@@ -455,5 +455,5 @@ def get_production_config() -> FederalRunnerConfig:
         headless=True,          # Run in headless mode
         slow_mo=0,
         save_screenshots=False,  # Don't save to disk in production
-        execution_timeout=60
+        execution_timeout=180
     )

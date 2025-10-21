@@ -49,7 +49,7 @@ class FederalScoutConfig(BaseSettings):
 
     # Screenshot Configuration
     screenshot_quality: int = Field(
-        default=60,  # Match MDCalc for optimal size (~23KB)
+        default=60,  # Optimal size (~23KB)
         ge=1,
         le=100,
         description="JPEG quality for screenshots (1-100)"
