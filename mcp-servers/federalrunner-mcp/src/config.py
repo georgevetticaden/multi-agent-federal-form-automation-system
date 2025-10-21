@@ -102,11 +102,13 @@ class FederalRunnerConfig(BaseSettings):
     )
 
     # Timeouts (in milliseconds)
+    # NOTE: FSA navigation uses retry logic (5 attempts × 20s = 100s max)
+    # This field is kept for non-FSA use cases
     navigation_timeout: int = Field(
-        default=180000,  # 3 minutes - FSA can be extremely slow/unresponsive
+        default=120000,  # 2 minutes for general use
         ge=5000,
-        le=300000,  # Max 5 minutes
-        description="Navigation timeout in milliseconds (FSA website is VERY slow and variable - can exceed 120s)"
+        le=180000,
+        description="Navigation timeout in milliseconds (NOTE: FSA uses hardcoded 20s × 5 retries in code)"
     )
 
     element_timeout: int = Field(

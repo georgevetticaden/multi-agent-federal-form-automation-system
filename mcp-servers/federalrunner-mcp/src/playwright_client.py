@@ -105,13 +105,38 @@ class PlaywrightClient:
             # 1. Launch browser
             await self._launch_browser()
 
-            # 2. Navigate to wizard URL
+            # 2. Navigate to wizard URL with retry logic
+            # FSA normally loads in 9-20s when working, but is non-deterministic
+            # Strategy: Short timeout (20s) × multiple retries (5 attempts) = better UX than long timeout
             logger.info(f" Navigating to: {wizard_structure.url}")
-            await self.page.goto(
-                wizard_structure.url,
-                wait_until='networkidle',
-                timeout=self.config.navigation_timeout  # Use configured timeout (60s, not default 30s)
-            )
+            max_retries = 4  # 5 total attempts (initial + 4 retries)
+            retry_delay = 2000  # 2 seconds between retries
+            navigation_timeout_per_attempt = 20000  # 20 seconds per attempt
+
+            for attempt in range(max_retries + 1):
+                try:
+                    if attempt > 0:
+                        logger.warning(f"   Retry attempt {attempt}/{max_retries} after {retry_delay/1000}s delay...")
+                        await self.page.wait_for_timeout(retry_delay)
+
+                    await self.page.goto(
+                        wizard_structure.url,
+                        wait_until='networkidle',
+                        timeout=navigation_timeout_per_attempt  # 20s per attempt
+                    )
+                    logger.info(f"   Navigation successful (attempt {attempt + 1}/{max_retries + 1})")
+                    break  # Success - exit retry loop
+
+                except Exception as nav_error:
+                    if attempt == max_retries:
+                        # Final attempt failed - raise error
+                        logger.error(f"   Navigation failed after {max_retries + 1} attempts")
+                        raise nav_error
+                    else:
+                        # Will retry
+                        logger.warning(f"   Navigation timeout on attempt {attempt + 1}/{max_retries + 1}, will retry...")
+                        continue
+
             await self.page.wait_for_timeout(1000)  # Let page settle
             screenshots.append(await self._take_screenshot("initial_page"))
 
