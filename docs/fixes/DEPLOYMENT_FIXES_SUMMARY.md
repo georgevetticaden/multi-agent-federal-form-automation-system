@@ -2,15 +2,16 @@
 
 ## Overview
 
-Seven critical fixes implemented to enable successful FederalRunner deployment and execution on Google Cloud Run:
+Eight critical fixes implemented to enable successful FederalRunner deployment and execution on Google Cloud Run:
 
 1. **Docker Base Image Compatibility** - Fix Playwright WebKit library dependencies
-2. **Navigation Timeout** - Increase timeout for slow government websites
+2. **Navigation Timeout** - Increase timeout for slow government websites (30s → 60s → 120s)
 3. **Screenshot Payload Reduction** - Optimize MCP response size for Claude.ai
 4. **Unicode Dropdown Selection** - Handle Unicode apostrophes in FSA dropdowns
 5. **ID Selector Handling** - Auto-prefix ID selectors for start actions
 6. **Repeatable Field Workflow** - Implement "Add a Loan" multi-step pattern
 7. **Dropdown Selection Timeout** - Optimize Unicode fallback performance (5× faster)
+8. **Cloud Run Request Timeout** - Fix 504 Gateway Timeout errors (60s → 240s)
 
 ## Fix #1: Docker Base Image Compatibility
 
@@ -37,17 +38,26 @@ Seven critical fixes implemented to enable successful FederalRunner deployment a
 **Evidence from Logs**:
 - First execution: Succeeded in 55.8 seconds (FSA loaded fine)
 - Second execution: Timed out at 30 seconds (FSA loaded slowly)
+- Production: 3 failed attempts at 60s, then success at 42s
 
-**Solution**:
-- Increased default navigation timeout: `30000ms` → `60000ms`
-- Increased maximum allowed: `60000ms` → `120000ms`
-- Added `FEDERALRUNNER_NAVIGATION_TIMEOUT=60000` to deployment env vars
+**Solution (Progressive Increases)**:
+1. **First fix**: `30000ms` → `60000ms` (30s → 60s)
+2. **Regression fix**: Added `timeout=` parameter to `page.goto()` (was not being applied!)
+3. **Second fix**: `60000ms` → `120000ms` (60s → 120s) after production failures
+
+**Current Configuration**:
+- Default navigation timeout: `120000ms` (2 minutes)
+- Maximum allowed: `180000ms` (3 minutes)
+- Deployment env var: `FEDERALRUNNER_NAVIGATION_TIMEOUT=120000`
 
 **Files Changed**:
-- `/mcp-servers/federalrunner-mcp/src/config.py` (line 106)
+- `/mcp-servers/federalrunner-mcp/src/config.py` (line 105-109)
+- `/mcp-servers/federalrunner-mcp/src/playwright_client.py` (line 113 - added timeout parameter)
 - `/mcp-servers/federalrunner-mcp/scripts/deploy-to-cloud-run.sh` (lines 244, 300)
 
-**Documentation**: `docs/fixes/navigation-timeout-fix.md`
+**Documentation**:
+- `docs/fixes/navigation-timeout-fix.md` (initial 60s fix)
+- `docs/fixes/navigation-timeout-increase-to-120s.md` (120s fix + regression)
 
 ---
 
@@ -215,17 +225,84 @@ await self.page.select_option(sub_field.selector, value_str, timeout=5000)
 
 ---
 
+## Fix #8: Cloud Run Request Timeout
+
+**Problem**: Claude.ai execution failed with 504 Gateway Timeout after exactly 60 seconds, even though local tests (both headless and non-headless) completed successfully
+
+**Evidence from Production**:
+```
+18:11:31.668 POST 504 72 B 60.001 s Claude-User
+```
+
+**Root Cause**: Cloud Run's request timeout (60s) was killing requests before our application could complete execution (180s configured)
+
+**Why Local Tests Worked**:
+- Local pytest tests have no Cloud Run request timeout layer
+- Only application timeouts apply (navigation: 120s, execution: 180s)
+- Tests complete successfully in 40-60s typically
+
+**Why Production Failed**:
+- Cloud Run enforces a separate request timeout (default 60s)
+- Application timeout (180s) > Cloud Run timeout (60s) ❌
+- Request killed mid-execution, no error message from application
+- 504 Gateway Timeout returned to Claude.ai
+
+**Timeout Hierarchy Problem**:
+```
+Navigation:   120s ✅
+Execution:    180s ✅
+Cloud Run:     60s ❌ ← REQUEST KILLED HERE
+```
+
+**Solution**: Increase Cloud Run request timeout to 240 seconds (4 minutes)
+
+**Correct Hierarchy**:
+```
+Navigation:   120s ✅
+Execution:    180s ✅
+Cloud Run:    240s ✅ ← Allows execution to complete
+```
+
+**Why 240 Seconds?**
+- 120s: FSA navigation (slow government website)
+- 60s: Field filling, screenshots, extraction
+- 60s: Buffer for network latency, cold starts, errors
+- **Total: 240s = Safe for 99%+ of cases**
+
+**Configuration Changes**:
+```bash
+# .env.deployment and .env.deployment.example
+TIMEOUT=60   # Before
+TIMEOUT=240  # After (with explanatory comments)
+```
+
+**Deployment Impact**:
+- Script reads `TIMEOUT=240` from `.env.deployment`
+- Passes `--timeout 240` to `gcloud run deploy`
+- Cloud Run allows up to 240 seconds per request
+- Application can complete 180s execution + return results
+- Or application can timeout gracefully + return error message
+
+**Files Changed**:
+- `/mcp-servers/federalrunner-mcp/.env.deployment` (line 26)
+- `/mcp-servers/federalrunner-mcp/.env.deployment.example` (line 26)
+
+**Documentation**: `docs/fixes/cloud-run-timeout-fix.md`
+
+---
+
 ## Complete Fix Summary
 
 | Fix | Problem | Solution | Impact |
 |-----|---------|----------|--------|
 | #1 Docker Base Image | WebKit launch failure | Bookworm + --with-deps | ✅ Browser launches |
-| #2 Navigation Timeout | 30s too short for FSA | 60s timeout | ✅ Page loads complete |
+| #2 Navigation Timeout | 30s too short for FSA | 120s timeout + regression fix | ✅ Page loads complete |
 | #3 Screenshot Payload | 1MB response timeout | 1-3 screenshots only | ✅ Response received |
 | #4 Unicode Dropdown | Apostrophe mismatch | 4-strategy fallback | ✅ Dropdowns select |
 | #5 ID Selector | Missing # prefix | Auto-prefix IDs | ✅ Start button clicks |
 | #6 Repeatable Fields | No Add/Save workflow | Multi-step loop | ✅ Array items added |
 | #7 Dropdown Timeout | 30s per strategy (slow!) | 5s per strategy | ✅ 5× faster (31s → 6s) |
+| #8 Cloud Run Timeout | 60s kills 180s execution | 240s request timeout | ✅ Production completes |
 
 ---
 
