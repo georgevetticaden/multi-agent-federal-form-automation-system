@@ -107,11 +107,11 @@ class PlaywrightClient:
 
             # 2. Navigate to wizard URL with retry logic
             # FSA normally loads in 9-20s when working, but is non-deterministic
-            # Strategy: Short timeout (20s) × multiple retries (5 attempts) = better UX than long timeout
+            # Strategy: Very short timeout (10s) × many retries (10 attempts) = aggressive retry
             logger.info(f" Navigating to: {wizard_structure.url}")
-            max_retries = 4  # 5 total attempts (initial + 4 retries)
+            max_retries = 9  # 10 total attempts (initial + 9 retries)
             retry_delay = 2000  # 2 seconds between retries
-            navigation_timeout_per_attempt = 20000  # 20 seconds per attempt
+            navigation_timeout_per_attempt = 10000  # 10 seconds per attempt
 
             for attempt in range(max_retries + 1):
                 try:
