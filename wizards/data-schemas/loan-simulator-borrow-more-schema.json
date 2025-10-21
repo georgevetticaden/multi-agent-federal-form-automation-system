@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Federal Loan Simulator - Simulate Borrowing More - User Data",
-  "description": "User data required to execute the Federal Student Aid Loan Simulator for borrowing more money for college",
+  "description": "User data required to execute the Federal Student Aid Loan Simulator for borrowing more money for college. IMPORTANT: current_loans are the NEW loans you want to simulate borrowing, not existing loans. These represent the loan mix you want to borrow to cover the borrow_amount. For dependent undergrads, use a mix of Direct Subsidized, Direct Unsubsidized (up to annual limits), and Parent PLUS loans to cover remaining gap. For independent/graduate students, use Direct Graduate Unsubsidized and Grad PLUS loans. Look up current federal interest rates and annual borrowing limits to determine appropriate values.",
   "type": "object",
   "required": [
     "program_timing",
@@ -10,7 +10,8 @@
     "dependency_status",
     "family_income",
     "borrow_amount",
-    "expected_salary"
+    "expected_salary",
+    "current_loans"
   ],
   "properties": {
     "program_timing": {
@@ -95,8 +96,8 @@
     },
     "current_loans": {
       "type": "array",
-      "description": "List of current student loans (optional, can be empty array)",
-      "minItems": 0,
+      "description": "NEW loans to simulate borrowing (required: at least 1 loan). NOT existing loans - this is the loan mix you want to borrow to cover the borrow_amount. Must add up to approximately the borrow_amount. Use appropriate loan types based on student status (dependent/independent, undergrad/grad) and look up current federal interest rates.",
+      "minItems": 1,
       "items": {
         "type": "object",
         "required": [
@@ -107,7 +108,7 @@
         "properties": {
           "loan_type": {
             "type": "string",
-            "description": "Type of student loan",
+            "description": "Type of student loan - MUST match FSA dropdown options exactly",
             "enum": [
               "Direct Subsidized Loan",
               "Direct Unsubsidized Loan",
@@ -121,13 +122,13 @@
           },
           "loan_interest_rate": {
             "type": "number",
-            "description": "Interest rate as a percentage (e.g., 5.5 for 5.5%)",
+            "description": "Interest rate as a percentage (e.g., 5.5 for 5.5%). Look up current federal student loan interest rates for accurate simulation. Typical ranges: Direct Loans 4-7%, PLUS Loans 7-9%, Private varies widely.",
             "minimum": 0,
             "maximum": 100
           },
           "loan_balance": {
             "type": "number",
-            "description": "Current principal balance of the loan (dollar amount without formatting, e.g., 10000)",
+            "description": "Loan amount to borrow (dollar amount without formatting, e.g., 10000). For federal loans, respect annual and aggregate borrowing limits. The sum of all loan_balance values should approximately equal borrow_amount.",
             "minimum": 0
           }
         }
