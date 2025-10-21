@@ -285,6 +285,11 @@ class PlaywrightClient:
         # Create page
         self.page = await self.context.new_page()
 
+        # Set default timeout for ALL page operations (clicks, fills, etc.)
+        # This prevents the 30-second default from causing timeouts on slow FSA website
+        self.page.set_default_timeout(self.config.navigation_timeout)
+        logger.debug(f"Set page default timeout to {self.config.navigation_timeout}ms")
+
         logger.info(
             f" Browser launched: {self.config.browser_type} "
             f"(headless={self.config.headless}, viewport={self.config.viewport_width}x{self.config.viewport_height})"
