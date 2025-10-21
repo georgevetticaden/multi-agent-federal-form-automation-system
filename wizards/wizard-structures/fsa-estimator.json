@@ -1,7 +1,7 @@
 {
   "wizard_id": "fsa-estimator",
   "name": "FSA Student Aid Estimator",
-  "url": "https://studentaid.gov/aid-estimator/estimate/results",
+  "url": "https://studentaid.gov/aid-estimator/",
   "discovered_at": "2025-10-20T13:27:07.716185",
   "discovery_version": "1.0.0",
   "total_pages": 7,
