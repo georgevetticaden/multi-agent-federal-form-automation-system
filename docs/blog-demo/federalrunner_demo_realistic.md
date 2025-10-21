@@ -25,11 +25,27 @@
 ### **Moment 1: Discovery (Casual Exploration)** 🎓
 *Shows: Multi-turn conversation, data collection, natural interaction*
 
-### **Moment 2: Decision (Family Discussion)** 💰
-*Shows: What-if scenarios, quick recalculation, practical value*
+### **Moment 2: Loan Strategy (Construction Mode)** 💰
+*Shows: Schema-guided automatic loan strategy construction, Contract-First intelligence*
 
 ### **Moment 3: Validation (Real Aid Offer)** 🎉
 *Shows: Comparing to actual results, decision support, emotional payoff*
+
+---
+
+## **QUICK REFERENCE: The Two Demo Queries**
+
+### **Query #1 (Moment 1 - FSA Estimator):**
+> "Hey Runner Agent, I just finished touring Northwestern and I need to figure out if we can afford it. Can you calculate my federal student aid? I'm 17, born May 15th, 2007, from Illinois, and I'll be a freshman in fall 2026. My parents are married, also in Illinois, and our family is five people - me, my parents, and my little brother and sister. My parents' income last year was $120K, and we have about $30K in savings. I didn't work this year. Northwestern costs like $85K a year."
+
+**Expected Result:** SAI ~$24,789, Federal aid ~$7,481/year, Gap ~$77,519/year
+
+---
+
+### **Query #2 (Moment 2 - Loan Simulator):**
+> "My parents can pay for half. What's the smartest loan mix for me to cover the rest? I'm thinking business major, probably making like 65K after."
+
+**Expected Result:** Auto-constructed 3-loan strategy (Subsidized $3,500 + Unsubsidized $2,000 + Parent PLUS $34,500), Monthly payment estimates (~$2,080 standard / ~$430 income-driven)
 
 ---
 
@@ -141,51 +157,95 @@ MISSING (required by schema):
 
 ---
 
-## **MOMENT 2: The "What-If" Scenario** 💰
+## **MOMENT 2: The Loan Strategy Decision** 💰
 
-**Context:** Later that evening, at dinner table. Mom mentions potentially taking a new job.
+**Context:** Still in the car after seeing FSA results. You just learned there's a $77,519/year gap at Northwestern. Parents say they'll help.
 
 **Voice Setup:**
 ```
-[At dinner table, pick up phone casually]
-[Tap Claude, tap voice]
+[Still have phone in hand from Moment 1]
+[Tap voice button again]
 ```
 
 **DEMO SCRIPT:**
 
-**YOU (providing context upfront):**
-> "Hey Claude, quick question about my financial aid. My mom might get a new job making more money. Can you recalculate my Student Aid Index if our family income goes from $120,000 to $145,000? Everything else stays the same - same family size, same savings, same state."
+**YOU (natural follow-up):**
+> "My parents can pay for half. What's the smartest loan mix for me to cover the rest? I'm thinking business major, probably making like 65K after."
 
-**CLAUDE (ZERO clarifying questions needed - has context from before):**
-> "Let me recalculate with the higher income..."
-
+**CLAUDE (reads loan-simulator-borrow-more schema):**
 ```
-[Internal: Claude calls federalrunner_execute_wizard() with updated income]
-[Fast execution: 8 seconds]
+[Internal: Schema analysis in Construction Mode]
+✓ Read $comment: "YOU must construct the optimal current_loans array automatically"
+✓ Read federal limits: Freshman = $5,500 ($3,500 subsidized + $2,000 unsubsidized)
+✓ Read rates: Direct Subsidized=5.50%, Direct Unsubsidized=6.53%, Direct PLUS=9.08%
+✓ Read strategy: "Max out cheaper student loans first, then use Parent PLUS for remainder"
+✓ Critical insight: "Direct PLUS Loan for Parents has NO LIMIT"
+
+[Constructs optimal 3-loan strategy:]
+- Gap to cover: $77,519 / 2 = ~$38,760/year
+- Round to $40,000 for loan simulation
+
+user_data = {
+  "program_timing": "future",
+  "program_type": "Bachelor's degree",
+  "program_length": "4 years",
+  "dependency_status": "dependent",
+  "school_location": "Illinois",
+  "school_name": "Northwestern University",
+  "family_income": "$110,001+",
+  "borrow_amount": 40000,
+  "expected_salary": 65000,
+  "current_loans": [
+    {"loan_type": "Direct Subsidized Loan", "loan_interest_rate": 5.5, "loan_balance": 3500},
+    {"loan_type": "Direct Unsubsidized Loan", "loan_interest_rate": 6.53, "loan_balance": 2000},
+    {"loan_type": "Direct PLUS Loan for Parents", "loan_interest_rate": 9.08, "loan_balance": 34500}
+  ]
+}
+
+[Calls: federalrunner_execute_wizard("loan-simulator-borrow-more", user_data)]
+[Execution: 10-15 seconds - Playwright runs through all 6 pages]
+[Returns: Repayment scenarios with monthly payment estimates]
 ```
 
-**CLAUDE (8 seconds later):**
-> "With income at $145,000 instead of $120,000, your Student Aid Index would be **$31,089** - that's about $6,300 higher.
+**CLAUDE (15 seconds later):**
+> "I ran the federal loan simulator with an optimal strategy for your $40,000/year need. Here's your loan mix:
 >
-> Here's what that means: The extra $25,000 in income would reduce your aid eligibility by roughly $6,300 per year. Net benefit to your family: about $18,700 per year.
+> **Your Loan Strategy:**
+> - Direct Subsidized Loan: $3,500 @ 5.50% (cheapest, government pays interest in school)
+> - Direct Unsubsidized Loan: $2,000 @ 6.53% (accrues interest during school)
+> - Parent PLUS Loan: $34,500 @ 9.08% (fills the gap, your parents borrow)
 >
-> Bottom line: Your mom should take the job - you'll still come out ahead even with less aid."
+> **Total borrowed per year:** $40,000
+> **Total over 4 years:** $160,000
+>
+> **After graduation with $65K salary:**
+> - Standard 10-year plan: ~$2,080/month
+> - Income-driven plan: ~$430/month (adjusts with income)
+>
+> The student loans ($5,500/year) are in your name - you'll owe $22,000 total. The Parent PLUS loans ($34,500/year) are in your parents' names - they'll owe $138,000 total.
+>
+> This is a significant amount. You might want to compare Northwestern's aid package with other schools, or see if Northwestern offers additional institutional grants to reduce this borrowing."
 
-**YOU (to parents, phone down):**
-> "See Mom? Claude says you should take it!"
+**YOU (processing):**
+> "Wait, so that's over $2,000 a month after I graduate? That's a lot..."
+
+**CLAUDE:**
+> "Yes, it is. That's why the income-driven plan could help - it caps payments at 10% of your discretionary income. But you'd still owe that money over a longer period. This is definitely worth comparing with other schools that might offer more grants and less loan dependency."
 
 ---
 
 ### **Why This Moment Works:**
 
-✅ **Ultra-fast** - 30 seconds total, zero back-and-forth
-✅ **Shows memory** - Claude remembers previous data
-✅ **Shows rapid recalculation** - 8 seconds for new result
-✅ **Shows analysis** - Claude does the math comparison automatically
-✅ **Shows practical value** - Actionable family decision
-✅ **Natural setting** - Real dinner table moment
+✅ **Shows Construction Mode** - Claude builds the loan strategy automatically
+✅ **Shows schema intelligence** - $comment field guides optimal loan mix
+✅ **Shows domain expertise** - Knows about Parent PLUS unlimited borrowing
+✅ **Shows realistic complexity** - Multi-loan strategy with current rates
+✅ **Shows advisory value** - Explains implications and suggests alternatives
+✅ **Natural follow-up** - Flows directly from Moment 1's gap analysis
+✅ **Emotional impact** - "$2,000/month" makes the cost real
+✅ **Demonstrates Contract-First** - Schema taught the agent what to do
 
-**Timing:** ~30 seconds (down from 1-2 minutes!)
+**Timing:** ~45 seconds (query + processing + response)
 
 ---
 
@@ -283,15 +343,15 @@ Rich context upfront (10+ data points)
 ```
 **Impact:** Shows natural language understanding + speed
 
-### **MOMENT 2 (30 seconds) - What-If**
-*Execute scenario: Mom's job offer impact*
+### **MOMENT 2 (45 seconds) - Loan Strategy**
+*Execute scenario: Optimal loan mix for remaining gap*
 ```
-Rich context upfront with what-if scenario
-→ Zero clarifying questions (Claude has memory)
-→ 8-second recalculation
-→ Comparison analysis
+Natural follow-up: "What's the smartest loan mix?"
+→ Claude reads schema, constructs 3-loan strategy automatically
+→ 15-second execution
+→ Breakdown with monthly payment estimates
 ```
-**Impact:** Shows memory + instant analysis
+**Impact:** Shows Construction Mode + Contract-First intelligence
 
 ### **MOMENT 3 (45 seconds) - Validation**
 *Execute scenario: Validating aid offer*
@@ -306,11 +366,11 @@ Rich context with aid package details
 ### **CLOSE (20 seconds)**
 *Bring it home*
 
-> "That's it. Three scenarios in under 3 minutes total. No forms, no laptop, no tedious Q&A. Just rich context, smart understanding, and instant official government results. On her phone. With her voice. While doing other things.
+> "That's it. Three scenarios in under 3 minutes total. First, official federal aid calculation. Second, optimal loan strategy constructed automatically from federal rules and rates. Third, validation of an actual aid offer. No forms, no laptop, no tedious Q&A. Just rich context, smart understanding, and instant official government results. On her phone. With her voice.
 >
-> This is how government services should work in the AI age."
+> This is Contract-First Form Automation - where schemas teach agents domain expertise. This is how government services should work in the AI age."
 
-**TOTAL TIME: 3 minutes 15 seconds** (down from 7-8 minutes!)
+**TOTAL TIME: 3 minutes 30 seconds** (down from 7-8 minutes!)
 
 ---
 
@@ -412,18 +472,28 @@ If voice fails:
 
 ---
 
-## **EXPECTED FSA CALCULATION RESULTS**
+## **EXPECTED EXECUTION RESULTS**
 
-### **Scenario 1: $120K Income, $30K Assets, Family of 4**
+### **Moment 1: FSA Estimator ($120K Income, $30K Assets, Family of 5)**
 - **SAI:** ~$24,789
-- **Northwestern ($85K/yr):** $60,211 need-based aid gap
-- **U of Illinois ($32K/yr):** $7,211 need-based aid gap
+- **Federal Aid:** ~$7,481/year ($5,500 loans + $1,981 work-study)
+- **Northwestern ($85K/yr):** $77,519 need-based gap
+- **U of Illinois ($32K/yr):** ~$7,211 need-based gap
 
-### **Scenario 2: $145K Income (Mom's New Job)**
-- **SAI:** ~$31,089 (increase of ~$6,300)
-- **Net benefit:** $18,700/year ($25K raise - $6.3K aid reduction)
+### **Moment 2: Loan Simulator (Borrow $40K/year for Northwestern)**
+**Optimal 3-Loan Strategy (Auto-Constructed):**
+- Direct Subsidized Loan: $3,500 @ 5.50%
+- Direct Unsubsidized Loan: $2,000 @ 6.53%
+- Direct PLUS Loan (Parents): $34,500 @ 9.08%
 
-### **Scenario 3: DePaul Validation ($120K Income)**
+**Repayment Estimates (after 4 years = $160K total):**
+- Standard 10-year plan: ~$2,080/month
+- Income-driven plan: ~$430/month (based on $65K salary)
+
+**Student debt:** $22,000 (in student's name)
+**Parent debt:** $138,000 (in parents' names)
+
+### **Moment 3: DePaul Validation ($120K Income)**
 - **SAI:** $24,789
 - **DePaul Cost:** $58,000
 - **Aid Offered:** $23,500 ($18K grants + $5.5K loans)
@@ -436,34 +506,44 @@ If voice fails:
 
 **"Here's what you just saw happening behind the scenes..."**
 
-1. **FederalScout discovered the FSA wizard structure** (7 pages, 17 required fields)
-   - Saved as JSON file with all selectors and interaction patterns
+1. **FederalScout discovered TWO wizard structures**
+   - FSA Estimator: 7 pages, 17 required fields
+   - Loan Simulator: 6 pages, 8 required fields + complex loan array
+   - Saved as JSON files with all selectors and interaction patterns
    - One-time discovery, infinite reuse
 
-2. **FederalRunner loaded that structure** from the JSON file
-   - Read the User Data Schema (THE CONTRACT)
-   - Knew exactly what data to collect and how to validate it
+2. **FederalRunner loaded those structures** from the JSON files
+   - Read the User Data Schema for each wizard (THE CONTRACT)
+   - For FSA: Knew exactly what data to collect and how to validate it
+   - For Loan Simulator: Read $comment field with federal limits, rates, and strategy
    - Knew exactly how to navigate each page
 
-3. **Playwright executed the wizard atomically**
-   - Filled all 7 pages in one atomic operation
-   - Took 8-12 seconds total (vs 10-15 minutes manually)
+3. **The schemas teach domain expertise** (Contract-First pattern)
+   - Loan schema's $comment field contains: federal limits, current interest rates, borrowing strategy
+   - Schema description says: "YOU must construct the optimal current_loans array automatically"
+   - Claude read the schema → Applied the rules → Built 3-loan strategy → Executed
+   - **No hardcoded logic needed** - the schema IS the intelligence
+
+4. **Playwright executed both wizards atomically**
+   - FSA: 7 pages in 8-12 seconds (vs 10-15 minutes manually)
+   - Loan Simulator: 6 pages in 10-15 seconds (vs 8-10 minutes manually)
    - Returned official government results with screenshot audit trail
 
-4. **All of this ran on Google Cloud Run**
+5. **All of this ran on Google Cloud Run**
    - Accessible from anywhere (web, mobile, voice)
    - OAuth 2.1 authenticated for security
    - WebKit browser in headless mode for reliability
    - Scales to millions of users
 
-5. **The pattern works for ANY government calculator**
+6. **The pattern works for ANY government calculator**
    - Social Security benefits
    - Medicare costs
    - Tax withholding estimates
    - Loan repayment simulators
    - Literally any multi-page government form
+   - **The schema teaches the agent how to solve domain-specific problems**
 
-**"This isn't just about student aid. It's about making government accessible through conversation."**
+**"This isn't just about student aid. It's about making government accessible through conversation, and using schemas as contracts that teach agents domain expertise. That's Contract-First Form Automation."**
 
 ---
 
@@ -535,12 +615,16 @@ Before recording the demo, verify:
 - [ ] **Wizard Files**
   - [ ] `fsa-estimator.json` in `wizards/wizard-structures/`
   - [ ] `fsa-estimator-schema.json` in `wizards/data-schemas/`
-  - [ ] Both files validated and tested locally
+  - [ ] `loan-simulator-borrow-more.json` in `wizards/wizard-structures/`
+  - [ ] `loan-simulator-borrow-more-schema.json` in `wizards/data-schemas/`
+  - [ ] All files validated and tested locally
 
 - [ ] **Test Execution**
-  - [ ] Local test passed: `pytest tests/test_execution_local.py -v`
-  - [ ] Cloud Run logs show successful executions
+  - [ ] FSA test passed: `pytest tests/test_execution_local.py::test_federalrunner_execute_wizard -v`
+  - [ ] Loan simulator test passed (manual verification)
+  - [ ] Cloud Run logs show successful executions for both wizards
   - [ ] Screenshots captured correctly
   - [ ] SAI results accurate
+  - [ ] Loan repayment estimates accurate
 
 **All green? You're ready to demo! 🚀**

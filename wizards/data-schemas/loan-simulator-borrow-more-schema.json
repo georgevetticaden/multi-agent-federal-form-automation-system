@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Federal Loan Simulator - Simulate Borrowing More - User Data",
   "description": "User data required to execute the Federal Student Aid Loan Simulator for borrowing more money for college. IMPORTANT: current_loans are the NEW loans you want to simulate borrowing, not existing loans. These represent the loan mix you want to borrow to cover the borrow_amount. For dependent undergrads, use a mix of Direct Subsidized, Direct Unsubsidized (up to annual limits), and Parent PLUS loans to cover remaining gap. For independent/graduate students, use Direct Graduate Unsubsidized and Grad PLUS loans. Look up current federal interest rates and annual borrowing limits to determine appropriate values.",
+  "$comment": "LOAN STRATEGY CONSTRUCTION GUIDE: When a user asks 'what loans should I take' or 'help me figure out the loan situation', YOU must construct the optimal current_loans array automatically. DO NOT ask the user to specify loan types - you are the expert. FEDERAL LOAN LIMITS FOR DEPENDENT UNDERGRADS: Freshman=$5,500 ($3,500 subsidized + $2,000 unsubsidized), Sophomore=$6,500 ($4,500+$2,000), Junior/Senior=$7,500 ($5,500+$2,000). CRITICAL: Direct PLUS Loan for Parents has NO LIMIT - use it to fill any gap beyond direct student loan limits. CURRENT RATES (2024-25): Direct Subsidized=5.50%, Direct Unsubsidized (undergrad)=6.53%, Direct PLUS (parent/grad)=9.08%. STRATEGY: Always max out cheaper student loans first, then use Parent PLUS for remainder. Example for $40K freshman need: [{type:Direct Subsidized,rate:5.5,balance:3500}, {type:Direct Unsubsidized,rate:6.53,balance:2000}, {type:Direct PLUS Loan for Parents,rate:9.08,balance:34500}]. The sum of all loan_balance values MUST equal borrow_amount.",
   "type": "object",
   "required": [
     "program_timing",
@@ -96,7 +97,7 @@
     },
     "current_loans": {
       "type": "array",
-      "description": "NEW loans to simulate borrowing (required: at least 1 loan). NOT existing loans - this is the loan mix you want to borrow to cover the borrow_amount. Must add up to approximately the borrow_amount. Use appropriate loan types based on student status (dependent/independent, undergrad/grad) and look up current federal interest rates.",
+      "description": "NEW loans to simulate borrowing (required: at least 1 loan, often 2-3 loans). NOT existing loans - this is the loan mix you want to borrow to cover the borrow_amount. YOU MUST CONSTRUCT THIS ARRAY - do not ask the user for loan types. For dependent undergrads needing more than $5,500: ALWAYS include Direct Subsidized (up to limit), Direct Unsubsidized (up to limit), and Direct PLUS Loan for Parents (unlimited, fills remaining gap). For independent/grad students: use Direct Graduate Unsubsidized + Direct PLUS Loan for Graduate/Professionals. The sum of all loan_balance values MUST equal borrow_amount exactly. Use current federal interest rates from $comment field above.",
       "minItems": 1,
       "items": {
         "type": "object",
@@ -108,7 +109,7 @@
         "properties": {
           "loan_type": {
             "type": "string",
-            "description": "Type of student loan - MUST match FSA dropdown options exactly",
+            "description": "Type of student loan - MUST match FSA dropdown options exactly. BORROWING LIMITS: 'Direct Subsidized Loan' (Freshman: $3,500 max, Sophomore: $4,500, Jr/Sr: $5,500, rate: 5.50%), 'Direct Unsubsidized Loan' undergrad (Dependent Fresh: +$2,000 max additional, Soph: +$2,000, Jr/Sr: +$2,000, rate: 6.53%), 'Direct Graduate Unsubsidized Loan' (Grad: $20,500/year max, rate: 8.08%), 'Direct PLUS Loan for Parents' (UNLIMITED up to cost minus other aid, rate: 9.08% - USE THIS to fill gaps beyond direct student loan limits), 'Direct PLUS Loan for Graduate/Professionals' (UNLIMITED, rate: 9.08%), 'Private Loan' (varies, rate: 8-12%). For dependent undergrads borrowing >$5,500: You MUST include Parent PLUS loan.",
             "enum": [
               "Direct Subsidized Loan",
               "Direct Unsubsidized Loan",
@@ -122,13 +123,13 @@
           },
           "loan_interest_rate": {
             "type": "number",
-            "description": "Interest rate as a percentage (e.g., 5.5 for 5.5%). Look up current federal student loan interest rates for accurate simulation. Typical ranges: Direct Loans 4-7%, PLUS Loans 7-9%, Private varies widely.",
+            "description": "Interest rate as a percentage (e.g., 5.5 for 5.5%). USE CURRENT FEDERAL RATES (2024-25): Direct Subsidized=5.50%, Direct Unsubsidized (undergrad)=6.53%, Direct Graduate Unsubsidized=8.08%, Direct PLUS (parent/grad)=9.08%, Private=8-12% (varies). These rates are documented in the $comment field at the top of this schema.",
             "minimum": 0,
             "maximum": 100
           },
           "loan_balance": {
             "type": "number",
-            "description": "Loan amount to borrow (dollar amount without formatting, e.g., 10000). For federal loans, respect annual and aggregate borrowing limits. The sum of all loan_balance values should approximately equal borrow_amount.",
+            "description": "Loan amount to borrow (dollar amount without formatting, e.g., 10000). For federal loans, respect annual borrowing limits documented in loan_type field. CRITICAL: The sum of all loan_balance values across all items in the current_loans array MUST equal borrow_amount exactly. Example: if borrow_amount=40000 and you have 3 loans with balances [3500, 2000, 34500], then 3500+2000+34500=40000 ✓",
             "minimum": 0
           }
         }

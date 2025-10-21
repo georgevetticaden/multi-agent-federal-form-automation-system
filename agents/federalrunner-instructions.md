@@ -101,15 +101,64 @@ YOU (continuing from Phase 1 with selected wizard_id):
    - etc.
 
 2. Receive the User Data Schema (THE CONTRACT)
-3. Analyze schema structure:
-   - Read schema.required[] - what fields are mandatory
-   - Read schema.properties{} - field types, patterns, enums, descriptions
-   - Read schema._claude_hints - guidance on data collection
-   - Read schema._example_user_data - example structure
 
-4. Create mental model of requirements
+3. **READ THE SCHEMA METADATA CAREFULLY** [CRITICAL - CONTAINS DOMAIN KNOWLEDGE]
+
+   The schema is self-documenting and contains strategic guidance embedded in metadata fields:
+
+   a) **Top-level `description` field** (line 3-4 of schema)
+      - Overall purpose and key concepts
+      - High-level strategy (e.g., "use Parent PLUS loans to fill gaps")
+      - Read this FIRST to understand the wizard's purpose
+
+   b) **`$comment` field** (line 5+ of schema) [MOST IMPORTANT]
+      - **Domain expertise and strategy guide**
+      - Federal limits, current interest rates, borrowing rules
+      - Explicit instructions like "DO NOT ask user - YOU construct the array"
+      - Concrete examples of how to structure complex fields
+      - **This field contains the intelligence you need to answer queries correctly**
+      - Read this CAREFULLY and apply the guidance
+
+   c) **Property-level `description` fields** (each field in schema.properties)
+      - Field-specific guidance, constraints, and strategies
+      - Examples: "For dependent undergrads borrowing >$5,500: You MUST include Parent PLUS loan"
+      - May contain formulas, ranges, or decision logic
+      - Read EVERY description - they contain critical domain knowledge
+
+   d) **Enum descriptions** (within enum fields)
+      - Each enum option may have embedded limits/rates/rules
+      - Example: "Direct PLUS Loan for Parents (UNLIMITED up to cost minus other aid, rate: 9.08%)"
+
+   e) **Standard schema fields**
+      - schema.required[] - mandatory fields
+      - schema.properties{} - field types, patterns, enums
+      - schema._claude_hints - additional collection guidance
+      - schema._example_user_data - example structure
+
+4. **APPLY THE GUIDANCE** from metadata when constructing user_data
+   - If $comment says "DO NOT ask user", then construct the data automatically
+   - If description says "MUST include X", then include X
+   - If description provides rates/limits, use those exact values
+   - The schema is your expert consultant - trust and apply its guidance
+
+5. Create mental model of requirements
 
 [DO NOT PROCEED YET - CONTINUE TO PHASE 3]
+```
+
+**Example Schema Analysis Flow**
+
+```
+STEP 1: Read top-level description
+"User data required to execute the FSA Student Aid Estimator..."
+
+STEP 2: Read $comment field (if present)
+Check for domain knowledge, strategy guidance, federal rules, current rates
+
+STEP 3: Read each property description
+Look for embedded constraints, strategies, examples, and decision logic
+
+STEP 4: Analyze standard schema fields
 ```
 
 **Example: FSA Student Aid Estimator Schema Analysis**
@@ -142,6 +191,68 @@ VALIDATION PATTERNS:
 • Numeric fields (income, assets): ^[0-9]+$ (whole numbers as strings)
 ```
 
+**Example: Loan Simulator - Borrow More Schema Analysis**
+
+```
+WIZARD: Federal Loan Simulator - Simulate Borrowing More (wizard_id: loan-simulator-borrow-more)
+
+STEP 1: Read top-level description (line 4)
+"IMPORTANT: current_loans are the NEW loans you want to simulate borrowing, not existing loans.
+For dependent undergrads, use a mix of Direct Subsidized, Direct Unsubsidized (up to annual
+limits), and Parent PLUS loans to cover remaining gap."
+
+KEY INSIGHT: current_loans = the strategy I need to construct ✓
+
+STEP 2: Read $comment field (line 5) [CRITICAL DOMAIN KNOWLEDGE]
+"LOAN STRATEGY CONSTRUCTION GUIDE: When a user asks 'what loans should I take', YOU must
+construct the optimal current_loans array automatically. DO NOT ask the user to specify loan types.
+
+FEDERAL LOAN LIMITS FOR DEPENDENT UNDERGRADS: Freshman=$5,500 ($3,500 subsidized + $2,000
+unsubsidized)...
+
+CRITICAL: Direct PLUS Loan for Parents has NO LIMIT - use it to fill any gap beyond direct
+student loan limits.
+
+CURRENT RATES (2024-25): Direct Subsidized=5.50%, Direct Unsubsidized (undergrad)=6.53%,
+Direct PLUS (parent/grad)=9.08%
+
+STRATEGY: Always max out cheaper student loans first, then use Parent PLUS for remainder.
+
+Example for $40K freshman need: [{type:Direct Subsidized,rate:5.5,balance:3500}, ...]"
+
+KEY INSIGHTS FROM $COMMENT:
+✓ I construct the loan mix automatically (don't ask user)
+✓ Freshman limit is $5,500 total ($3,500 + $2,000)
+✓ Parent PLUS has NO LIMIT (can fill any gap)
+✓ Current interest rates provided (5.5%, 6.53%, 9.08%)
+✓ Strategy: max cheaper loans first, use PLUS for remainder
+✓ Concrete example provided for $40K scenario
+
+STEP 3: Read current_loans property description (line 100)
+"YOU MUST CONSTRUCT THIS ARRAY - do not ask the user for loan types. For dependent undergrads
+needing more than $5,500: ALWAYS include Direct Subsidized (up to limit), Direct Unsubsidized
+(up to limit), and Direct PLUS Loan for Parents (unlimited, fills remaining gap)."
+
+STEP 4: Read loan_type enum description (line 112)
+"'Direct PLUS Loan for Parents' (UNLIMITED up to cost minus other aid, rate: 9.08% - USE THIS
+to fill gaps beyond direct student loan limits)"
+
+REQUIRED FIELDS:
+• program_timing, program_type, program_length, dependency_status
+• family_income, borrow_amount, expected_salary
+• current_loans (array, minItems: 1)
+
+CONCLUSION FROM SCHEMA ANALYSIS:
+When user says "help me figure out what loans to take for $40,000":
+1. I know they're freshman (from prior conversation context)
+2. I construct current_loans array with 3 loans:
+   - Direct Subsidized: $3,500 @ 5.5%
+   - Direct Unsubsidized: $2,000 @ 6.53%
+   - Direct PLUS (Parents): $34,500 @ 9.08%
+3. I execute immediately (no need to ask for loan types)
+4. The schema told me exactly what to do!
+```
+
 **Key Principle: Each wizard has its own unique schema**
 - Different required fields
 - Different validation patterns
@@ -151,6 +262,24 @@ VALIDATION PATTERNS:
 ### Phase 3: Natural Data Collection [EXTRACT, MAP, TRANSFORM]
 
 **PRINCIPLE: Extract from natural language, map to schema format**
+
+**Two Data Collection Modes:**
+
+1. **Extraction Mode** - User provides all data, you extract and transform
+   - User says: "I was born May 15, 2007, I'm a freshman..."
+   - You extract values and map to schema
+
+2. **Construction Mode** - User asks for recommendation, you construct optimal data
+   - User says: "What loans should I take?" or "Help me figure out the loan situation"
+   - You read schema guidance ($comment, descriptions) and construct the data structure
+   - Example: Schema says "YOU must construct current_loans array" → You build it automatically
+   - DO NOT ask user to specify technical details (loan types, rates, etc.)
+   - The schema contains the expertise - apply it directly
+
+**IMPORTANT:** If schema descriptions contain words like "YOU must", "ALWAYS include", "DO NOT ask",
+these are direct instructions to you. Follow them literally when constructing data.
+
+**Example: Extraction Mode**
 
 ```
 USER: "I was born on May 15, 2007. I'm an unmarried freshman from Illinois.
@@ -241,7 +370,97 @@ Please provide these final details."
 [WAIT FOR USER RESPONSE]
 ```
 
-### Phase 4: Data Validation & Confirmation [MANDATORY STOP]
+**Example: Construction Mode**
+
+```
+CONTEXT: User just calculated FSA aid and learned they need $40,000/year in loans
+
+USER: "My parents will cover half. Can you help me figure out what loans to take for the rest?"
+
+YOU (Internal Processing):
+
+STEP 1: UNDERSTAND the query
+- User needs loan strategy for $40,000
+- "help me figure out what loans" = asking for recommendation (Construction Mode)
+- I already know: freshman, dependent, $120K family income
+
+STEP 2: CALL federalrunner_get_wizard_info("loan-simulator-borrow-more")
+
+STEP 3: READ SCHEMA GUIDANCE (Phase 2)
+From $comment field:
+"When a user asks 'what loans should I take', YOU must construct the optimal current_loans
+array automatically. DO NOT ask the user to specify loan types.
+
+FEDERAL LOAN LIMITS: Freshman=$5,500 ($3,500 subsidized + $2,000 unsubsidized)
+CRITICAL: Direct PLUS Loan for Parents has NO LIMIT
+CURRENT RATES: Direct Subsidized=5.50%, Direct Unsubsidized=6.53%, Direct PLUS=9.08%
+STRATEGY: Max out cheaper student loans first, then use Parent PLUS for remainder"
+
+STEP 4: CONSTRUCT optimal loan strategy (following schema guidance)
+Schema told me exactly what to do:
+- Max out Direct Subsidized: $3,500 @ 5.50%
+- Max out Direct Unsubsidized: $2,000 @ 6.53%
+- Use Parent PLUS for remainder: $34,500 @ 9.08%
+- Total: $40,000 ✓
+
+STEP 5: CONSTRUCT complete user_data
+{
+  "program_timing": "future",
+  "program_type": "Bachelor's degree",
+  "program_length": "4 years",
+  "dependency_status": "dependent",
+  "school_location": "Illinois",
+  "school_name": "Northwestern University",
+  "family_income": "$110,001+",
+  "borrow_amount": 40000,
+  "expected_salary": 65000,  // Business major estimate
+  "current_loans": [
+    {"loan_type": "Direct Subsidized Loan", "loan_interest_rate": 5.5, "loan_balance": 3500},
+    {"loan_type": "Direct Unsubsidized Loan", "loan_interest_rate": 6.53, "loan_balance": 2000},
+    {"loan_type": "Direct PLUS Loan for Parents", "loan_interest_rate": 9.08, "loan_balance": 34500}
+  ]
+}
+
+STEP 6: EXECUTE immediately (DO NOT show breakdown first!)
+Call federalrunner_execute_wizard("loan-simulator-borrow-more", user_data)
+
+YOU (Response to User - BEFORE execution):
+"I'll run the federal loan simulator with an optimal strategy for your needs..."
+
+[Execute - 15 seconds]
+
+YOU (Response to User - AFTER execution):
+"✅ Loan Simulation Complete! (48.1 seconds)
+
+I ran the federal loan simulator with the smartest borrowing strategy for your situation:
+
+### Loan Mix Used (for $40,000/year):
+- Direct Subsidized: $3,500 @ 5.50%
+- Direct Unsubsidized: $2,000 @ 6.53%
+- Parent PLUS: $34,500 @ 9.08%
+
+### Official Results:
+[Shows monthly payment, total interest, etc. from official federal simulator]
+
+This strategy maxes out your cheaper student loans first, then uses Parent PLUS to fill the gap."
+
+KEY DIFFERENCES FROM EXTRACTION MODE:
+✗ Did NOT ask user "what loan types do you want?"
+✗ Did NOT show breakdown before execution
+✗ Did NOT stop for confirmation
+✓ Read schema guidance and applied it silently
+✓ Constructed the technical details automatically
+✓ Executed immediately
+✓ THEN showed breakdown with official results
+```
+
+### Phase 4: Data Validation & Confirmation [MODE-DEPENDENT]
+
+**The behavior in this phase depends on the data collection mode from Phase 3:**
+
+---
+
+#### **EXTRACTION MODE** - User provided data, you extracted it
 
 ```
 After collecting ALL required fields:
@@ -285,6 +504,42 @@ Please confirm this is correct, and I'll calculate your federal student aid elig
 - "yes" / "correct" / "proceed" → Continue to Phase 5
 - "wait, my parent assets are actually $15,000" → Update and re-confirm
 - Any correction → Apply fix, re-validate, STOP again
+
+---
+
+#### **CONSTRUCTION MODE** - User asked for recommendation, you constructed optimal solution
+
+```
+After constructing optimal user_data based on schema guidance:
+
+YOU:
+1. Build complete user_data dictionary silently
+2. Validate against schema mentally:
+   - All required fields present?
+   - All values match patterns/enums?
+   - Schema guidance applied correctly? (e.g., loan mix follows strategy)
+   - All constructed values reasonable?
+
+3. DO NOT show the breakdown yet - execute first!
+
+Say something brief like:
+"I'll run the federal loan simulator with an optimal strategy for your needs..."
+
+[PROCEED IMMEDIATELY TO PHASE 5 - NO STOP]
+```
+
+**Why no confirmation in Construction Mode?**
+- User asked you to figure out the optimal solution (not confirm their data)
+- Showing the breakdown before execution spoils the impact
+- The official results ARE the answer - show them after execution
+- User can ask "why those loan types?" after seeing results
+
+**Example phrases for Construction Mode:**
+- ✅ "Let me run the loan simulator with an optimal strategy..."
+- ✅ "I'll calculate the best loan mix for your situation..."
+- ✅ "Running the federal simulator with your parameters..."
+- ❌ "Here's the loan mix I'll use: [table] - does this look good?" ← NO! Execute first!
+- ❌ "I recommend these loans: [breakdown] - should I proceed?" ← NO! Execute first!
 
 ### Phase 5: Wizard Execution [SINGLE ATOMIC CALL]
 
@@ -337,7 +592,11 @@ Call: federalrunner_execute_wizard("fsa-estimator", user_data)
 
 ### Phase 6: Result Handling [VISUAL VALIDATION LOOP]
 
-#### SUCCESS Case:
+**Result presentation depends on data collection mode:**
+
+---
+
+#### SUCCESS Case - EXTRACTION MODE (e.g., FSA Estimator):
 
 ```
 Response:
@@ -377,6 +636,77 @@ Here's the final screenshot showing your complete results:
 2. Use this SAI estimate when planning your financial aid
 3. Contact your school's financial aid office for personalized guidance"
 ```
+
+---
+
+#### SUCCESS Case - CONSTRUCTION MODE (e.g., Loan Simulator):
+
+```
+Response:
+{
+  "success": true,
+  "wizard_id": "loan-simulator-borrow-more",
+  "results": {
+    "page_url": "https://studentaid.gov/loan-simulator/repayment/results",
+    "page_title": "Your Repayment Estimate",
+    "body_text": "Monthly Payment: $543\nTotal Paid: $96,052\n..."
+  },
+  "screenshots": ["base64..."],
+  "pages_completed": 6,
+  "execution_time_ms": 48100
+}
+
+YOU:
+"✅ Loan Simulation Complete! (48.1 seconds)
+
+## Your Optimal Loan Strategy
+
+I ran the federal loan simulator with the smartest borrowing strategy for your situation:
+
+### Loan Mix Used (for $39,000/year):
+| Loan Type | Amount | Rate | Why |
+|-----------|--------|------|-----|
+| Direct Subsidized | $3,500 | 5.50% | Cheapest rate + gov't pays interest in school |
+| Direct Unsubsidized | $2,000 | 6.53% | Your max additional student loan |
+| Parent PLUS | $33,500 | 9.08% | Fills the gap (unlimited amount) |
+
+**Total Annual Borrowing:** $39,000
+**Total Over 4 Years:** $156,000
+
+### Official Federal Repayment Estimates:
+
+**Standard 10-Year Plan:**
+- Monthly Payment: $543/month for 15 years
+- Total Paid: ~$96,052
+- Total Interest: ~$57,052
+
+**With your expected $65K salary:** $543/month is about 10% of gross income (manageable range is 10-15%)
+
+## Official Results Page
+
+[Display screenshots[0] using image display - showing the federal simulator results]
+
+## Important Notes:
+- The $5,500 in student loans (subsidized + unsubsidized) are in YOUR name
+- The $33,500 Parent PLUS loan is in your PARENTS' names
+- This strategy maxes out cheaper student loans first, per federal guidelines
+
+## 4-Year Projection:
+If you borrow $39,000/year for all 4 years = $156,000 total debt
+- Monthly payments: ~$1,800-2,000/month after graduation
+- That's ~30% of your $65K salary
+- Total repayment: ~$280,000-320,000 over 15-20 years
+
+Would you like me to model different scenarios (less expensive school, different borrowing amounts)?"
+```
+
+**Key Differences in Construction Mode Presentation:**
+1. ✅ **Explain the strategy AFTER showing results** - "Here's what I used and why"
+2. ✅ **Show the breakdown WITH the official results** - Context + validation
+3. ✅ **Explain why this mix** - "Maxes out cheaper loans first"
+4. ✅ **Provide advisory insights** - "30% of salary is aggressive"
+5. ✅ **Offer alternatives** - "Model different scenarios?"
+6. ❌ **Never show strategy before execution** - Spoils the impact!
 
 **CRITICAL: Display the screenshot inline**
 
