@@ -21,7 +21,7 @@ A remote MCP (Model Context Protocol) server that:
 - Authenticates via OAuth 2.1 with Auth0
 - Supports Dynamic Client Registration (DCR)
 - Works with Claude.ai web and Claude Android mobile app
-- Provides 4 MDCalc medical calculator tools
+- Provides 3 FederalRunner federal form automation tools
 
 ### Why This Is Complex
 
@@ -42,8 +42,8 @@ Here's the simplified 4-step flow:
 **Quick Summary:**
 1. **Discover OAuth** - Claude fetches `/.well-known/oauth-protected-resource` to discover Auth0
 2. **Register Client** - Dynamic Client Registration (DCR) with Auth0
-3. **Issue Token** - User authenticates and grants permissions (scopes: `mdcalc:read`, `mdcalc:calculate`)
-4. **Use Tools** - MCP server validates token, returns 4 MDCalc tools
+3. **Issue Token** - User authenticates and grants permissions (scopes: `federalrunner:read`, `federalrunner:execute`)
+4. **Use Tools** - MCP server validates token, returns 3 FederalRunner tools
 
 **Detailed sequence diagram**: See [MCP_HANDSHAKE_DIAGRAM.md](../mcp-integration/MCP_HANDSHAKE_DIAGRAM.md) for the complete 24-step handshake flow.
 
@@ -76,7 +76,7 @@ Here's the simplified 4-step flow:
          │  │   OAuth       │  │
          │  │ • Session     │  │
          │  │   Management  │  │
-         │  │ • MDCalc      │  │
+         │  │ • Playwright  │  │
          │  │   Client      │  │
          │  └───────────────┘  │
          └─────────────────────┘
@@ -135,8 +135,8 @@ gcloud services enable secretmanager.googleapis.com
 1. Go to https://auth0.com → Sign Up
 2. Choose **Personal** account type
 3. **Critical**: Choose tenant name carefully (can't change easily)
-   - Example: `mdcalc-mcp`
-   - This becomes: `mdcalc-mcp.us.auth0.com`
+   - Example: `federalrunner-mcp`
+   - This becomes: `federalrunner-mcp.us.auth0.com`
 4. Select region: **US** (closest to Cloud Run)
 5. Complete setup wizard
 
@@ -179,8 +179,8 @@ curl -X POST https://YOUR-TENANT.us.auth0.com/oidc/register \
 
 1. **Applications** → **APIs** → **Create API**
 2. Fill in:
-   - **Name**: `MDCalc MCP Server`
-   - **Identifier**: `https://mdcalc-mcp-server` (temporary, will update after deployment)
+   - **Name**: `FederalRunner MCP Server`
+   - **Identifier**: `https://federalrunner-mcp-server` (temporary, will update after deployment)
    - **Signing Algorithm**: RS256
 3. Click **Create**
 
@@ -189,9 +189,8 @@ curl -X POST https://YOUR-TENANT.us.auth0.com/oidc/register \
 
 | Scope | Description |
 |-------|-------------|
-| `mdcalc:read` | Read calculator information and metadata |
-| `mdcalc:search` | Search MDCalc calculator database |
-| `mdcalc:calculate` | Calculate medical scores using MDCalc |
+| `federalrunner:read` | List wizards and get wizard information |
+| `federalrunner:execute` | Execute federal form wizards with user data |
 
 6. Click **Save** after each scope
 
@@ -210,17 +209,17 @@ curl -X POST https://YOUR-TENANT.us.auth0.com/oidc/register \
 
 ### Step 1.5: Save Configuration
 
-Create `~/auth0-credentials.txt`:
+Create `~/auth0-credentials-federalrunner.txt`:
 ```bash
 # Auth0 Configuration
 AUTH0_DOMAIN=YOUR-TENANT.us.auth0.com
 AUTH0_TENANT=YOUR-TENANT
 AUTH0_ISSUER=https://YOUR-TENANT.us.auth0.com/
-AUTH0_API_AUDIENCE=https://mdcalc-mcp-server
+AUTH0_API_AUDIENCE=https://federalrunner-mcp-server
 
 # These will be updated after deployment
 MCP_SERVER_URL=http://localhost:8080
-SERVICE_URL=https://mdcalc-mcp-server-HASH.run.app
+SERVICE_URL=https://federalrunner-mcp-HASH.run.app
 ```
 
 **Note**: Keep the trailing slash in `AUTH0_ISSUER` - it's required!
@@ -232,20 +231,21 @@ SERVICE_URL=https://mdcalc-mcp-server-HASH.run.app
 ### Step 2.1: Project Structure
 
 ```
-mcp-servers/mdcalc-automation-mcp/
+mcp-servers/federalrunner-mcp/
 ├── src/
 │   ├── __init__.py
-│   ├── server.py          # ← NEW: FastAPI server
-│   ├── auth.py            # ← NEW: OAuth validation
-│   ├── config.py          # ← NEW: Settings management
-│   ├── logging_config.py  # ← NEW: Structured logging
-│   ├── mdcalc_client.py   # ← Existing: Browser automation
-│   └── calculator-catalog/
-│       └── mdcalc_catalog.json
-├── Dockerfile             # ← NEW: Container definition
-├── .dockerignore          # ← NEW: Exclude from build
-├── requirements.txt       # ← UPDATED: Add new dependencies
-└── .env                   # ← NEW: Local development config
+│   ├── server.py          # ← FastAPI server with OAuth
+│   ├── auth.py            # ← OAuth validation 
+│   ├── config.py          # ← Settings management
+│   ├── logging_config.py  # ← Structured logging
+│   ├── playwright_client.py  # ← Browser automation (atomic execution)
+│   ├── execution_tools.py    # ← FederalRunner MCP tools
+│   ├── schema_validator.py   # ← User data validation
+│   └── models.py             # ← Wizard structure models
+├── Dockerfile             # ← Container definition
+├── .dockerignore          # ← Exclude from build
+├── requirements.txt       # ← Python dependencies
+└── .env                   # ← Local development config
 ```
 
 ### Step 2.2: Configuration (`src/config.py`)
@@ -259,7 +259,7 @@ mcp-servers/mdcalc-automation-mcp/
 - `MCP_SERVER_URL` - Server URL for OAuth metadata
 - `PORT` - Server port (default: 8080)
 
-**Implementation**: See `mcp-servers/mdcalc-automation-mcp/src/config.py`
+**Implementation**: See `mcp-servers/federalrunner-mcp/src/config.py`
 
 The configuration uses Pydantic Settings for type validation and automatic loading from environment variables or `.env` files.
 
@@ -273,7 +273,7 @@ The configuration uses Pydantic Settings for type validation and automatic loadi
 - Module-specific loggers with consistent formatting
 - Configurable log levels (INFO for production, DEBUG for development)
 
-**Implementation**: See `mcp-servers/mdcalc-automation-mcp/src/logging_config.py`
+**Implementation**: See `mcp-servers/federalrunner-mcp/src/logging_config.py`
 
 The logging system provides comprehensive visibility into OAuth token validation, MCP requests, tool execution, and error conditions.
 
@@ -281,7 +281,7 @@ The logging system provides comprehensive visibility into OAuth token validation
 
 **Critical**: This is where most bugs happened during development. The key innovation is **manual token validation** to support selective authentication.
 
-**Implementation**: See `mcp-servers/mdcalc-automation-mcp/src/auth.py` (lines 1-306)
+**Implementation**: See `mcp-servers/federalrunner-mcp/src/auth.py` 
 
 **Key Functions**:
 
@@ -325,15 +325,15 @@ async def endpoint(request: Request):
 
 ### Step 2.5: Server Implementation (`src/server.py`)
 
-**Implementation**: See `mcp-servers/mdcalc-automation-mcp/src/server.py` (lines 1-end)
+**Implementation**: See `mcp-servers/federalrunner-mcp/src/server.py`
 
 **Architecture**: FastAPI server implementing MCP protocol 2025-06-18 with selective OAuth authentication.
 
 **Key Components**:
 
-**1. Server Setup & Lifecycle** (lines 1-120):
+**1. Server Setup & Lifecycle**:
 - FastAPI app with async lifespan management
-- MDCalc client initialization (headless browser with auth)
+- PlaywrightClient uses atomic execution (browser launched per request)
 - CORS middleware for Claude.ai access
 - Request/response logging middleware
 
@@ -368,14 +368,13 @@ async def mcp_endpoint(request: Request):
 ```
 
 **4. Tool Definitions** (`get_tools` function):
-- `mdcalc_list_all` - Full catalog (825 calculators)
-- `mdcalc_search` - Search by condition/symptom
-- `mdcalc_get_calculator` - Get screenshot and details
-- `mdcalc_execute` - Execute calculator with inputs
+- `federalrunner_list_wizards` - List all discovered wizards
+- `federalrunner_get_wizard_info` - Get wizard schema (THE CONTRACT)
+- `federalrunner_execute_wizard` - Execute wizard with user data
 
 **5. Tool Execution** (`execute_tool` function):
-- Scope-based authorization (`mdcalc:read` or `mdcalc:calculate`)
-- Integration with MDCalcClient for browser automation
+- Scope-based authorization (`federalrunner:read` or `federalrunner:execute`)
+- Integration with PlaywrightClient for atomic execution
 - MCP content format responses (text + images)
 
 **Critical Status Codes**:
@@ -411,8 +410,8 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright and Chromium
-RUN playwright install --with-deps chromium
+# Install Playwright and WebKit (FSA compatibility - headless mode works)
+RUN playwright install --with-deps webkit
 
 # Copy application code
 COPY src/ ./src/
@@ -573,7 +572,7 @@ async def mcp_endpoint(request: Request):
 ### Step 4.1: Local Testing
 
 ```bash
-cd mcp-servers/mdcalc-automation-mcp
+cd mcp-servers/federalrunner-mcp
 
 # Create local .env
 cat > .env << 'EOF'
@@ -582,23 +581,26 @@ AUTH0_API_AUDIENCE=http://localhost:8080
 AUTH0_ISSUER=https://your-tenant.us.auth0.com/
 MCP_SERVER_URL=http://localhost:8080
 PORT=8080
+FEDERALRUNNER_WIZARDS_DIR=/full/path/to/wizards
+FEDERALRUNNER_BROWSER_TYPE=webkit
+FEDERALRUNNER_HEADLESS=true
 EOF
 
 # Install dependencies
 python3.11 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-playwright install chromium
+playwright install webkit
 
 # Run server
-python src/server.py
+uvicorn src.server:app --host 0.0.0.0 --port 8080
 ```
 
 **Test endpoints**:
 ```bash
 # Health check
 curl http://localhost:8080/health
-# Expected: {"status":"healthy","service":"mdcalc-mcp-server"}
+# Expected: {"status":"healthy","service":"federalrunner-mcp-server"}
 
 # OAuth metadata
 curl http://localhost:8080/.well-known/oauth-protected-resource
@@ -612,30 +614,38 @@ curl -X POST http://localhost:8080/
 ### Step 4.2: Deploy to Cloud Run
 
 ```bash
-# Deploy with environment variables
-gcloud run deploy mdcalc-mcp-server \
+# Use deployment script (recommended)
+cd mcp-servers/federalrunner-mcp
+./scripts/deploy-to-cloud-run.sh
+
+# OR manual deployment
+gcloud run deploy federalrunner-mcp \
   --source . \
   --region us-central1 \
   --allow-unauthenticated \
   --platform managed \
-  --memory 1Gi \
-  --timeout 300 \
+  --memory 2Gi \
+  --cpu 2 \
+  --timeout 60 \
   --set-env-vars="AUTH0_DOMAIN=your-tenant.us.auth0.com" \
-  --set-env-vars="AUTH0_API_AUDIENCE=https://mdcalc-mcp-server" \
-  --set-env-vars="AUTH0_ISSUER=https://your-tenant.us.auth0.com/"
+  --set-env-vars="AUTH0_API_AUDIENCE=https://federalrunner-mcp-server" \
+  --set-env-vars="AUTH0_ISSUER=https://your-tenant.us.auth0.com/" \
+  --set-env-vars="FEDERALRUNNER_BROWSER_TYPE=webkit" \
+  --set-env-vars="FEDERALRUNNER_HEADLESS=true" \
+  --set-env-vars="FEDERALRUNNER_WIZARDS_DIR=/app/wizards"
 ```
 
 **Expected output**:
 ```
-Service URL: https://mdcalc-mcp-server-ABC123.run.app
+Service URL: https://federalrunner-mcp-ABC123.run.app
 ```
 
 **Save this URL**:
 ```bash
-SERVICE_URL="https://mdcalc-mcp-server-ABC123.run.app"
+SERVICE_URL="https://federalrunner-mcp-ABC123.run.app"
 
 # Update environment variables with actual URL
-gcloud run services update mdcalc-mcp-server \
+gcloud run services update federalrunner-mcp \
   --region us-central1 \
   --update-env-vars="MCP_SERVER_URL=$SERVICE_URL" \
   --update-env-vars="AUTH0_API_AUDIENCE=$SERVICE_URL"
@@ -644,11 +654,11 @@ gcloud run services update mdcalc-mcp-server \
 ### Step 4.3: Update Auth0 API
 
 1. Auth0 Dashboard → **Applications** → **APIs**
-2. Click **MDCalc MCP Server**
+2. Click **FederalRunner MCP Server**
 3. Go to **Settings** tab
 4. Update **Identifier**:
-   - Old: `https://mdcalc-mcp-server`
-   - New: `https://mdcalc-mcp-server-ABC123.run.app`
+   - Old: `https://federalrunner-mcp-server`
+   - New: `https://federalrunner-mcp-ABC123.run.app`
 5. **No trailing slash!**
 6. Click **Save**
 
@@ -660,7 +670,7 @@ curl $SERVICE_URL/health
 curl $SERVICE_URL/.well-known/oauth-protected-resource
 
 # View logs
-gcloud run services logs read mdcalc-mcp-server \
+gcloud run services logs read federalrunner-mcp \
   --region us-central1 \
   --limit 50
 ```
@@ -671,7 +681,7 @@ gcloud run services logs read mdcalc-mcp-server \
 2. **Settings** → **Connectors**
 3. Click **Add custom connector**
 4. Fill in:
-   - **Name**: `MDCalc Clinical Companion`
+   - **Name**: `FederalRunner`
    - **URL**: Your Cloud Run URL
    - **Advanced Settings**: Leave empty (Claude discovers Auth0 automatically)
 5. Click **Add**
@@ -688,9 +698,8 @@ gcloud run services logs read mdcalc-mcp-server \
 
 **On Consent Screen**:
 - You'll see requested scopes:
-  - `mdcalc:read`
-  - `mdcalc:search`
-  - `mdcalc:calculate`
+  - `federalrunner:read`
+  - `federalrunner:execute`
 - Click **Accept** or **Authorize**
 
 **Back on Claude.ai**:
@@ -701,10 +710,10 @@ gcloud run services logs read mdcalc-mcp-server \
 
 Start a new conversation:
 ```
-Search MDCalc for Wells criteria for pulmonary embolism
+Can you calculate my federal student aid eligibility? I'm 17, born May 15, 2007...
 ```
 
-**Expected**: Claude calls your MCP server and returns search results.
+**Expected**: Claude calls your MCP server, lists wizards, gets schema, executes with your data.
 
 ### Step 4.7: Test on Claude Android
 
@@ -712,25 +721,25 @@ Search MDCalc for Wells criteria for pulmonary embolism
 1. Open Claude Android app
 2. Go to **Settings**
 3. Look for **Connectors** section
-4. Wait for "MDCalc Clinical Companion" to appear
+4. Wait for "FederalRunner" to appear
 
 **Enable in Chat**:
 1. Start new conversation
 2. Tap **paperclip** or **+** button
-3. Find "MDCalc Clinical Companion" in Tools
+3. Find "FederalRunner" in Tools
 4. Toggle ON
 
 **Test with Voice**:
 ```
-Voice: "Search MDCalc for chest pain risk calculators"
+Voice: "Calculate my federal student aid - I'm 17, from Illinois, parents make $120k..."
 ```
 
-**Expected**: Claude searches and returns results.
+**Expected**: Claude collects data and executes wizard.
 
 **Monitor Logs**:
 ```bash
 # Stream logs in real-time
-gcloud run services logs tail mdcalc-mcp-server --region us-central1
+gcloud run services logs tail federalrunner-mcp --region us-central1
 ```
 
 ---
@@ -760,7 +769,7 @@ gcloud run services logs tail mdcalc-mcp-server --region us-central1
 
 **Check Logs**:
 ```bash
-gcloud run services logs tail mdcalc-mcp-server --region us-central1
+gcloud run services logs tail federalrunner-mcp --region us-central1
 ```
 
 **Common Causes**:
@@ -772,7 +781,7 @@ curl $SERVICE_URL/.well-known/oauth-protected-resource | jq -r '.resource'
 # Should match AUTH0_API_AUDIENCE env var
 
 # Fix if needed
-gcloud run services update mdcalc-mcp-server \
+gcloud run services update federalrunner-mcp \
   --region us-central1 \
   --update-env-vars="AUTH0_API_AUDIENCE=$SERVICE_URL"
 ```
@@ -780,7 +789,7 @@ gcloud run services update mdcalc-mcp-server \
 **2. Missing Trailing Slash in Issuer**:
 ```bash
 # Check issuer
-gcloud run services describe mdcalc-mcp-server \
+gcloud run services describe federalrunner-mcp \
   --region us-central1 \
   --format='value(spec.template.spec.containers[0].env)'
 
@@ -824,7 +833,7 @@ curl $SERVICE_URL/.well-known/oauth-protected-resource
 # {
 #   "resource": "https://your-service.run.app",
 #   "authorization_servers": ["https://your-tenant.auth0.com"],
-#   "scopes_supported": ["mdcalc:read", "mdcalc:search", "mdcalc:calculate"]
+#   "scopes_supported": ["federalrunner:read", "federalrunner:execute"]
 # }
 
 # 2. Check CORS headers
@@ -835,7 +844,7 @@ curl -X OPTIONS $SERVICE_URL/ \
 # Should return Access-Control-Allow-* headers
 
 # 3. Verify service is public
-gcloud run services get-iam-policy mdcalc-mcp-server \
+gcloud run services get-iam-policy federalrunner-mcp \
   --region us-central1
 
 # Should show allUsers with roles/run.invoker
@@ -858,7 +867,7 @@ app.add_middleware(
 
 **Not Public**:
 ```bash
-gcloud run services add-iam-policy-binding mdcalc-mcp-server \
+gcloud run services add-iam-policy-binding federalrunner-mcp \
   --region us-central1 \
   --member="allUsers" \
   --role="roles/run.invoker"
@@ -872,7 +881,7 @@ gcloud run services add-iam-policy-binding mdcalc-mcp-server \
 
 **Check Logs For**:
 ```bash
-gcloud run services logs read mdcalc-mcp-server \
+gcloud run services logs read federalrunner-mcp \
   --region us-central1 \
   --limit 100 | grep "Validating token"
 ```
@@ -1049,7 +1058,9 @@ except JWTError:
 
 **Applications vs APIs**:
 - **Applications** = Things that REQUEST access (OAuth clients)
+  - Example: Claude MCP Client (created via DCR), FederalRunner Test Client (M2M)
 - **APIs** = Things that ARE protected (your resources)
+  - Example: FederalRunner MCP Server (your form automation service)
 
 **Relationship**:
 ```
@@ -1195,10 +1206,10 @@ curl $SERVICE_URL/health
 curl $SERVICE_URL/.well-known/oauth-protected-resource
 
 # 2. Check logs
-gcloud run services logs read mdcalc-mcp-server --limit 50
+gcloud run services logs read federalrunner-mcp --limit 50
 
 # 3. Stream logs during testing
-gcloud run services logs tail mdcalc-mcp-server
+gcloud run services logs tail federalrunner-mcp
 ```
 
 **Claude Integration Testing**:
@@ -1241,8 +1252,8 @@ async def verify_token_manual(request):  # ONLY function needed
 
 **4. Forgetting to Update Auth0 API Identifier**:
 After deployment, update API identifier in Auth0:
-- From: `https://mdcalc-mcp-server` (temporary)
-- To: `https://mdcalc-mcp-server-ABC123.run.app` (actual Cloud Run URL)
+- From: `https://federalrunner-mcp-server` (temporary)
+- To: `https://federalrunner-mcp-ABC123.run.app` (actual Cloud Run URL)
 
 **5. Not Handling Both Token Types**:
 Auth0 can issue JWT or JWE. Your code must handle both:
@@ -1287,27 +1298,27 @@ else:
 
 **Cold Start Mitigation**:
 ```bash
-# Keep 1 instance warm
-gcloud run services update mdcalc-mcp-server \
+# Keep 1 instance warm (optional - adds cost)
+gcloud run services update federalrunner-mcp \
   --min-instances 1
 ```
 
 **Resource Tuning**:
 ```bash
-# Adjust based on usage
-gcloud run services update mdcalc-mcp-server \
+# Adjust based on usage (2Gi/2 CPU recommended for Playwright)
+gcloud run services update federalrunner-mcp \
   --memory 2Gi \
   --cpu 2
 ```
 
 **Browser Optimization**:
 ```python
-# In mdcalc_client.py
+# In playwright_client.py - atomic execution pattern
+# Browser launched per request, cleaned up automatically
+# Viewport optimized for form visibility
 await self.browser.new_context(
     viewport={'width': 1920, 'height': 1080},
-    # Disable unnecessary features
     java_script_enabled=True,
-    bypass_csp=False,
 )
 ```
 
@@ -1325,9 +1336,14 @@ await self.browser.new_context(
 - Basic features included
 
 **Estimated Monthly Cost** (light usage):
-- Cloud Run: $5-10
+- Cloud Run: $10-20 (higher due to 2Gi memory + Playwright execution)
 - Auth0: Free
-- **Total**: $5-10/month
+- **Total**: $10-20/month
+
+**Cost Optimization**:
+- Scale to zero when idle (min-instances=0)
+- Use webhook browser reuse if possible
+- Monitor execution time and optimize wizard discovery
 
 ### Future Enhancements
 
@@ -1368,8 +1384,8 @@ async def cleanup_old_sessions():
 **4. Custom Domain**:
 ```bash
 gcloud run domain-mappings create \
-  --service mdcalc-mcp-server \
-  --domain mdcalc.yourdomain.com
+  --service federalrunner-mcp \
+  --domain federalrunner.yourdomain.com
 ```
 
 **5. Monitoring Dashboard**:
@@ -1382,7 +1398,7 @@ gcloud run domain-mappings create \
 
 ## Summary
 
-This guide covered the complete implementation of a remote MCP server with OAuth 2.1 authentication. The key insight is that **selective authentication** based on MCP method type is essential for protocol compliance.
+This guide covered the complete implementation of a remote MCP server with OAuth 2.1 authentication for the FederalRunner federal form automation system. The key insight is that **selective authentication** based on MCP method type is essential for protocol compliance.
 
 **Critical Success Factors**:
 1. ✅ Remove FastAPI `Depends()` for authentication
@@ -1396,4 +1412,6 @@ This guide covered the complete implementation of a remote MCP server with OAuth
 - Debugging authentication: 8-16 hours (saved by this guide!)
 - Total: 10-19 hours
 
-**Result**: A production-ready remote MCP server that works with Claude.ai web and Claude Android mobile app, providing secure access to 825 MDCalc medical calculators via OAuth 2.1.
+**Result**: A production-ready remote MCP server that works with Claude.ai web and Claude Android mobile app, providing secure access to federal form automation (FSA Student Aid, Social Security calculators, Loan Simulators) via OAuth 2.1.
+
+**Key Architecture Pattern**: Contract-First Form Automation where discovered wizards generate JSON Schemas (THE CONTRACT) that enable schema-first data collection and type-safe execution.
