@@ -21,6 +21,7 @@ import asyncio
 import logging
 from pathlib import Path
 import sys
+import time
 
 # Add parent directory to path so we can import src as a package
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -452,6 +453,116 @@ async def test_loan_simulator_execute_wizard_headless(test_config):
     logger.info(f"   Repeatable fields: ✅ 2 loans added")
     logger.info(f"   Browser: WebKit (headless)")
     logger.info("="*70 + "\n")
+
+
+@pytest.mark.asyncio
+@pytest.mark.slow
+async def test_federalrunner_execute_wizard_demo_recording(test_config):
+    """
+    Test MCP Tool: federalrunner_execute_wizard() [DEMO RECORDING MODE]
+
+    SIMPLIFIED: Just like loan_simulator test - calls federalrunner_execute_wizard()!
+
+    This test uses the EXACT dataset from the production demo recording.
+    Non-headless Chromium execution with visible browser and slow_mo.
+
+    Demo Data Profile:
+    - Student: 17 years old, unmarried, no dependents, from Illinois
+    - Grade: Freshman (fall 2026)
+    - Family: 5 members, parents married
+    - Parent income: $200,000
+    - Parent assets: $100,000
+    - Filed taxes: Parents yes, Student no
+
+    Usage for Demo Recording:
+    1. Set up your .env file:
+       FEDERALRUNNER_BROWSER_TYPE=chromium
+       FEDERALRUNNER_HEADLESS=false
+       FEDERALRUNNER_SLOW_MO=500  (adjust speed for recording)
+
+    2. Position your recording frame (browser opens in same spot each time)
+
+    3. Start your screen recording software
+
+    4. Run the test:
+       cd mcp-servers/federalrunner-mcp
+       pytest tests/test_execution_local.py::test_federalrunner_execute_wizard_demo_recording -v -s
+
+    5. Browser launches and executes the wizard automatically
+
+    Tip: Run once to see browser position, then adjust your recording frame.
+
+    Screenshots are saved to: tests/test_output/screenshots/
+    """
+    # Demo recording dataset (exact match from production demo)
+    DEMO_DATA = {
+        # Page 1: Student Information
+        "birth_month": "05",
+        "birth_day": "15",
+        "birth_year": "2007",
+        "marital_status": "unmarried",
+        "state": "Illinois",
+        "grade_level": "freshman",
+
+        # Page 2: Student Personal Circumstances
+        "has_dependents": "no",
+        "personal_circumstances_none": True,
+
+        # Page 3: Parent Marital Status
+        "parents_married": "yes",
+
+        # Page 4: Parent Information
+        "parent_marital_status": "married",
+        "parent_state": "Illinois",
+
+        # Page 5: Family Size
+        "family_size": 5,
+
+        # Page 6: Parent Income and Assets
+        "parent_filed_taxes": "yes",
+        "parent_income": "200000",
+        "parent_assets": "100000",
+        "parent_child_support": "0",
+
+        # Page 7: Student Income and Assets
+        "student_filed_taxes": "no"
+    }
+
+    logger.info("\n" + "="*70)
+    logger.info("🎬 FSA Demo - Non-Headless Chromium Execution (Visual Demo)")
+    logger.info("   Watch the browser execute the FSA wizard visually")
+    logger.info("   Demo Dataset: 17yo student, IL, 5-person family, $200K income")
+    logger.info(f"   Screenshots will be saved to: {test_config.screenshot_dir}")
+    logger.info(f"   Viewport: 1100px width (optimized for recording - from .env)")
+    logger.info("="*70 + "\n")
+
+    # Execute wizard using the MCP tool (what Claude calls!)
+    # Config loads from .env file automatically (non-headless Chromium with slow_mo, 1100px viewport)
+    result = await federalrunner_execute_wizard(
+        wizard_id="fsa-estimator",
+        user_data=DEMO_DATA
+    )
+
+    # Validate response
+    assert result['success'] is True, f"Execution failed: {result.get('error')}"
+    assert result['wizard_id'] == 'fsa-estimator'
+    assert result['pages_completed'] == 7, f"Expected 7 pages, got {result['pages_completed']}"
+    assert len(result['screenshots']) > 0, "No screenshots captured"
+    assert result['execution_time_ms'] > 0
+
+    logger.info("\n" + "="*70)
+    logger.info(f"✅ FSA DEMO RECORDING TEST PASSED")
+    logger.info(f"   Wizard: {result['wizard_id']}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info(f"   Pages completed: {result['pages_completed']}/7")
+    logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info("\n   🎥 Recording complete! Browser will stay open.")
+    logger.info("="*70)
+
+    # Keep browser window open for review
+    logger.info("\n⏸️  Browser window is showing the final results page.")
+    logger.info("   Review the results, then press Enter to close the browser and finish.\n")
+    input("👉 Press Enter to close browser and finish test... ")
 
 
 # ============================================================================
