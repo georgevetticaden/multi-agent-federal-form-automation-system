@@ -565,6 +565,129 @@ async def test_federalrunner_execute_wizard_demo_recording(test_config):
     input("👉 Press Enter to close browser and finish test... ")
 
 
+@pytest.mark.asyncio
+@pytest.mark.slow
+async def test_loan_simulator_execute_wizard_demo_recording(test_config):
+    """
+    Test MCP Tool: federalrunner_execute_wizard() [LOAN SIMULATOR DEMO RECORDING]
+
+    SIMPLIFIED: Just like FSA demo - calls federalrunner_execute_wizard()!
+
+    This test uses realistic loan simulator data for demo recording.
+    Non-headless Chromium execution with visible browser and slow_mo.
+
+    Demo Data Profile:
+    - School: Northwestern University (Illinois)
+    - Program: Bachelor's degree, 4 years
+    - Borrow amount: $19,375
+    - Current loans: 3 loans totaling $19,375
+      * Direct Subsidized: $3,500 @ 5.5%
+      * Direct Unsubsidized: $2,000 @ 6.53%
+      * Parent PLUS: $13,875 @ 9.08%
+    - Expected salary: $65,000
+    - Family income: $110,001+
+    - Dependency: Dependent
+
+    Usage for Demo Recording:
+    1. .env already configured:
+       - FEDERALRUNNER_BROWSER_TYPE=chromium
+       - FEDERALRUNNER_HEADLESS=false
+       - FEDERALRUNNER_SLOW_MO=2000 (2 second pause between actions)
+       - FEDERALRUNNER_VIEWPORT_WIDTH=1100 (optimized for recording)
+
+    2. Position your recording frame (browser opens in same spot each time)
+
+    3. Start your screen recording software
+
+    4. Run the test:
+       cd mcp-servers/federalrunner-mcp
+       pytest tests/test_execution_local.py::test_loan_simulator_execute_wizard_demo_recording -v -s
+
+    5. Browser launches and executes the wizard automatically
+
+    Tip: Run once to see browser position, then adjust your recording frame.
+
+    Screenshots are saved to: tests/test_output/screenshots/
+    """
+    # Demo recording dataset (realistic loan scenario)
+    DEMO_DATA = {
+        # Page 1: School Information
+        "school_location": "Illinois",
+        "school_name": "Northwestern University",
+
+        # Page 2: Program Information
+        "program_type": "Bachelor's degree",
+        "program_length": "4 years",
+        "program_timing": "future",
+
+        # Page 3: Loan Amount
+        "borrow_amount": 19375,
+
+        # Page 4: Current Loans (3 loans)
+        "current_loans": [
+            {
+                "loan_type": "Direct Subsidized Loan",
+                "loan_balance": 3500,
+                "loan_interest_rate": 5.5
+            },
+            {
+                "loan_type": "Direct Unsubsidized Loan",
+                "loan_balance": 2000,
+                "loan_interest_rate": 6.53
+            },
+            {
+                "loan_type": "Direct PLUS Loan for Parents",
+                "loan_balance": 13875,
+                "loan_interest_rate": 9.08
+            }
+        ],
+
+        # Page 5: Financial Information
+        "family_income": "$110,001+",
+        "dependency_status": "dependent",
+
+        # Page 6: Expected Salary
+        "expected_salary": 65000
+    }
+
+    logger.info("\n" + "="*70)
+    logger.info("🎬 Loan Simulator Demo - Non-Headless Chromium (Visual Demo)")
+    logger.info("   Watch the browser execute the Loan Simulator wizard visually")
+    logger.info("   Demo Dataset: Northwestern, Bachelor's, 3 current loans")
+    logger.info(f"   Screenshots will be saved to: {test_config.screenshot_dir}")
+    logger.info(f"   Viewport: 1100px width (optimized for recording - from .env)")
+    logger.info("="*70 + "\n")
+
+    # Execute wizard using the MCP tool (what Claude calls!)
+    # Config loads from .env file automatically (non-headless Chromium with slow_mo, 1100px viewport)
+    result = await federalrunner_execute_wizard(
+        wizard_id="loan-simulator-borrow-more",
+        user_data=DEMO_DATA
+    )
+
+    # Validate response
+    assert result['success'] is True, f"Execution failed: {result.get('error')}"
+    assert result['wizard_id'] == 'loan-simulator-borrow-more'
+    assert result['pages_completed'] == 6, f"Expected 6 pages, got {result['pages_completed']}"
+    assert len(result['screenshots']) > 0, "No screenshots captured"
+    assert result['execution_time_ms'] > 0
+
+    logger.info("\n" + "="*70)
+    logger.info(f"✅ LOAN SIMULATOR DEMO RECORDING TEST PASSED")
+    logger.info(f"   Wizard: {result['wizard_id']}")
+    logger.info(f"   Execution time: {result['execution_time_ms']}ms")
+    logger.info(f"   Pages completed: {result['pages_completed']}/6")
+    logger.info(f"   Screenshots: {len(result['screenshots'])}")
+    logger.info(f"   Loans processed: 3 current loans + $19,375 borrow more")
+    logger.info("\n   🎥 Recording complete! Browser will stay open.")
+    logger.info("="*70)
+
+    # Keep browser window open for review
+    logger.info("\n⏸️  Browser window is showing the final results page.")
+    logger.info("   Review the loan simulation results, then press Enter to close.\n")
+    input("👉 Press Enter to close browser and finish test... ")
+
+
 # ============================================================================
 # ERROR HANDLING TESTS
 # ============================================================================
