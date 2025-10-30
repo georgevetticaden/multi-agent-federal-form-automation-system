@@ -40,17 +40,17 @@ MCP-Protocol-Version: 2025-06-18
 
 → Response: 200 OK
 {
-  "resource": "https://mdcalc-mcp-server-kxncltpzpa-uc.a.run.app",
-  "authorization_servers": ["https://dev-ue0m6l3w4kp22sn5.us.auth0.com"],
+  "resource": "https://your-mcp-server.run.app",
+  "authorization_servers": ["https://your-tenant.auth0.com"],
   "bearer_methods_supported": ["header"],
-  "scopes_supported": ["mdcalc:read", "mdcalc:calculate"]
+  "scopes_supported": ["mcp:read", "mcp:execute"]
 }
 ```
 
 **Server logs show:**
 ```
 INFO - OAuth metadata requested (for DCR discovery)
-DEBUG - Returning Auth0 domain: dev-ue0m6l3w4kp22sn5.us.auth0.com
+DEBUG - Returning Auth0 domain: your-tenant.auth0.com
 ```
 
 **What happened:**
@@ -74,7 +74,7 @@ Between these log entries, several things happened that we don't see in the MCP 
 
 Claude.ai contacted Auth0 directly:
 ```
-POST https://dev-ue0m6l3w4kp22sn5.us.auth0.com/oidc/register
+POST https://your-tenant.auth0.com/oidc/register
 {
   "client_name": "Claude MCP Client",
   "redirect_uris": ["https://claude.ai/oauth/callback"],
@@ -99,11 +99,11 @@ POST https://dev-ue0m6l3w4kp22sn5.us.auth0.com/oidc/register
 
 Claude redirected the user's browser to:
 ```
-https://dev-ue0m6l3w4kp22sn5.us.auth0.com/authorize?
+https://your-tenant.auth0.com/authorize?
   client_id=auto-generated-client-id&
   redirect_uri=https://claude.ai/oauth/callback&
   response_type=code&
-  scope=mdcalc:read%20mdcalc:calculate&
+  scope=mcp:read%20mcp:execute&
   state=random-state&
   code_challenge=sha256-of-verifier&
   code_challenge_method=S256
@@ -115,8 +115,8 @@ The user saw:
 1. Auth0 login page
 2. Entered email/password
 3. Saw consent screen showing requested scopes:
-   - `mdcalc:read` - Read calculator information
-   - `mdcalc:calculate` - Calculate medical scores
+   - `mcp:read` - Read calculator information
+   - `mcp:execute` - Calculate medical scores
 4. Clicked "Agree"
 
 ### Step 2.4: Token Exchange
@@ -130,7 +130,7 @@ https://claude.ai/oauth/callback?
 
 Claude then exchanged the code for tokens:
 ```
-POST https://dev-ue0m6l3w4kp22sn5.us.auth0.com/oauth/token
+POST https://your-tenant.auth0.com/oauth/token
 {
   "grant_type": "authorization_code",
   "code": "authorization-code",
@@ -144,7 +144,7 @@ POST https://dev-ue0m6l3w4kp22sn5.us.auth0.com/oauth/token
   "access_token": "eyJhbGciOiJkaXIiLCJlbmMi...",  // JWE token
   "token_type": "Bearer",
   "expires_in": 86400,
-  "scope": "mdcalc:read mdcalc:calculate"
+  "scope": "mcp:read mcp:execute"
 }
 ```
 
@@ -193,7 +193,7 @@ MCP-Protocol-Version: 2025-06-18
       "tools": {}
     },
     "serverInfo": {
-      "name": "mdcalc-mcp-server",
+      "name": "mcp-server",
       "version": "1.0.0"
     }
   }
@@ -303,9 +303,9 @@ INFO - Listing available tools (requires authentication)
 INFO - Validating token: eyJhbGciOiJkaXIiLCJl...1AfEF2yge-2rgSoxELAw  ← FIRST TIME!
 DEBUG - Token key ID (kid): None
 INFO - Token has no kid - using Auth0 userinfo for validation
-INFO - Validating token via userinfo: https://dev-ue0m6l3w4kp22sn5.us.auth0.com/userinfo
+INFO - Validating token via userinfo: https://your-tenant.auth0.com/userinfo
 INFO - Token validated successfully via userinfo for subject: auth0|68e193461b57309d26362a05
-INFO - Token scopes: ['mdcalc:read', 'mdcalc:calculate']
+INFO - Token scopes: ['mcp:read', 'mcp:execute']
 INFO - Returning 4 tools
 ```
 
@@ -316,7 +316,7 @@ INFO - Returning 4 tools
 4. Server called Auth0's userinfo endpoint for validation
 5. Auth0 confirmed the token is valid
 6. Server extracted scopes from validation response
-7. Server returned the 4 MDCalc tools
+7. Server returned the available MCP tools
 
 **Response:**
 ```
@@ -328,10 +328,10 @@ MCP-Session-ID: ed0fee05-fdbf-406f-8aee-b451fd29ee46
   "id": 1,
   "result": {
     "tools": [
-      {"name": "mdcalc_list_all", ...},
-      {"name": "mdcalc_search", ...},
-      {"name": "mdcalc_get_calculator", ...},
-      {"name": "mdcalc_execute", ...}
+      {"name": "mcp_list", ...},
+      {"name": "mcp_search", ...},
+      {"name": "mcp_get_info", ...},
+      {"name": "mcp_execute", ...}
     ]
   }
 }
@@ -662,6 +662,6 @@ After two days of debugging, the logs prove this approach works. The server now 
 - Integrates with Auth0 for OAuth 2.1 with PKCE
 - Handles both JWT and JWE tokens correctly
 - Maintains sessions across multiple requests
-- Enables Claude.ai to access MDCalc calculators securely
+- Enables Claude.ai to access MCP tools securely
 
-**The handshake is complete. The tools are ready. The medicine can flow.** 💊🔒✅
+**The handshake is complete. The tools are ready.** 🔒✅

@@ -12,7 +12,7 @@ Here's the simplified 4-step flow:
 1. **Discover OAuth** - Claude fetches `/.well-known/oauth-protected-resource`
 2. **Register Client** - Dynamic Client Registration (DCR) with Auth0
 3. **Issue Token** - User authenticates and grants permissions
-4. **Use Tools** - Token validated, 4 MDCalc tools available
+4. **Use Tools** - Token validated, MCP tools available
 
 ## Detailed 24-Step Sequence
 
@@ -74,7 +74,7 @@ The complete technical handshake broken down into 4 phases:
        │  ?client_id=...                  │                                   │
        │  &redirect_uri=...               │                                   │
        │  &response_type=code             │                                   │
-       │  &scope=mdcalc:read+...          │                                   │
+       │  &scope=mcp:read+mcp:execute     │                                   │
        │  &code_challenge=sha256(...)     │                                   │
        │  &code_challenge_method=S256     │                                   │
        │──────────────────────────────────────────────────────────────────────>│
@@ -108,7 +108,7 @@ The complete technical handshake broken down into 4 phases:
        │      "eyJhbGci...JWE_TOKEN",     │                                   │
        │    "token_type": "Bearer",       │                                   │
        │    "expires_in": 86400,          │                                   │
-       │    "scope": "mdcalc:read ..."    │                                   │
+       │    "scope": "mcp:read mcp:execute"│                                  │
        │  }                               │                                   │
        │<──────────────────────────────────────────────────────────────────────│
        │                                  │                                   │
@@ -196,13 +196,11 @@ The complete technical handshake broken down into 4 phases:
        │  {                               │                                   │
        │    "tools": [                    │                                   │
        │      {"name":                    │                                   │
-       │        "mdcalc_list_all", ...},  │                                   │
+       │        "mcp_list", ...},         │                                   │
        │      {"name":                    │                                   │
-       │        "mdcalc_search", ...},    │                                   │
+       │        "mcp_get_info", ...},     │                                   │
        │      {"name":                    │                                   │
-       │        "mdcalc_get_calculator",..│                                   │
-       │      {"name":                    │                                   │
-       │        "mdcalc_execute", ...}    │                                   │
+       │        "mcp_execute", ...}       │                                   │
        │    ]                             │                                   │
        │  }                               │                                   │
        │<─────────────────────────────────│                                   │
@@ -211,7 +209,7 @@ The complete technical handshake broken down into 4 phases:
        │  {                               │                                   │
        │    "method": "tools/call",       │                                   │
        │    "params": {                   │                                   │
-       │      "name": "mdcalc_search",    │                                   │
+       │      "name": "mcp_execute",      │                                   │
        │      "arguments": {              │                                   │
        │        "query": "HEART score"    │                                   │
        │      }                           │                                   │
@@ -256,14 +254,14 @@ The complete technical handshake broken down into 4 phases:
 - **User-Agent in logs**: `python-httpx/0.27.0` (discovery), then `Claude-User` (operations)
 
 ### 2. **MCP Server (Your Service on Google Cloud Run)**
-- **Location**: `https://mdcalc-mcp-server-kxncltpzpa-uc.a.run.app`
-- **Role**: Implements MCP protocol and provides MDCalc tools
-- **What it does**: 
+- **Location**: `https://your-mcp-server.run.app`
+- **Role**: Implements MCP protocol and provides MCP tools
+- **What it does**:
   - Responds to protocol checks
   - Advertises OAuth configuration
   - Manages MCP sessions
   - Validates tokens with Auth0
-  - Executes MDCalc calculators
+  - Executes MCP tools
 
 ### 3. **Auth0 (Authorization Server)**
 - **Location**: `https://dev-ue0m6l3w4kp22sn5.us.auth0.com`

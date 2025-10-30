@@ -50,13 +50,11 @@ return content_parts
 **Files Modified:**
 - `src/server.py:273-295` - Extract screenshot, return ImageContent + TextContent
 
-**Reference:** MDCalc pattern from `requirements/reference/mdcalc/mdcalc_mcp.py`
-
 ---
 
 ### 2. Screenshot Quality Optimization
 
-**Change:** Reduced screenshot quality and size limits to match MDCalc's proven values.
+**Change:** Optimized screenshot quality and size limits for efficient conversation management.
 
 **Before:**
 - Quality: 80%
@@ -75,7 +73,7 @@ return content_parts
 - `src/playwright_client.py:303` - Changed default `full_page=False`
 - `docs/discovery/CLAUDE_DESKTOP_SETUP.md:52-53` - Environment variable docs
 
-**Rationale:** MDCalc achieves ~23KB screenshots at quality=60. Our target of 50KB provides margin while staying well under limits.
+**Rationale:** Quality=60 achieves excellent screenshot compression (~23KB) while maintaining readability. Our target of 50KB provides margin while staying well under Claude Desktop limits.
 
 ---
 
@@ -195,7 +193,7 @@ async def federalscout_save_page_metadata(session_id, page_metadata):
 - Height: 1400px (taller viewport shows more form fields at once)
 - Intelligent zoom adjusts content to fit viewport automatically (now allows down to 30%)
 
-**Pattern (from MDCalc):**
+**Implementation:**
 ```python
 # Measure form height and viewport
 measurements = await page.evaluate('''
@@ -403,20 +401,6 @@ If Claude Desktop crashes mid-discovery:
 
 ### New Files
 7. `OPTIMIZATIONS.md` (this file) - Complete optimization documentation
-
----
-
-## Reference Patterns
-
-### MDCalc Screenshot Optimization
-- File: `requirements/reference/mdcalc/mdcalc_client.py`
-- Pattern: quality=60, viewport-only, JPEG format
-- Result: ~23KB per screenshot
-
-### MDCalc MCP Image Content
-- File: `requirements/reference/mdcalc/mdcalc_mcp.py`
-- Pattern: Separate ImageContent + TextContent response
-- Result: 50-70% conversation size reduction
 
 ---
 
