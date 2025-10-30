@@ -393,24 +393,6 @@ This pattern works for **any multi-page web form** lacking APIs:
 
 ---
 
-## 📝 Citation
-
-If you use this system in research or production:
-
-```bibtex
-@software{vetticaden2025federalforms,
-  author = {Vetticaden, George},
-  title = {Multi-Agent Federal Form Automation System},
-  subtitle = {Vision-guided discovery and contract-first execution
-              for voice-accessible government services},
-  year = {2025},
-  url = {https://github.com/georgevetticaden/multi-agent-federal-form-automation-system},
-  note = {Contract-first pattern with specialized discovery and execution agents}
-}
-```
-
----
-
 ## 📄 License
 
 **MIT License** - See [LICENSE](LICENSE) for details.
@@ -420,38 +402,3 @@ If you use this system in research or production:
 - ✅ Modify and distribute as needed
 - ✅ No warranty provided
 - ⚠️ Production use with real PII requires compliance review
-
----
-
-## 🙏 Acknowledgments
-
-- **Anthropic** - For Claude's vision capabilities and MCP protocol
-- **Playwright Team** - Excellent browser automation framework
-- **Government Digital Services** - For accessible public web forms
-- **Open Source Community** - For the foundational tools and patterns
-
----
-
-## 📞 Contact & Support
-
-- **GitHub Issues:** [Report bugs or request features](https://github.com/georgevetticaden/multi-agent-federal-form-automation-system/issues)
-- **LinkedIn:** [George Vetticaden](https://www.linkedin.com/in/georgevetticaden/)
-- **YouTube:** [Watch the technical deep dive](https://www.youtube.com/watch?v=IkKKLjBCnjY)
-
----
-
-<div align="center">
-
-**🎯 Built to make government services accessible to everyone**
-
-*Demonstrating how AI can bridge the gap between complex forms and natural conversation*
-
-**Vision-guided discovery + Contract-first execution = Voice-accessible government services**
-
-[⭐ Star this repo](https://github.com/georgevetticaden/multi-agent-federal-form-automation-system) if you found it valuable!
-
----
-
-**Made with ❤️ for accessible government services**
-
-</div>
