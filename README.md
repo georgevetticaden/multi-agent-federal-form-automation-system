@@ -531,9 +531,9 @@ If you use this system in research or production:
 ## 🙏 Acknowledgments
 
 - **Anthropic** - For Claude's vision capabilities and MCP protocol
-- **MDCalc Project** - Reference implementation for remote MCP patterns
 - **Playwright Team** - Excellent browser automation framework
 - **Government Digital Services** - For accessible public web forms
+- **Open Source Community** - For the foundational tools and patterns
 
 ---
 

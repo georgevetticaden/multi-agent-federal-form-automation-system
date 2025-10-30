@@ -285,7 +285,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         if isinstance(result, dict) and 'screenshot' in result:
             screenshot_b64 = result.pop('screenshot')  # Remove from dict
 
-            # Add screenshot as ImageContent (MDCalc pattern)
+            # Add screenshot as ImageContent
             if screenshot_b64:
                 content_parts.append(ImageContent(
                     type="image",

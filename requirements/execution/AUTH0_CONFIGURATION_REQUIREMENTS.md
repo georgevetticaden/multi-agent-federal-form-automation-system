@@ -3,7 +3,7 @@
 **Version:** 1.0.0
 **Status:** Ready for Implementation
 **Last Updated:** 2025-10-18
-**Reference:** Auth0 Concepts (`docs/auth0/AUTH0_CONCEPTS.md`), MDCalc Auth0 Setup
+**Reference:** Auth0 Concepts (`docs/auth0/AUTH0_CONCEPTS.md`)
 
 ---
 
@@ -11,7 +11,7 @@
 
 This document defines the step-by-step requirements for configuring Auth0 as the OAuth 2.1 identity provider for FederalRunner MCP server. This enables Claude.ai and Claude Mobile to authenticate users and access federal form automation tools.
 
-**Key Pattern**: Follow the proven MDCalc Auth0 configuration, adapting scopes and resource names for FederalRunner.
+**Key Pattern**: Configure Auth0 with API, OAuth scopes, Dynamic Client Registration, and test applications for FederalRunner.
 
 ---
 
@@ -116,10 +116,6 @@ async def execute_tool(tool_name: str, arguments: Dict, scopes: list) -> Dict:
         require_scope('federalrunner:execute', scopes)
         # ... execute tool
 ```
-
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 669-683, 702-713, 766-783 (scope enforcement)
 
 ---
 
@@ -389,10 +385,6 @@ async def oauth_metadata():
 4. Claude calls Auth0's `/oidc/register` to create OAuth client (DCR)
 5. Claude initiates OAuth flow with user
 
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 182-200
-
 ---
 
 ## REQ-AUTH0-007: Environment Variables Configuration
@@ -475,10 +467,6 @@ gcloud run deploy federalrunner-mcp \
     --set-env-vars="MCP_SERVER_URL=https://federalrunner-mcp-xxx.run.app"
 ```
 
-### Reference
-
-See: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh` lines 76-83 (issuer validation), lines 209-213 and 277-280 (env var configuration)
-
 ---
 
 ## REQ-AUTH0-008: Save Credentials Securely
@@ -560,7 +548,7 @@ Notes:
 ### Phase 3: Server Configuration
 - [ ] Add AUTH0 env vars to config.py
 - [ ] Implement /.well-known/oauth-protected-resource endpoint
-- [ ] Copy auth.py from MDCalc (no changes needed)
+- [ ] Implement auth.py with OAuth 2.1 token validation
 - [ ] Add require_scope() calls in execute_tool()
 - [ ] Test token validation locally
 
@@ -628,9 +616,6 @@ Notes:
 
 - **Auth0 Concepts**: `docs/auth0/AUTH0_CONCEPTS.md`
 - **Auth0 Implementation Guide**: `docs/auth0/AUTH0_IMPLEMENTATION_GUIDE.md`
-- **MDCalc Server**: `requirements/reference/mdcalc/server.py`
-- **MDCalc Auth**: `requirements/reference/mdcalc/auth.py`
-- **MDCalc Deployment**: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh`
 - **OAuth 2.1 Spec**: https://oauth.net/2.1/
 - **RFC 7591 (DCR)**: https://datatracker.ietf.org/doc/html/rfc7591
 - **RFC 9728 (Metadata)**: https://datatracker.ietf.org/doc/html/rfc9728

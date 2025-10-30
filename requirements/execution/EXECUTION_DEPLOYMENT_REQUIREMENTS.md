@@ -25,7 +25,7 @@ FederalRunner MUST support two path resolution modes without code changes:
 
 ### Design Pattern
 
-**Environment Variable Override Pattern** (same as MDCalc):
+**Environment Variable Override Pattern**:
 
 ```python
 # config.py __init__ method
@@ -96,18 +96,16 @@ Dockerfile MUST:
 4. Verify wizard files are present before deployment
 5. Set environment variables for production configuration
 
-### Reference Implementation
+### Implementation Notes
 
-See: `requirements/reference/mdcalc/Dockerfile` (lines 1-68)
+**Key Requirements:**
 
-**Key Differences from MDCalc:**
-
-| Aspect | MDCalc | FederalRunner |
-|--------|--------|---------------|
-| Browser | Chromium | **WebKit** (FSA headless compatibility) |
-| Data Location | `src/calculator-catalog/` (embedded) | `/app/wizards/` (copied at build time) |
-| Data Pattern | Static catalog (never changes) | **Dynamic wizards** (updated by FederalScout) |
-| Verification | `test -f mdcalc_catalog.json` | `test -d /app/wizards/wizard-structures && test -d /app/wizards/data-schemas` |
+| Aspect | FederalRunner |
+|--------|---------------|
+| Browser | **WebKit** (FSA headless compatibility) |
+| Data Location | `/app/wizards/` (copied at build time) |
+| Data Pattern | **Dynamic wizards** (updated by FederalScout) |
+| Verification | `test -d /app/wizards/wizard-structures && test -d /app/wizards/data-schemas` |
 
 ### Dockerfile Template (Phase 5)
 
@@ -118,7 +116,7 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y \
     wget gnupg ca-certificates fonts-liberation \
     libasound2 libatk-bridge2.0-0 libatk1.0-0 \
-    # ... (full list from MDCalc Dockerfile)
+    # ... (Playwright WebKit dependencies)
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -242,7 +240,7 @@ echo "=================================================="
 1. ✅ **Preserves local shared directory** - FederalScout and FederalRunner continue to share `wizards/` locally
 2. ✅ **Version control stays clean** - Don't duplicate wizards in two locations permanently
 3. ✅ **Deployment uses latest data** - Always packages the current wizards discovered by FederalScout
-4. ✅ **Matches MDCalc pattern** - MDCalc's calculator catalog is also static data packaged at build time
+4. ✅ **Clean pattern** - Static wizard data packaged at build time
 
 **Alternative considered and rejected:**
 - ❌ Move wizards into `src/wizards/` permanently → Breaks FederalScout's write location
@@ -306,10 +304,6 @@ Cloud Run service MUST be configured with sufficient resources for Playwright ex
 - **60s Timeout**: FSA wizard typically completes in 15-25 seconds, 60s provides buffer
 - **Scale to zero**: Cost optimization (only pay for usage)
 
-### Reference
-
-See: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh` lines 55-59
-
 ---
 
 ## REQ-DEPLOY-006: Authentication
@@ -320,7 +314,7 @@ Cloud Run deployment MUST implement OAuth 2.1 authentication with Auth0.
 
 ### Implementation
 
-Follow MDCalc authentication pattern:
+Configure OAuth 2.1 authentication with Auth0:
 
 1. **Auth0 API Configuration**
    - Create API resource in Auth0
@@ -339,8 +333,8 @@ Follow MDCalc authentication pattern:
 ### Reference
 
 See:
-- `requirements/shared/AUTHENTICATION_REQUIREMENTS.md`
-- `requirements/reference/mdcalc/server.py` lines 1-750
+- `requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`
+- `requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md`
 
 ---
 
@@ -412,10 +406,10 @@ curl -X POST \
 
 ## References
 
-- **MDCalc Deployment**: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh`
-- **MDCalc Dockerfile**: `requirements/reference/mdcalc/Dockerfile`
-- **Authentication**: `requirements/shared/AUTHENTICATION_REQUIREMENTS.md`
+- **Server Requirements**: `requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`
+- **Auth0 Configuration**: `requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md`
 - **Local Config**: `mcp-servers/federalrunner-mcp/src/config.py`
+- **Google Cloud Run Docs**: https://cloud.google.com/run/docs
 - **Test Instructions**: `docs/execution/TEST_INSTRUCTIONS.md`
 
 ---
@@ -433,7 +427,7 @@ curl -X POST \
 
 **Decision**: Use environment variable override pattern because:
 - ✅ Preserves local shared directory (FederalScout + FederalRunner)
-- ✅ Matches MDCalc's proven pattern
+- ✅ Clean separation between local and production
 - ✅ No code changes between environments
 - ✅ Simple and maintainable
 

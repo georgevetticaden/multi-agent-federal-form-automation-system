@@ -194,7 +194,7 @@ User Data Schema:           Wizard Data:
 **✅ Agent Instructions**
 - ✅ Comprehensive instructions for Claude (619 lines)
 - ✅ 6 mandatory phases (Discovery, Schema Analysis, Data Collection, Validation, Execution, Result Handling)
-- ✅ Visual validation loop pattern from MDCalc
+- ✅ Visual validation loop pattern for error handling
 - ✅ Generic wizard selection (not hardcoded to FSA)
 - ✅ Location: `agents/federalrunner-instructions.md`
 
@@ -215,12 +215,10 @@ User Data Schema:           Wizard Data:
 - 📘 **`requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md`** ← Auth0 setup (REQ-AUTH0-001 through REQ-AUTH0-008)
 - 📘 **`requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md`** ← Dockerfile + deployment (REQ-DEPLOY-001 through REQ-DEPLOY-007)
 
-**Reference Models:**
-- ✅ MDCalc server.py: `requirements/reference/mdcalc/server.py` (894 lines)
-- ✅ MDCalc auth.py: `requirements/reference/mdcalc/auth.py` (306 lines)
-- ✅ MDCalc deployment: `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh` (337 lines)
+**Additional Resources:**
 - ✅ Auth0 concepts: `docs/auth0/AUTH0_CONCEPTS.md`
-- ✅ MCP integration: `docs/mcp-integration/`
+- ✅ MCP integration guide: `docs/mcp-integration/`
+- ✅ Deployment lessons learned: `docs/deployment/LESSONS_LEARNED.md`
 
 **Skip Claude Desktop testing** - Go directly to Cloud Run deployment for testing in Claude.ai/mobile
 
@@ -234,14 +232,14 @@ User Data Schema:           Wizard Data:
 
 ### Overview
 
-Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authentication, following the proven MDCalc deployment pattern.
+Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authentication.
 
 ### Step 5.1: FastAPI MCP Server with OAuth 2.1
 
 **📘 Detailed Requirements:** `requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`
 
 **Implementation checklist:**
-- [ ] Create `src/server.py` with FastAPI app (model after MDCalc server.py)
+- [ ] Create `src/server.py` with FastAPI app
 - [ ] Implement lifespan management (PlaywrightClient init/cleanup)
 - [ ] Add CORS middleware (allow Claude.ai/mobile access)
 - [ ] Add request logging middleware (debugging)
@@ -257,13 +255,13 @@ Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authenticatio
   - [ ] `federalrunner_get_wizard_info` (scope: federalrunner:read)
   - [ ] `federalrunner_execute_wizard` (scope: federalrunner:execute)
 - [ ] Implement `execute_tool()` function with scope validation
-- [ ] Copy `src/auth.py` from MDCalc (no changes needed)
+- [ ] Implement `src/auth.py` with OAuth 2.1 validation
 - [ ] Add OAuth metadata endpoint (`GET /.well-known/oauth-protected-resource`)
 - [ ] Update `src/config.py` with Auth0 environment variables
 - [ ] Test locally without OAuth
 - [ ] Test locally with M2M OAuth token
 
-**Key patterns from MDCalc:**
+**Key MCP patterns:**
 - MCP Protocol 2025-06-18 (Streamable HTTP, POST-only)
 - Selective authentication (initialize = no auth, tools = full auth)
 - Session management for MCP protocol compliance
@@ -337,7 +335,7 @@ Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authenticatio
 **📘 Detailed Requirements:** `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` REQ-DEPLOY-003
 
 **Implementation checklist:**
-- [ ] Create `scripts/deploy-to-cloud-run.sh` (model after MDCalc)
+- [ ] Create `scripts/deploy-to-cloud-run.sh`
 - [ ] Create `.env.deployment.example` template
 - [ ] Implement deployment steps:
   - [ ] Load configuration from `.env.deployment`
@@ -556,8 +554,8 @@ Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authenticatio
 ### Immediate Next Steps (in order):
 
 1. **Implement FastAPI MCP Server** (`requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md`)
-   - Create `src/server.py` modeled after MDCalc
-   - Copy `src/auth.py` from MDCalc (no changes needed)
+   - Create `src/server.py` with FastAPI and MCP protocol support
+   - Implement `src/auth.py` with OAuth 2.1 validation
    - Define 3 FederalRunner tools with proper scopes
    - Test locally with and without OAuth
 
@@ -574,7 +572,7 @@ Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authenticatio
    - Test local Docker build and run
 
 4. **Create Deployment Script**
-   - Model after MDCalc deployment script
+   - Implement Google Cloud Run deployment automation
    - Copy wizards, deploy, update env vars, cleanup
    - Test deployment to Cloud Run
 
@@ -589,7 +587,6 @@ Deploy FederalRunner MCP server to Google Cloud Run with OAuth 2.1 authenticatio
 All requirements documentation is complete. Each step has:
 - ✅ Detailed requirements (REQ-XXX-###)
 - ✅ Implementation checklists
-- ✅ Reference to working MDCalc examples
 - ✅ Success criteria
 - ✅ Troubleshooting guidance
 
@@ -602,15 +599,10 @@ All requirements documentation is complete. Each step has:
 - **Wizard Structure Schema:** `requirements/shared/WIZARD_STRUCTURE_SCHEMA.md`
 - **Execution Requirements:** `requirements/execution/EXECUTION_REQUIREMENTS.md`
 
-### Phase 5 Deployment Requirements (NEW)
+### Phase 5 Deployment Requirements
 - **FastAPI MCP Server:** `requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md` (9 requirements)
 - **Auth0 Configuration:** `requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md` (8 requirements)
 - **Deployment Infrastructure:** `requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md` (7 requirements)
-
-### MDCalc Reference Implementation
-- **Server:** `requirements/reference/mdcalc/server.py` (894 lines - proven pattern)
-- **Auth:** `requirements/reference/mdcalc/auth.py` (306 lines - copy as-is)
-- **Deployment:** `requirements/reference/mdcalc/mdcalc-deploy-to-cloud-run.sh` (337 lines - adapt for FederalRunner)
 
 ### Auth0 & MCP Integration
 - **Auth0 Concepts:** `docs/auth0/AUTH0_CONCEPTS.md`

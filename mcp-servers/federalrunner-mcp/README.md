@@ -146,7 +146,6 @@ federalrunner-mcp/
 
 ### 🚧 Phase 5: Cloud Deployment - IN PROGRESS
 - [x] Requirements documentation (24 detailed requirements)
-- [x] Reference implementation (MDCalc patterns)
 - [ ] FastAPI MCP HTTP server
 - [ ] OAuth 2.1 with Auth0
 - [ ] Docker container

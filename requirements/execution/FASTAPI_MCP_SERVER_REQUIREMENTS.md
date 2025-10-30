@@ -3,7 +3,6 @@
 **Version:** 1.0.0
 **Status:** Ready for Implementation
 **Last Updated:** 2025-10-18
-**Reference:** MDCalc MCP Server (`requirements/reference/mdcalc/server.py`, `requirements/reference/mdcalc/auth.py`)
 
 ---
 
@@ -11,7 +10,7 @@
 
 This document defines the technical requirements for implementing the FederalRunner FastAPI MCP server with OAuth 2.1 authentication. The server implements Model Context Protocol (MCP) 2025-06-18 specification for providing federal form automation to AI assistants like Claude.
 
-**Key Pattern**: Model after the successful MDCalc MCP server deployment, adapting for FederalRunner's execution tools.
+**Key Pattern**: Implement FastAPI server with MCP Protocol 2025-06-18, OAuth 2.1, and selective authentication for FederalRunner's execution tools.
 
 ---
 
@@ -44,10 +43,6 @@ FastAPI server MUST implement MCP Protocol 2025-06-18 with Streamable HTTP trans
 - DELETE / → Session termination
 - GET /health → Health check (no auth)
 - GET /.well-known/oauth-protected-resource → OAuth metadata (DCR)
-
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 1-43 (docstring), 111-324 (endpoints)
 
 ---
 
@@ -119,10 +114,6 @@ async def mcp_endpoint(request: Request):
 ### Rationale
 
 Per MCP spec, `initialize` must be accessible without auth so clients can discover OAuth configuration. This enables Claude Android to learn how to authenticate before requesting protected resources.
-
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 326-536 (mcp_endpoint function), lines 13-31 (authentication strategy docstring)
 
 ---
 
@@ -339,10 +330,6 @@ async def execute_tool(tool_name: str, arguments: Dict, scopes: list) -> Dict:
         return {'content': content}
 ```
 
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 538-883 (get_tools and execute_tool functions)
-
 ---
 
 ## REQ-SERVER-004: Session Management
@@ -385,10 +372,6 @@ def validate_session(session_id: str, request: Request) -> None:
 3. **Validate**: Check exists for all subsequent requests
 4. **Cleanup**: Remove on `DELETE /` or timeout
 
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 64-67 (session storage), 204-230 (validate_session)
-
 ---
 
 ## REQ-SERVER-005: CORS Configuration
@@ -417,10 +400,6 @@ app.add_middleware(
 - **allow_origins=["*"]**: Public MCP server, accessed from web and mobile
 - **allow_credentials=False**: Using Bearer tokens in Authorization header, not cookies
 - **expose_headers**: Allow client to read MCP protocol headers
-
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 119-128
 
 ---
 
@@ -464,10 +443,6 @@ async def log_all_requests(request: Request, call_next):
 
     return response
 ```
-
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 130-169
 
 ---
 
@@ -538,10 +513,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 ```
-
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 69-109
 
 ---
 
@@ -651,10 +622,6 @@ except Exception as e:
     return response
 ```
 
-### Reference
-
-See: `requirements/reference/mdcalc/server.py` lines 504-536
-
 ---
 
 ## Implementation Checklist
@@ -680,7 +647,7 @@ See: `requirements/reference/mdcalc/server.py` lines 504-536
 - [ ] Format responses with MCP content blocks (text + images)
 
 ### Phase 4: OAuth Integration
-- [ ] Copy `auth.py` from MDCalc (no changes needed)
+- [ ] Implement `auth.py` with OAuth 2.1 token validation
 - [ ] Implement selective authentication in mcp_endpoint
 - [ ] Add /.well-known/oauth-protected-resource endpoint
 - [ ] Test token validation
@@ -710,8 +677,7 @@ See: `requirements/reference/mdcalc/server.py` lines 504-536
 
 ## References
 
-- **MDCalc Server**: `requirements/reference/mdcalc/server.py` (894 lines)
-- **MDCalc Auth**: `requirements/reference/mdcalc/auth.py` (306 lines)
 - **MCP Specification**: https://modelcontextprotocol.io/specification/2025-06-18
 - **FastAPI Docs**: https://fastapi.tiangolo.com/
+- **OAuth 2.1 Spec**: https://oauth.net/2.1/
 - **Execution Tools**: `mcp-servers/federalrunner-mcp/src/execution_tools.py`

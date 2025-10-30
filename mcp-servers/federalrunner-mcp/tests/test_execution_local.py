@@ -770,9 +770,9 @@ async def test_execute_wizard_runtime_error_with_screenshot():
     """
     Test runtime execution error with screenshot capture.
 
-    🎯 VISUAL VALIDATION LOOP PATTERN (see requirements/reference/mdcalc/MDCalc-Blog.md)
+    🎯 VISUAL VALIDATION LOOP PATTERN
 
-    This test validates the same self-correcting pattern used in the MDCalc agent:
+    This test validates a self-correcting pattern for error handling:
 
     1. Schema validation passes ✅ (type-safe contract upheld)
     2. Runtime execution fails ❌ (form shows validation error like "Select a response")
@@ -781,10 +781,10 @@ async def test_execute_wizard_runtime_error_with_screenshot():
     5. Claude guides user to correct the issue (e.g., "provide valid US state")
     6. Re-execute with corrected data
 
-    From MDCalc blog: "The agent takes another screenshot to check for validation errors.
+    The agent takes another screenshot to check for validation errors.
     This creates a self-correcting loop. The agent sees errors exactly as a human would
     and adapts on the fly. No error codes to parse, no API documentation to maintain—
-    just visual understanding."
+    just visual understanding.
 
     Test scenario: International student currently studying abroad
     - Parent lives in: "California" (US state - valid)

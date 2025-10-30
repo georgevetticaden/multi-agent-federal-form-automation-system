@@ -7,15 +7,15 @@
 **Applications (OAuth Clients)**
 - **What**: Things that REQUEST access to protected resources
 - **Think**: "Who wants to use your API?"
-- **Examples**: 
-  - MDCalc Test Client (your M2M app for testing)
+- **Examples**:
+  - FederalRunner Test Client (your M2M app for testing)
   - Claude MCP Client (created by Claude via DCR in production)
 
 **APIs (Protected Resources)**
 - **What**: Things that ARE protected and require access tokens
 - **Think**: "What needs protection?"
 - **Examples**:
-  - MDCalc MCP API (your MCP server endpoints)
+  - FederalRunner MCP Server (your MCP server endpoints)
   - Auth0 Management API (controls Auth0 tenant settings)
 
 ### The Relationship

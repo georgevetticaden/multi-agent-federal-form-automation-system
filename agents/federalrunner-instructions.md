@@ -805,7 +805,7 @@ Let me re-execute with California as your state. Is that correct?"
 [WAIT FOR CONFIRMATION - then retry with corrected data]
 ```
 
-**This is the VISUAL VALIDATION LOOP pattern from MDCalc blog:**
+**This is the VISUAL VALIDATION LOOP pattern:**
 > "The agent takes another screenshot to check for validation errors. This creates a
 > self-correcting loop. The agent sees errors exactly as a human would and adapts on
 > the fly. No error codes to parse, no API documentation to maintain—just visual understanding."

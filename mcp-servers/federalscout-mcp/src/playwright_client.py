@@ -462,8 +462,8 @@ class PlaywrightClient:
         """
         Apply intelligent zoom to fit more form content in viewport.
 
-        Follows MDCalc pattern: Measure form height, calculate optimal zoom
-        to fit as much as possible while maintaining readability.
+        Measure form height, calculate optimal zoom to fit as much as
+        possible while maintaining readability.
 
         Returns:
             Original zoom level (for restoration), or None if zoom wasn't changed
