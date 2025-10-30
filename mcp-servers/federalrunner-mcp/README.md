@@ -136,14 +136,25 @@ federalrunner-mcp/
 
 ## Development Status
 
-- ✅ **Step 1: Core Infrastructure** - COMPLETE
-- ✅ **Step 2: Playwright Execution Client** - COMPLETE
-- ✅ **Step 3: Schema Validator** - COMPLETE
-- ✅ **Step 4: Execution Tools (MCP)** - COMPLETE
-- ✅ **Step 5: Local Testing** - COMPLETE (14 tests)
-- ⬜ **Step 6: FastAPI MCP Server** - PENDING
-- ⬜ **Step 7: Claude Desktop Integration** - PENDING
-- ⬜ **Step 8: Cloud Run Deployment** - PENDING
+### ✅ Phase 4: Local Execution - COMPLETE
+- ✅ **Core Infrastructure** - Config, logging, models
+- ✅ **Playwright Client** - Atomic execution (8-15 seconds)
+- ✅ **Schema Validator** - Contract-first validation (replaces field_mapper)
+- ✅ **MCP Tools** - 3 execution tools (list, get_info, execute)
+- ✅ **Comprehensive Testing** - 14+ tests including demo recording tests
+- ✅ **Two Wizard Support** - FSA Estimator + Loan Simulator
+
+### 🚧 Phase 5: Cloud Deployment - IN PROGRESS
+- [x] Requirements documentation (24 detailed requirements)
+- [x] Reference implementation (MDCalc patterns)
+- [ ] FastAPI MCP HTTP server
+- [ ] OAuth 2.1 with Auth0
+- [ ] Docker container
+- [ ] Google Cloud Run deployment
+- [ ] Claude.ai integration testing
+- [ ] Mobile app support (iOS/Android)
+
+**Next Steps:** See [CLAUDE.md](../../CLAUDE.md) Phase 5 for detailed implementation plan.
 
 ---
 

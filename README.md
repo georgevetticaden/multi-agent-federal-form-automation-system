@@ -6,6 +6,20 @@ The multi-agent federal form automation system uses **FederalScout** to visually
 
 ---
 
+<div align="center">
+
+## 📺 Watch the System in Action
+
+[![Multi-Agent Federal Form Automation System](https://img.youtube.com/vi/IkKKLjBCnjY/maxresdefault.jpg)](https://www.youtube.com/watch?v=IkKKLjBCnjY)
+
+**[▶️ Watch on YouTube: Complete Technical Walkthrough](https://www.youtube.com/watch?v=IkKKLjBCnjY)**
+
+*See live discovery sessions, the contract-first pattern in action, and voice-to-result demos*
+
+</div>
+
+---
+
 ## 🎯 The Problem
 
 Every year, millions of Americans struggle with government form wizards:
@@ -84,28 +98,6 @@ FederalScout discovers forms and generates **TWO artifacts**:
 **Claude reads this schema** → Asks user for birth_month → Validates format → FederalRunner maps to selector → Executes!
 
 **No hardcoded field mappers. Universal design. Works with ANY form.**
-
----
-
-## 🎬 Technical Deep Dive
-
-<div align="center">
-
-### 📺 Watch the Complete System Walkthrough
-
-**Coming Soon:** A comprehensive video demonstration covering:
-- 🔍 **Live Discovery Session** - Watch FederalScout discover the FSA Student Aid Estimator
-- 🏗️ **Contract-First Pattern** - See how JSON Schemas enable universal execution
-- 🚀 **Voice-to-Result Demo** - Mobile execution from conversation to final results
-- 🛠️ **Architecture Deep Dive** - MCP protocol, Cloud Run deployment, and OAuth 2.1
-
-**[📺 Subscribe for launch notification](#)**
-
----
-
-**Want to see it now?** Follow the [Quick Start](#-quick-start) guide to run the system locally.
-
-</div>
 
 ---
 
@@ -348,10 +340,10 @@ pytest tests/remote/ -v
 ### Government Forms Supported
 
 **Federal:**
-- ✅ FSA Student Aid Estimator (6 pages, 47 fields) - **Fully Discovered**
-- 🔄 Social Security Quick Calculator (3 pages)
-- 🔄 IRS Tax Withholding Estimator (5 pages)
-- 🔄 Federal Student Loan Simulator (4 pages)
+- ✅ **FSA Student Aid Estimator** (7 pages, 17 fields) - Fully discovered & executable
+- ✅ **Federal Student Loan Simulator** (6 pages, repeatable fields) - Fully discovered & executable
+- 🔄 Social Security Quick Calculator (3 pages) - Planned
+- 🔄 IRS Tax Withholding Estimator (5 pages) - Planned
 
 **Potential Extensions:**
 - Medicare Eligibility Calculator
@@ -406,32 +398,47 @@ This pattern works for **any multi-page web form** lacking APIs:
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Foundation (Complete)
+### ✅ Phase 1: Discovery Foundation (Complete)
 - [x] FederalScout discovery agent
-- [x] FSA Estimator fully discovered
-- [x] Contract-first pattern implemented
-- [x] Conversation size optimizations
+- [x] 7 MCP discovery tools
+- [x] Claude Vision integration
 - [x] Session persistence
+- [x] Conversation size optimizations
 
-### 🚧 Phase 2: Schema Generation (In Progress)
+### ✅ Phase 2: Wizard Discoveries (Complete)
+- [x] FSA Student Aid Estimator (7 pages, 17 fields)
+- [x] Federal Loan Simulator "Borrow More" (6 pages, repeatable fields)
 - [x] Universal Wizard Structure Schema
-- [ ] User Data Schema generation tool
-- [ ] Schema validation in discovery
-- [ ] End-to-end testing
+- [x] Contract-first pattern validation
 
-### 📋 Phase 3: Execution (Planned)
-- [ ] FederalRunner execution agent
-- [ ] Schema-based data collection
-- [ ] Field validation system
-- [ ] Cloud Run deployment
-- [ ] OAuth 2.1 authentication
+### ✅ Phase 3: Schema Generation (Complete)
+- [x] User Data Schema generation
+- [x] JSON Schema draft-07 compliance
+- [x] Schema validation in discovery
+- [x] field_id linkage to wizard selectors
 
-### 🚀 Phase 4: Production (Future)
+### ✅ Phase 4: Execution Engine (Complete)
+- [x] FederalRunner execution agent
+- [x] Atomic execution pattern (8-15 seconds)
+- [x] Schema-based data validation
+- [x] Playwright automation (WebKit/Chromium)
+- [x] 3 MCP execution tools
+- [x] Comprehensive test suite (14+ tests)
+
+### 🚧 Phase 5: Cloud Deployment (In Progress)
+- [x] Requirements documentation (24 requirements)
+- [ ] FastAPI MCP HTTP server
+- [ ] OAuth 2.1 with Auth0
+- [ ] Google Cloud Run deployment
 - [ ] Claude.ai integration
 - [ ] Mobile app support (iOS/Android)
-- [ ] Voice demo recording
-- [ ] Additional wizard discoveries
+
+### 🚀 Phase 6: Production & Scale (Future)
+- [ ] Additional wizard discoveries (SSA, IRS)
 - [ ] Performance monitoring
+- [ ] Error analytics
+- [ ] Multi-wizard conversations
+- [ ] Voice-first mobile experience
 
 ---
 
@@ -534,7 +541,7 @@ If you use this system in research or production:
 
 - **GitHub Issues:** [Report bugs or request features](https://github.com/georgevetticaden/multi-agent-federal-form-automation-system/issues)
 - **LinkedIn:** [George Vetticaden](https://www.linkedin.com/in/georgevetticaden/)
-- **YouTube:** [Technical videos and demos](https://youtube.com) *(coming soon)*
+- **YouTube:** [Watch the technical deep dive](https://www.youtube.com/watch?v=IkKKLjBCnjY)
 
 ---
 
