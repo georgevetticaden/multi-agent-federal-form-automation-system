@@ -364,115 +364,6 @@ This pattern works for **any multi-page web form** lacking APIs:
 
 ---
 
-## 📊 Performance Metrics
-
-| Metric | Value | Details |
-|--------|-------|---------|
-| **Discovery Time** | 5-10 min | One-time per form |
-| **Execution Time** | 8-15 sec | Per form completion |
-| **Accuracy** | 99%+ | Field mapping success |
-| **Conversation Size** | 89% ↓ | After optimizations |
-| **Screenshot Size** | 50KB | Quality=60, viewport-only |
-| **Max Pages** | 10-15+ | Within token limits |
-
----
-
-## 🔒 Security & Privacy
-
-### FederalScout (Local Discovery)
-- Runs on local machine only
-- Test/dummy data during discovery
-- No cloud transmission
-- JSON files on local disk
-
-### FederalRunner (Cloud Execution)
-- OAuth 2.1 with Auth0
-- Scope-based permissions
-- No persistent user data storage
-- HTTPS encryption
-- Complete audit trails
-
-**⚠️ Production Note:** This is a proof-of-concept. Production use with real PII requires privacy impact assessment, compliance review (GDPR, etc.), and security audit.
-
----
-
-## 🗺️ Roadmap
-
-### ✅ Phase 1: Discovery Foundation (Complete)
-- [x] FederalScout discovery agent
-- [x] 7 MCP discovery tools
-- [x] Claude Vision integration
-- [x] Session persistence
-- [x] Conversation size optimizations
-
-### ✅ Phase 2: Wizard Discoveries (Complete)
-- [x] FSA Student Aid Estimator (7 pages, 17 fields)
-- [x] Federal Loan Simulator "Borrow More" (6 pages, repeatable fields)
-- [x] Universal Wizard Structure Schema
-- [x] Contract-first pattern validation
-
-### ✅ Phase 3: Schema Generation (Complete)
-- [x] User Data Schema generation
-- [x] JSON Schema draft-07 compliance
-- [x] Schema validation in discovery
-- [x] field_id linkage to wizard selectors
-
-### ✅ Phase 4: Execution Engine (Complete)
-- [x] FederalRunner execution agent
-- [x] Atomic execution pattern (8-15 seconds)
-- [x] Schema-based data validation
-- [x] Playwright automation (WebKit/Chromium)
-- [x] 3 MCP execution tools
-- [x] Comprehensive test suite (14+ tests)
-
-### 🚧 Phase 5: Cloud Deployment (In Progress)
-- [x] Requirements documentation (24 requirements)
-- [ ] FastAPI MCP HTTP server
-- [ ] OAuth 2.1 with Auth0
-- [ ] Google Cloud Run deployment
-- [ ] Claude.ai integration
-- [ ] Mobile app support (iOS/Android)
-
-### 🚀 Phase 6: Production & Scale (Future)
-- [ ] Additional wizard discoveries (SSA, IRS)
-- [ ] Performance monitoring
-- [ ] Error analytics
-- [ ] Multi-wizard conversations
-- [ ] Voice-first mobile experience
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! This project demonstrates patterns applicable to any web form automation.
-
-**Priority areas:**
-1. **New wizard discoveries** - Help map more government forms
-2. **Schema generation improvements** - Better contract generation
-3. **Error handling** - Robustness improvements
-4. **Documentation** - Guides, examples, troubleshooting
-5. **Testing** - More test coverage, edge cases
-
-**Development setup:**
-
-```bash
-# Fork and clone
-git clone https://github.com/YOUR_USERNAME/multi-agent-federal-form-automation-system.git
-cd multi-agent-federal-form-automation-system
-
-# Set up FederalScout
-cd mcp-servers/federalscout-mcp
-python3.11 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-playwright install webkit
-
-# Run tests
-pytest tests/ -v
-```
-
----
-
 ## 📚 Documentation
 
 ### Discovery Phase
@@ -484,14 +375,18 @@ pytest tests/ -v
 ### Execution Phase
 - **[FederalRunner README](mcp-servers/federalrunner-mcp/README.md)** - Execution tools
 - **[Deployment Guide](docs/execution/DEPLOYMENT_GUIDE.md)** - Cloud Run deployment
-- **[Auth0 Setup](docs/execution/AUTH0_SETUP.md)** - OAuth configuration
+- **[Test Instructions](docs/execution/TEST_INSTRUCTIONS.md)** - Testing guide
+- **[Auth0 Implementation](docs/auth0/AUTH0_IMPLEMENTATION_GUIDE.md)** - OAuth configuration
+- **[Auth0 Concepts](docs/auth0/AUTH0_CONCEPTS.md)** - OAuth 2.1 concepts
 
 ### Technical Specifications
 - **[Contract-First Pattern](requirements/shared/CONTRACT_FIRST_FORM_AUTOMATION.md)** - Core pattern
 - **[Wizard Structure Schema](requirements/shared/WIZARD_STRUCTURE_SCHEMA.md)** - JSON format
 - **[MCP Tool Specifications](requirements/shared/MCP_TOOL_SPECIFICATIONS.md)** - Tool contracts
 - **[Discovery Requirements](requirements/discovery/DISCOVERY_REQUIREMENTS.md)** - FederalScout specs
-- **[Execution Requirements](requirements/execution/EXECUTION_REQUIREMENTS.md)** - FederalRunner specs
+- **[FastAPI Server Requirements](requirements/execution/FASTAPI_MCP_SERVER_REQUIREMENTS.md)** - Server implementation
+- **[Auth0 Requirements](requirements/execution/AUTH0_CONFIGURATION_REQUIREMENTS.md)** - OAuth configuration
+- **[Deployment Requirements](requirements/execution/EXECUTION_DEPLOYMENT_REQUIREMENTS.md)** - Cloud Run deployment
 
 ### Implementation Guide
 - **[CLAUDE.md](CLAUDE.md)** - Complete implementation roadmap for AI assistants
