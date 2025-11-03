@@ -1,18 +1,18 @@
 
 ## Table of Contents
 
-1. [Overview & Architecture](#overview)
-2. [Prerequisites & Setup](#prerequisites)
-3. [Phase 1: Auth0 Configuration](#phase1)
-4. [Phase 2: Code Implementation](#phase2)
-5. [Phase 3: Critical Authentication Architecture](#phase3)
-6. [Phase 4: Deployment & Testing](#phase4)
-7. [Phase 5: Troubleshooting Guide](#phase5)
-8. [Appendix: Key Learnings](#appendix)
+1. [Overview & Architecture](#overview--architecture)
+2. [Prerequisites & Setup](#prerequisites--setup)
+3. [Phase 1: Auth0 Configuration](#phase-1-auth0-configuration)
+4. [Phase 2: Code Implementation](#phase-2-code-implementation)
+5. [Phase 3: Critical Authentication Architecture](#phase-3-critical-authentication-architecture)
+6. [Phase 4: Deployment & Testing](#phase-4-deployment--testing)
+7. [Phase 5: Troubleshooting Guide](#phase-5-troubleshooting-guide)
+8. [Appendix: Key Learnings](#appendix-key-learnings)
 
 ---
 
-## Overview & Architecture {#overview}
+## Overview & Architecture
 
 ### What We're Building
 
@@ -37,7 +37,7 @@ MCP protocol has a specific handshake sequence that conflicts with standard OAut
 
 Here's the simplified 4-step flow:
 
-![OAuth 2.1 + MCP Handshake](../images/oauth2.1-mcp-handshake-simplified.png)
+![OAuth 2.1 + MCP Handshake](../images/oauth2-mcp-handshake.png)
 
 **Quick Summary:**
 1. **Discover OAuth** - Claude fetches `/.well-known/oauth-protected-resource` to discover Auth0
@@ -97,7 +97,7 @@ Here's the simplified 4-step flow:
 
 ---
 
-## Prerequisites & Setup {#prerequisites}
+## Prerequisites & Setup
 
 ### Required Accounts
 - Google Cloud account with billing enabled
@@ -128,7 +128,7 @@ gcloud services enable secretmanager.googleapis.com
 
 ---
 
-## Phase 1: Auth0 Configuration {#phase1}
+## Phase 1: Auth0 Configuration
 
 ### Step 1.1: Create Auth0 Account
 
@@ -219,14 +219,14 @@ AUTH0_API_AUDIENCE=https://federalrunner-mcp-server
 
 # These will be updated after deployment
 MCP_SERVER_URL=http://localhost:8080
-SERVICE_URL=https://federalrunner-mcp-HASH.run.app
+SERVICE_URL=https://federalrunner-mcp-[YOUR-HASH].run.app
 ```
 
 **Note**: Keep the trailing slash in `AUTH0_ISSUER` - it's required!
 
 ---
 
-## Phase 2: Code Implementation {#phase2}
+## Phase 2: Code Implementation
 
 ### Step 2.1: Project Structure
 
@@ -461,7 +461,7 @@ pydantic-settings==2.6.1
 
 ---
 
-## Phase 3: Critical Authentication Architecture {#phase3}
+## Phase 3: Critical Authentication Architecture
 
 ### The Root Cause Problem
 
@@ -567,7 +567,7 @@ async def mcp_endpoint(request: Request):
 
 ---
 
-## Phase 4: Deployment & Testing {#phase4}
+## Phase 4: Deployment & Testing
 
 ### Step 4.1: Local Testing
 
@@ -744,7 +744,7 @@ gcloud run services logs tail federalrunner-mcp --region us-central1
 
 ---
 
-## Phase 5: Troubleshooting Guide {#phase5}
+## Phase 5: Troubleshooting Guide
 
 ### Issue: DCR Test Fails
 
@@ -1003,7 +1003,7 @@ elif method == 'notifications/initialized':
 
 ---
 
-## Appendix: Key Learnings {#appendix}
+## Appendix: Key Learnings
 
 ### Critical Architecture Decisions
 
